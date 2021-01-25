@@ -1,0 +1,84 @@
+﻿@using Group16SE.Frontend.Shared
+@using MudBlazor
+
+<MudTextField T="string" @bind-Value="CommentModel.Content" @oninput="@((e) => { CommentModel.Content=(string)e.Value;})" @onblur="@(async(e) => {ReadonlyComment = true; await ReadComment(); })" ReadOnly="ReadonlyComment" Variant="ReadonlyComment ? Variant.Filled : Variant.Outlined" Lines="2"></MudTextField>
+@if (Editable)
+{
+    <MudIconButton Icon="@Icons.Material.Create" @onclick="EditComment" Size="Size.Small"></MudIconButton>
+    <MudIconButton Icon="@Icons.Material.Delete" @onclick="DeleteComment" Size="Size.Small"></MudIconButton>
+}
+else
+{
+    <MudIconButton Icon="@Icons.Material.DeleteForever" @onclick="DeleteComment" Size="Size.Small"></MudIconButton>
+    <MudIconButton Icon="@Icons.Material.ArrowRight" @onclick="MoveComment" Size="Size.Small"></MudIconButton>
+}
+
+@code {
+    /// <summary>
+    /// Contains data relating to a single comment
+    /// </summary>
+    [Parameter]
+    public CommentModel CommentModel { get; set; }
+    /// <summary>
+    /// Callback for when data changes
+    /// </summary>
+    [Parameter]
+    public EventCallback<CommentModel> CommentModelChanged { get; set; }
+    /// <summary>
+    /// Callback for when a comment is deleted
+    /// </summary>
+    [Parameter]
+    public EventCallback<CommentModel> OnCommentDeleted { get; set; }
+    /// <summary>
+    /// Callback for when a comment is moved
+    /// </summary>
+    [Parameter]
+    public EventCallback<CommentModel> OnCommentMoved { get; set; }
+    /// <summary>
+    /// Determines if a comment should be easily editable and deletable
+    /// </summary>
+    [Parameter]
+    public bool Editable { get; set; }
+    /// <summary>
+    /// Determines if a comment should be readonly (cannot be edited or deleted)
+    /// </summary>
+    [Parameter]
+    public bool ReadonlyComment { get; set; } = true;
+
+    /// <summary>
+    /// Updates a comment so the text area can have values entered in it
+    /// </summary>
+    private void EditComment()
+    {
+        CommentModel.Content.Replace("/\n/g", "");
+        ReadonlyComment = false;
+    }
+
+    /// <summary>
+    /// Triggers a callback to update the comments values in the parent container and makes the comment readonly (grayed out)
+    /// </summary>
+    /// <returns></returns>
+    private async Task ReadComment()
+    {
+        await CommentModelChanged.InvokeAsync(CommentModel);
+        ReadonlyComment = true;
+    }
+
+    /// <summary>
+    /// Triggers the callback to delete comments in the parent container
+    /// </summary>
+    /// <returns></returns>
+    private async Task DeleteComment()
+    {
+        await OnCommentDeleted.InvokeAsync(CommentModel);
+    }
+
+    /// <summary>
+    /// Triggers the callback to move comments between containers
+    /// </summary>
+    /// <returns></returns>
+    private async Task MoveComment()
+    {
+        await OnCommentMoved.InvokeAsync(CommentModel);
+    }
+}

@@ -1,0 +1,135 @@
+﻿@using Group16SE.Frontend.Shared
+@using MudBlazor
+@inject IJSRuntime JS;
+
+<MudGrid>
+    @if (IsSearchable)
+    {
+
+        //Console.WriteLine(commentInputText);
+
+        @*<MudAutocomplete T="string" SearchFunc="SortCommentsFunc" @bind-Value="@commentInputText" @oninput="@((e) => { commentInputText=(string)e.Value;})" @onkeyup="AddComment">
+                <ItemTemplate Context="e">
+                    <MudHighlighter Text="@e" HighlightedText="@commentInputText"></MudHighlighter>
+                    <MudIconButton Icon="@Icons.Material.DeleteForever"></MudIconButton>
+                </ItemTemplate>
+            </MudAutocomplete>*@
+        <MudItem xs="12">
+            <MudTextField T="string" Label="New Comment" @bind-Value="textareaContent" Variant="Variant.Outlined" @oninput="@((e) => { textareaContent=(string)e.Value;})" @onkeyup="AddComment" Lines="2"></MudTextField>
+        </MudItem>
+    }
+    @if (string.IsNullOrEmpty(textareaContent))
+    {
+        displayedComments = Comments;
+    }
+    @for (int i = 0; i < displayedComments.Count; i++)
+    {
+        int local = i;
+
+        CommentModel temp = displayedComments.ElementAt(i);
+        <MudItem xs="12">
+            <Comment @bind-CommentModel="temp" OnCommentDeleted="CommentDeleted" OnCommentMoved="CommentMoved" Editable="IsEditable"></Comment>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+
+    private string textareaContent
+    {
+        get
+        {
+            return (CurrentComment.Content);
+        }
+        set
+        {
+            CurrentComment.Content = value;
+            SortComments(value);
+        }
+    }
+
+    private string commentInputText { get; set; }
+
+    [Parameter]
+    public List<CommentModel> Comments { get; set; }
+
+    [Parameter]
+    public EventCallback<List<CommentModel>> CommentsChanged { get; set; }
+    [Parameter]
+    public EventCallback<CommentModel> OnCommentAdded { get; set; }
+    [Parameter]
+    public EventCallback<CommentModel> OnCommentMoved { get; set; }
+
+    [Parameter]
+    public bool IsSearchable { get; set; }
+    [Parameter]
+    public bool IsEditable { get; set; }
+
+    private CommentModel CurrentComment = new CommentModel();
+
+    private List<CommentModel> sortedComments = new List<CommentModel>();
+    private List<CommentModel> exactSortedComments = new List<CommentModel>();
+    private List<CommentModel> partialSortedComments = new List<CommentModel>();
+    private List<CommentModel> displayedComments = new List<CommentModel>();
+
+    private async Task AddComment(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrEmpty(CurrentComment.Content))
+        {
+            await OnCommentAdded.InvokeAsync(CurrentComment);
+            CurrentComment = new CommentModel();
+            textareaContent = "";
+            displayedComments = Comments;
+        }
+    }
+
+    public async Task CommentDeleted(CommentModel commentModel)
+    {
+        Comments.Remove(commentModel);
+        await CommentsChanged.InvokeAsync(Comments);
+        SortComments(textareaContent);
+    }
+
+    // Probably going to change this
+    public async Task CommentMoved(CommentModel commentModel)
+    {
+        await OnCommentMoved.InvokeAsync(commentModel);
+    }
+
+    private void SortComments(string sortString)
+    {
+        sortString = sortString.ToLower();
+        foreach (CommentModel comment in Comments.ToList())
+        {
+            string commentContent = comment.Content.ToLower();
+            if (commentContent.StartsWith(sortString))
+            {
+                exactSortedComments.Add(comment);
+            }
+            else if (commentContent.Contains(" " + sortString))
+            {
+                partialSortedComments.Add(comment);
+            }
+        }
+
+        sortedComments = exactSortedComments;
+        sortedComments.AddRange(partialSortedComments);
+
+        displayedComments = sortedComments;
+
+        exactSortedComments = new List<CommentModel>();
+        partialSortedComments = new List<CommentModel>();
+    }
+
+    private async Task<IEnumerable<string>> SortCommentsFunc(string sortString)
+    {
+        await Task.Delay(2);
+
+        List<string> BankComments = Comments.Select(comment => comment.Content).ToList();
+        if (string.IsNullOrEmpty(sortString))
+        {
+            return (BankComments.ToArray());
+        }
+        return BankComments.ToArray().Where(comment => comment.Contains(sortString, StringComparison.InvariantCultureIgnoreCase));
+    }
+}
