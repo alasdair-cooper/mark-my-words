@@ -338,8 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-
-Server/Properties/launchSettings.json
-Server/appsettings.json
-Server/appsettings.Development.json
-Client/wwwroot/appsettings.json
+Group16SE.Frontend/Client/wwwroot/appsettings.json
+Group16SE.Frontend/Server/appsettings.Development.json
+Group16SE.Frontend/Server/appsettings.json
