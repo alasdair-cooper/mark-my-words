@@ -32,11 +32,6 @@
     [Parameter]
     public EventCallback<CommentModel> OnCommentDeleted { get; set; }
     /// <summary>
-    /// Callback for when a comment is moved
-    /// </summary>
-    [Parameter]
-    public EventCallback<CommentModel> OnCommentMoved { get; set; }
-    /// <summary>
     /// Determines if a comment should be readonly (cannot be edited or deleted)
     /// </summary>
     [Parameter]
@@ -68,14 +63,5 @@
     private async Task DeleteComment()
     {
         await OnCommentDeleted.InvokeAsync(CommentModel);
-    }
-
-    /// <summary>
-    /// Triggers the callback to move comments between containers
-    /// </summary>
-    /// <returns></returns>
-    private async Task MoveComment()
-    {
-        await OnCommentMoved.InvokeAsync(CommentModel);
     }
 }

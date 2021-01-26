@@ -7,11 +7,17 @@
                          @ref="autocomplete" 
                          @bind-Text="@CommentInputText" 
                          @bind-Placeholder="@lastCommentInputText"
-                         @onkeyup="NewComment" 
+                         @onkeyup="KeyPressed" 
                          @onfocus="() => 
                                    {
-                                       commentInputText = lastCommentInputText;
+                                       autocomplete.SelectOption(new CommentModel());
+                                       CommentInputText = lastCommentInputText;
                                    }"
+                         @onblur='() => 
+                                  {
+                                      autocomplete.SelectOption(new CommentModel());
+                                      CommentInputText = "";
+                                  }'
                          SearchFunc="SortCommentsFunc" 
                          ToStringFunc="@(e => e.Content)">
             <ItemTemplate Context="e">
@@ -20,10 +26,10 @@
                     <MudGrid>
                         <MudItem xs="10"
                                  md="11"
-                                 @onclick="async () =>
+                                 @onclick='async () =>
                                            {
-                                               await MoveComment(e);
-                                           }">
+                                               await NewComment(e);
+                                           }'>
                             <MudHighlighter Class="mud-primary-text"
                                             Style="background-color:transparent; font-weight:bold; padding:initial"
                                             Text="@e.Content"
@@ -55,8 +61,7 @@
             CommentModel temp = SectionModel.Comments.ElementAt(i);
             <MudItem xs="12">
                 <Comment @bind-CommentModel="temp" 
-                         OnCommentDeleted="DeleteComment" 
-                         OnCommentMoved="MoveComment">
+                         OnCommentDeleted="DeleteComment">
                 </Comment>
             </MudItem>
         }
@@ -141,7 +146,10 @@
         }
         set
         {
-            lastCommentInputText = commentInputText;
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                lastCommentInputText = value;
+            }
             commentInputText = value;
         }
     }
@@ -182,7 +190,7 @@
         return bankComments.ToArray().Where(comment => comment.Content.Contains(sortString, StringComparison.InvariantCultureIgnoreCase) || string.IsNullOrWhiteSpace(comment.Content));
     }
 
-    private async Task NewComment(KeyboardEventArgs e)
+    private async Task KeyPressed(KeyboardEventArgs e)
     {
         CommentInputText = autocomplete.Text;
 
@@ -190,7 +198,9 @@
         {
             CommentModel currentComment = new CommentModel(lastCommentInputText);
             SectionModel.Comments.Add(currentComment);
+            CommentInputText = "";
             lastCommentInputText = "";
+            autocomplete.ToggleMenu();
         }
         await SectionModelChanged.InvokeAsync(SectionModel);
     }
@@ -207,10 +217,11 @@
         await BankCommentsChanged.InvokeAsync(BankComments);
     }
 
-    private async Task MoveComment(CommentModel comment)
+    private async Task NewComment(CommentModel comment)
     {
         SectionModel.Comments.Add(comment);
         CommentInputText = "";
+        lastCommentInputText = "";
         await SectionModelChanged.InvokeAsync(SectionModel);
     }
 }
