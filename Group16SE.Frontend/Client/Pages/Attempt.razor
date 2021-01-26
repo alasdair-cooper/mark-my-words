@@ -1,39 +1,46 @@
-﻿@page "/"
+﻿@page "/attempt"
 @using Group16SE.Frontend.Shared
 @using MudBlazor
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.IO
 
-<MudGrid>
-    <MudItem xs="0" 
-             sm="1" 
-             md="2">
-    </MudItem>
-    <MudItem xs="12"
-             sm="10"
-             md="8">
-        <MudExpansionPanels MultiExpansion="true" 
-                            Elevation="1">
-            @for (int i = 0; i < assignmentModel.Attempts[0].Sections.Count; i++)
-            {
-                int local = i;
+<MudLayout>
+    <MudAppBar Elevation="0"
+               Color="Color.Primary"
+               Fixed="false">
+        <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+            Attempt ttnt59
+        </MudText>
+        <MudAppBarSpacer />
+        <MudSwitch Class="ml-auto"
+                   Color="Color.Secondary"
+                   Label="Attempt marked"
+                   @bind-Checked="assignmentModel.Attempts[0].Completed">
+        </MudSwitch>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            @*<MudOverlay @bind-Visible="assignmentModel.Attempts[0].Completed" LightBackground="true" Absolute="true"></MudOverlay>*@
 
-                SectionModel temp = assignmentModel.Attempts[0].Sections.ElementAt(i);
+            <MudExpansionPanels MultiExpansion="true"
+                                Elevation="2">
+                @for (int i = 0; i < assignmentModel.Attempts[0].Sections.Count; i++)
+                {
+                    int local = i;
 
-                <MudExpansionPanel Text="@temp.SectionID">
-                    <Section @bind-SectionModel="temp" 
-                             @bind-BankComments='assignmentModel.SectionCommentBanks[temp.SectionID]'>
-                    </Section>
-                </MudExpansionPanel>
-            }
-        </MudExpansionPanels>
-    </MudItem>
-    <MudItem xs="0" 
-             sm="1"
-             md="2">
-    </MudItem>
-</MudGrid>
+                    SectionModel temp = assignmentModel.Attempts[0].Sections.ElementAt(i);
+
+                    <MudExpansionPanel Text="@temp.SectionID">
+                        <Section @bind-SectionModel="temp"
+                                 @bind-BankComments='assignmentModel.SectionCommentBanks[temp.SectionID]'>
+                        </Section>
+                    </MudExpansionPanel>
+                }
+            </MudExpansionPanels>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
 @{
     JsonSerializerOptions options = new JsonSerializerOptions()
     {
