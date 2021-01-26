@@ -15,8 +15,9 @@ namespace Group16SE.Frontend.Shared
         public int SuggestedMark { get; set; }
         public int MaximumMark { get; set; }
 
-        public SectionModel(List<CommentModel> comments, List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default, List<AutocompletePointModel> autocompletePoints = default, int maximumMark = 10)
+        public SectionModel(string sectionID, List<CommentModel> comments, List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default, List<AutocompletePointModel> autocompletePoints = default, int maximumMark = 10)
         {
+            SectionID = sectionID;
             Comments = comments;
 
             if(sliderPoints == default)

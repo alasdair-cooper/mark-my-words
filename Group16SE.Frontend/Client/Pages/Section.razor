@@ -1,55 +1,107 @@
 ﻿@using Group16SE.Frontend.Shared
 @using MudBlazor
 
-<br />
 <MudGrid Spacing="4">
-    <MudItem xs="4">
-        <CommentContainer IsSearchable="true" @bind-Comments="BankComments" OnCommentAdded="NewComment" OnCommentMoved="MoveComment" IsEditable="false"></CommentContainer>
-    </MudItem>
-    <MudItem xs="4">
-        <CommentContainer IsSearchable="false" @bind-Comments="SectionModel.Comments" IsEditable="true"></CommentContainer>
-    </MudItem>
-    <MudItem xs="4">
-        <MudGrid Spacing="1">
-            @for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
-            {
-                int local = i;
-                <MudItem xs="12">
-                    @{
-                        SliderPointModel sliderPointModel = SectionModel.SliderPoints[local];
-                        <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
-                    }
-                </MudItem>
-            }
-            @for (int i = 0; i < SectionModel.SwitchPoints.Count; i++)
-            {
-                int local = i;
-                <MudItem xs="12">
-                    @{
-                        SwitchPointModel switchPointModel = SectionModel.SwitchPoints[local];
-                        <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
-                    }
-                </MudItem>
-            }
-            @for (int i = 0; i < SectionModel.AutocompletePoints.Count; i++)
-            {
-                int local = i;
-                <MudItem xs="12">
-                    @{
-                        AutocompletePointModel autocompletePointModel = SectionModel.AutocompletePoints[local];
-                        <MudAutocomplete @bind-Value="autocompletePointModel.Value"></MudAutocomplete>
-                    }
-                </MudItem>
-            }
-            <MudItem xs="12">
-                @{
-                    string suggestedMarkText = "Suggested mark: " + suggestedMark;
-                    string maximumMarkText = "/" + maximumMark;
+    <MudItem xs="12">
+        <MudAutocomplete T="CommentModel" 
+                         @ref="autocomplete" 
+                         @bind-Text="@CommentInputText" 
+                         @bind-Placeholder="@lastCommentInputText"
+                         @onkeyup="NewComment" 
+                         @onfocus="() => 
+                                   {
+                                       commentInputText = lastCommentInputText;
+                                   }"
+                         SearchFunc="SortCommentsFunc" 
+                         ToStringFunc="@(e => e.Content)">
+            <ItemTemplate Context="e">
+                @if (!string.IsNullOrWhiteSpace(e.Content))
+                {
+                    <MudGrid>
+                        <MudItem xs="10"
+                                 md="11"
+                                 @onclick="async () =>
+                                           {
+                                               await MoveComment(e);
+                                           }">
+                            <MudHighlighter Class="mud-primary-text"
+                                            Style="background-color:transparent; font-weight:bold; padding:initial"
+                                            Text="@e.Content"
+                                            HighlightedText="@CommentInputText">
+
+                            </MudHighlighter>
+                        </MudItem>
+                        <MudItem xs="2" md="1">
+                            <MudIconButton Icon="@Icons.Material.DeleteForever"
+                                           @onclick="async () =>
+                                                     {
+                                                         // This is a hack to force the dropdown to refresh
+                                                         await DeleteBankComment(e); autocomplete.ToggleMenu(); autocomplete.ToggleMenu();
+                                                     }"
+                                           Size="Size.Small">
+                            </MudIconButton>
+                        </MudItem>
+                    </MudGrid>
                 }
-                <MudTextField T="string" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" />
+            </ItemTemplate>
+            @*<ItemSelectedTemplate>
+
+            </ItemSelectedTemplate>*@
+        </MudAutocomplete>
+        @for (int i = 0; i < SectionModel.Comments.Count; i++)
+        {
+            int local = i;
+
+            CommentModel temp = SectionModel.Comments.ElementAt(i);
+            <MudItem xs="12">
+                <Comment @bind-CommentModel="temp" 
+                         OnCommentDeleted="DeleteComment" 
+                         OnCommentMoved="MoveComment">
+                </Comment>
             </MudItem>
-        </MudGrid>
+        }
     </MudItem>
+    @*<MudItem xs="4">
+            <MudGrid Spacing="1">
+                @for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
+                {
+                    int local = i;
+                    <MudItem xs="12">
+                        @{
+                            SliderPointModel sliderPointModel = SectionModel.SliderPoints[local];
+                            <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
+                        }
+                    </MudItem>
+                }
+                @for (int i = 0; i < SectionModel.SwitchPoints.Count; i++)
+                {
+                    int local = i;
+                    <MudItem xs="12">
+                        @{
+                            SwitchPointModel switchPointModel = SectionModel.SwitchPoints[local];
+                            <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
+                        }
+                    </MudItem>
+                }
+                @for (int i = 0; i < SectionModel.AutocompletePoints.Count; i++)
+                {
+                    int local = i;
+                    <MudItem xs="12">
+                        @{
+                            AutocompletePointModel autocompletePointModel = SectionModel.AutocompletePoints[local];
+                            <MudAutocomplete @bind-Value="autocompletePointModel.Value"></MudAutocomplete>
+                        }
+                    </MudItem>
+                }
+                <MudItem xs="12">
+                    @{
+                        string suggestedMarkText = "Suggested mark: " + suggestedMark;
+                        string maximumMarkText = "/" + maximumMark;
+                    }
+                    <MudTextField T="string" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" />
+                </MudItem>
+            </MudGrid>
+        </MudItem>*@
 </MudGrid>
 
 @code {
@@ -78,22 +130,23 @@
     private int suggestedMark = 6;
     private int maximumMark = 10;
 
-    /// <summary>
-    /// Adds a new comment to a comment container
-    /// </summary>
-    /// <param name="commentModel">The comment to add to the container</param>
-    /// <returns></returns>
-    public async Task NewComment(CommentModel commentModel)
+    private string commentInputText = "";
+    private string lastCommentInputText = "";
+
+    public string CommentInputText
     {
-        SectionModel.Comments.Add(commentModel);
-        await SectionModelChanged.InvokeAsync(SectionModel);
+        get
+        {
+            return commentInputText;
+        }
+        set
+        {
+            lastCommentInputText = commentInputText;
+            commentInputText = value;
+        }
     }
 
-    public async Task MoveComment(CommentModel commentModel)
-    {
-        SectionModel.Comments.Add(commentModel);
-        await SectionModelChanged.InvokeAsync(SectionModel);
-    }
+    private MudAutocomplete<CommentModel> autocomplete;
 
     /// <summary>
     /// Triggers the callback to update bank comments in the parent component
@@ -109,8 +162,55 @@
     /// Triggers the callback to update section comments in the parent component
     /// </summary>
     /// <param name="comments">The updated comments</param>
-    private void SectionCommentsChanged(List<CommentModel> comments)
+    private async Task SectionCommentsChanged(List<CommentModel> comments)
     {
         SectionModel.Comments = comments;
+        await SectionModelChanged.InvokeAsync(SectionModel);
+    }
+
+    private async Task<IEnumerable<CommentModel>> SortCommentsFunc(string sortString)
+    {
+        await Task.Delay(1);
+
+        List<CommentModel> bankComments = new List<CommentModel>(BankComments);
+        bankComments.Insert(0, new CommentModel());
+
+        if (string.IsNullOrEmpty(sortString))
+        {
+            return (bankComments.ToArray());
+        }
+        return bankComments.ToArray().Where(comment => comment.Content.Contains(sortString, StringComparison.InvariantCultureIgnoreCase) || string.IsNullOrWhiteSpace(comment.Content));
+    }
+
+    private async Task NewComment(KeyboardEventArgs e)
+    {
+        CommentInputText = autocomplete.Text;
+
+        if (e.Key == "Enter" && !string.IsNullOrEmpty(lastCommentInputText))
+        {
+            CommentModel currentComment = new CommentModel(lastCommentInputText);
+            SectionModel.Comments.Add(currentComment);
+            lastCommentInputText = "";
+        }
+        await SectionModelChanged.InvokeAsync(SectionModel);
+    }
+
+    private async Task DeleteComment(CommentModel comment)
+    {
+        SectionModel.Comments.Remove(comment);
+        await SectionModelChanged.InvokeAsync(SectionModel);
+    }
+
+    private async Task DeleteBankComment(CommentModel comment)
+    {
+        BankComments.Remove(comment);
+        await BankCommentsChanged.InvokeAsync(BankComments);
+    }
+
+    private async Task MoveComment(CommentModel comment)
+    {
+        SectionModel.Comments.Add(comment);
+        CommentInputText = "";
+        await SectionModelChanged.InvokeAsync(SectionModel);
     }
 }

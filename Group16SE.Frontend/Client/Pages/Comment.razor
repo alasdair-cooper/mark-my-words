@@ -1,17 +1,19 @@
 ﻿@using Group16SE.Frontend.Shared
 @using MudBlazor
 
-<MudTextField T="string" @bind-Value="CommentModel.Content" @oninput="@((e) => { CommentModel.Content=(string)e.Value;})" @onblur="@(async(e) => {ReadonlyComment = true; await ReadComment(); })" ReadOnly="ReadonlyComment" Variant="ReadonlyComment ? Variant.Filled : Variant.Outlined" Lines="2"></MudTextField>
-@if (Editable)
-{
-    <MudIconButton Icon="@Icons.Material.Create" @onclick="EditComment" Size="Size.Small"></MudIconButton>
-    <MudIconButton Icon="@Icons.Material.Delete" @onclick="DeleteComment" Size="Size.Small"></MudIconButton>
-}
-else
-{
-    <MudIconButton Icon="@Icons.Material.DeleteForever" @onclick="DeleteComment" Size="Size.Small"></MudIconButton>
-    <MudIconButton Icon="@Icons.Material.ArrowRight" @onclick="MoveComment" Size="Size.Small"></MudIconButton>
-}
+<MudTextField T="string" 
+              @bind-Value="CommentModel.Content" 
+              @oninput="@((e) => { CommentModel.Content=(string)e.Value;})" 
+              @onfocus="EditComment"
+              @onblur="@(async(e) => {ReadonlyComment = true; await ReadComment(); })" 
+              ReadOnly="ReadonlyComment" 
+              Variant="ReadonlyComment ? Variant.Filled : Variant.Outlined" 
+              Lines="2" Adornment="Adornment.End" 
+              AdornmentIcon="@Icons.Material.Delete" 
+              OnAdornmentClick="DeleteComment">
+</MudTextField>
+@*<MudIconButton Icon="@Icons.Material.Create" @onclick="EditComment" Size="Size.Small"></MudIconButton>*@
+@*<MudIconButton Icon="@Icons.Material.Delete" @onclick="DeleteComment" Size="Size.Small"></MudIconButton>*@
 
 @code {
     /// <summary>
@@ -34,11 +36,6 @@ else
     /// </summary>
     [Parameter]
     public EventCallback<CommentModel> OnCommentMoved { get; set; }
-    /// <summary>
-    /// Determines if a comment should be easily editable and deletable
-    /// </summary>
-    [Parameter]
-    public bool Editable { get; set; }
     /// <summary>
     /// Determines if a comment should be readonly (cannot be edited or deleted)
     /// </summary>
