@@ -3,40 +3,44 @@
 
 <MudGrid Spacing="4">
     <MudItem xs="12">
-        <MudAutocomplete T="CommentModel" 
-                         @ref="autocomplete" 
-                         @bind-Text="@CommentInputText" 
-                         @bind-Placeholder="@lastCommentInputText"
-                         @onkeyup="KeyPressed" 
-                         @onfocus="() => 
+        <MudAutocomplete T="CommentModel"
+                         ResetValueOnEmptyText="true"
+                         @ref="autocomplete"
+                         @bind-Text="@CommentInputText"
+                         @onkeyup="KeyPressed"
+                         @onfocus="() =>
                                    {
+                                       autocomplete.ScrollToListItem(0);
                                        autocomplete.SelectOption(new CommentModel());
                                        CommentInputText = lastCommentInputText;
                                    }"
-                         @onblur='() => 
+                         @onblur='() =>
                                   {
-                                      autocomplete.SelectOption(new CommentModel());
+                                      autocomplete.ScrollToListItem(0);
                                       CommentInputText = "";
                                   }'
-                         SearchFunc="SortCommentsFunc" 
+                         SearchFunc="SortCommentsFunc"
                          ToStringFunc="@(e => e.Content)">
             <ItemTemplate Context="e">
                 @if (!string.IsNullOrWhiteSpace(e.Content))
                 {
                     <MudGrid>
+                       
                         <MudItem xs="10"
-                                 md="11"
-                                 @onclick='async () =>
+                                 md="11">
+                            <div @onclick='async () =>
                                            {
+                                               Console.WriteLine($"{e.Content} clicked");
                                                await NewComment(e);
                                            }'>
-                            <MudHighlighter Class="mud-primary-text"
-                                            Style="background-color:transparent; font-weight:bold; padding:initial"
-                                            Text="@e.Content"
-                                            HighlightedText="@CommentInputText">
-
-                            </MudHighlighter>
+                                <MudHighlighter Class="mud-primary-text"
+                                                Style="background-color:transparent; font-weight:bold; padding:initial"
+                                                Text="@e.Content"
+                                                HighlightedText="@CommentInputText">
+                                </MudHighlighter>
+                            </div>
                         </MudItem>
+
                         <MudItem xs="2" md="1">
                             <MudIconButton Icon="@Icons.Material.DeleteForever"
                                            @onclick="async () =>
@@ -50,9 +54,10 @@
                     </MudGrid>
                 }
             </ItemTemplate>
+
             @*<ItemSelectedTemplate>
 
-            </ItemSelectedTemplate>*@
+                </ItemSelectedTemplate>*@
         </MudAutocomplete>
         @for (int i = 0; i < SectionModel.Comments.Count; i++)
         {
@@ -60,8 +65,9 @@
 
             CommentModel temp = SectionModel.Comments.ElementAt(i);
             <MudItem xs="12">
-                <Comment @bind-CommentModel="temp" 
-                         OnCommentDeleted="DeleteComment">
+                <Comment @bind-CommentModel="temp"
+                         OnCommentDeleted="DeleteComment"
+                         EditMode="CommentModel.EditMode.None">
                 </Comment>
             </MudItem>
         }
@@ -135,22 +141,28 @@
     private int suggestedMark = 6;
     private int maximumMark = 10;
 
-    private string commentInputText = "";
     private string lastCommentInputText = "";
+
+    private string inputText;
 
     public string CommentInputText
     {
         get
         {
-            return commentInputText;
+            return inputText;
         }
         set
         {
-            if (!string.IsNullOrWhiteSpace(value))
+            inputText = value;
+            
+            if(value.Trim() == "null")
+            {
+                inputText = "";
+                lastCommentInputText = "";
+            } else if (!string.IsNullOrWhiteSpace(value))
             {
                 lastCommentInputText = value;
             }
-            commentInputText = value;
         }
     }
 
@@ -197,12 +209,9 @@
         if (e.Key == "Enter" && !string.IsNullOrEmpty(lastCommentInputText))
         {
             CommentModel currentComment = new CommentModel(lastCommentInputText);
-            SectionModel.Comments.Add(currentComment);
-            CommentInputText = "";
-            lastCommentInputText = "";
+            await NewComment(currentComment);
             autocomplete.ToggleMenu();
         }
-        await SectionModelChanged.InvokeAsync(SectionModel);
     }
 
     private async Task DeleteComment(CommentModel comment)
@@ -220,8 +229,7 @@
     private async Task NewComment(CommentModel comment)
     {
         SectionModel.Comments.Add(comment);
-        CommentInputText = "";
-        lastCommentInputText = "";
+        CommentInputText = "null";
         await SectionModelChanged.InvokeAsync(SectionModel);
     }
 }

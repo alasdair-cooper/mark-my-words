@@ -3,12 +3,22 @@
 
 <MudTextField T="string" 
               @bind-Value="CommentModel.Content" 
-              @oninput="@((e) => { CommentModel.Content=(string)e.Value;})" 
+              @oninput="@((e) => 
+                          {
+                              CommentModel.Content = (string) e.Value;
+                          })" 
               @onfocus="EditComment"
-              @onblur="@(async(e) => {ReadonlyComment = true; await ReadComment(); })" 
+              @onblur="@(async(e) => 
+                         {
+                             currentLabel = "";
+                             ReadonlyComment = true; 
+                             await ReadComment(); 
+                         })" 
               ReadOnly="ReadonlyComment" 
               Variant="ReadonlyComment ? Variant.Filled : Variant.Outlined" 
-              Lines="2" Adornment="Adornment.End" 
+              Lines="2" 
+              Adornment="Adornment.End" 
+              Label="@currentLabel"
               AdornmentIcon="@Icons.Material.Delete" 
               OnAdornmentClick="DeleteComment">
 </MudTextField>
@@ -37,11 +47,31 @@
     [Parameter]
     public bool ReadonlyComment { get; set; } = true;
 
+    [Parameter]
+    public CommentModel.EditMode EditMode { get; set; }
+
+    private string instanceLabel = "Editing section comment";
+    private string bankLabel = "Editing bank comment";
+    private string currentLabel = "";
+
     /// <summary>
     /// Updates a comment so the text area can have values entered in it
     /// </summary>
     private void EditComment()
     {
+        EditMode = CommentModel.EditMode.Instance;
+        switch (EditMode)
+        {
+            case CommentModel.EditMode.Bank:
+                currentLabel = bankLabel;
+                break;
+            case CommentModel.EditMode.Instance:
+                currentLabel = instanceLabel;
+                break;
+            case CommentModel.EditMode.None:
+            default:
+                break;
+        }
         CommentModel.Content.Replace("/\n/g", "");
         ReadonlyComment = false;
     }

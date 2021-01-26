@@ -6,6 +6,12 @@ namespace Group16SE.Frontend.Shared
 {
     public class CommentModel
     {
+        public enum EditMode
+        {
+            None,
+            Bank,
+            Instance
+        }
         public string Content { get; set; }
 
         CommentModel OriginalCommentModel { get; set; }
