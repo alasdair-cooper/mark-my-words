@@ -1,9 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@*@inherits LayoutComponentBase
 @using MudBlazor
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <div class="page">
     <div class="sidebar">
@@ -20,4 +20,100 @@
             @Body
         </div>
     </div>
-</div>
+</div>*@
+
+@inherits LayoutComponentBase
+@inject NavigationManager NavMan
+@using MudBlazor
+
+<MudThemeProvider Theme="currentTheme" />
+<MudDialogProvider FullWidth="true" 
+                   MaxWidth="MaxWidth.ExtraSmall" />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Menu" 
+                       Color="Color.Inherit" 
+                       Edge="Edge.Start" 
+                       OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+            Group16SE.Frontend
+        </MudText>
+        <MudAppBarSpacer />
+        <MudTooltip Text="Toggle light/dark theme">
+            <MudIconButton Icon="@Icons.Material.Brightness4" 
+                           Color="Color.Inherit" 
+                           OnClick="@((e) => DarkMode())" />
+        </MudTooltip>
+    </MudAppBar>
+    <MudDrawer @bind-Open=_drawerOpen 
+               Elevation="5" 
+               Class="mudblazor-appbar-band">
+        <MudDrawerHeader Class="mudblazor-brand" LinkToIndex="true">
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent Class="mudblazor-main-content">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+
+    bool _drawerOpen = false;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    protected override void OnInitialized()
+    {
+        currentTheme = defaultTheme;
+        _drawerOpen = true;
+    }
+
+    void DarkMode()
+    {
+        if (currentTheme == defaultTheme)
+        {
+            currentTheme = darkTheme;
+        }
+        else
+        {
+            currentTheme = defaultTheme;
+        }
+    }
+
+    MudTheme currentTheme = new MudTheme();
+    MudTheme defaultTheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Black = "#272c34"
+        }
+    };
+
+    MudTheme darkTheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Black = "#27272f",
+            Background = "#32333d",
+            BackgroundGrey = "#27272f",
+            Surface = "#373740",
+            DrawerBackground = "#27272f",
+            DrawerText = "rgba(255,255,255, 0.50)",
+            AppbarBackground = "#27272f",
+            AppbarText = "rgba(255,255,255, 0.70)",
+            TextPrimary = "rgba(255,255,255, 0.70)",
+            TextSecondary = "rgba(255,255,255, 0.50)",
+            ActionDefault = "#adadb1",
+            ActionDisabled = "rgba(255,255,255, 0.26)",
+            ActionDisabledBackground = "rgba(255,255,255, 0.12)",
+            DrawerIcon = "rgba(255,255,255, 0.50)"
+        }
+    };
+}
+
