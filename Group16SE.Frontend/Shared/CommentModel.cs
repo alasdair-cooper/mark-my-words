@@ -14,14 +14,20 @@ namespace Group16SE.Frontend.Shared
         }
         public string Content { get; set; }
 
-        CommentModel OriginalCommentModel { get; set; }
+        public CommentModel OriginalCommentModel { get; set; }
+
+        public CommentModel()
+        {
+            Content = "";
+            OriginalCommentModel = null;
+        }
 
         public CommentModel(string content = "")
         {
             Content = content;
         }
 
-        public CommentModel(ref CommentModel originalCommentModel)
+        public CommentModel(CommentModel originalCommentModel)
         {
             Content = originalCommentModel.Content;
             OriginalCommentModel = originalCommentModel;

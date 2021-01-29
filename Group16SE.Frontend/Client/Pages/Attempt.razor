@@ -1,4 +1,5 @@
 ﻿@page "/attempt"
+
 @using Group16SE.Frontend.Shared
 @using MudBlazor
 @using System.Text.Json
@@ -44,16 +45,30 @@
 @{
     JsonSerializerOptions options = new JsonSerializerOptions()
     {
-        //ReferenceHandler = ReferenceHandler.Preserve
-        //WriteIndented = true
+        ReferenceHandler = ReferenceHandler.Preserve
+        // WriteIndented = true
     };
-    //attemptModel = JsonSerializer.Deserialize<AttemptModel>(JsonSerializer.Serialize(attemptModel, options), options);
+    assignmentModel = JsonSerializer.Deserialize<AssignmentModel>(JsonSerializer.Serialize(assignmentModel, options), options);
     Console.WriteLine(JsonSerializer.Serialize(assignmentModel, options));
 }
 
 @code {
-    // Just for demonstration & testing purposes
-    private AssignmentModel assignmentModel = new AssignmentModel(new List<AttemptModel>()
+    [Parameter]
+    public string AttemptID { get; set; }
+
+    [Parameter]
+    public AttemptModel AttemptModel { get; set; }
+
+    [Parameter]
+    public EventCallback<AttemptModel> AttemptModelChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // Fetch attempt from server using AttemptID
+    }
+
+        // Just for demonstration & testing purposes
+        private AssignmentModel assignmentModel = new AssignmentModel(new List<AttemptModel>()
 {
     new AttemptModel(new List<SectionModel>()
 {

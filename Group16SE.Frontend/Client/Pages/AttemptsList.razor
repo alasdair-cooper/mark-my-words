@@ -1,0 +1,31 @@
+﻿@page "/attempts/{assignmentID}"
+
+@using Group16SE.Frontend.Shared
+@using MudBlazor
+
+<MudTable Items="AssignmentModel.Attempts" Hover="true">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Completed</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.AttemptID</MudTd>
+        <MudTd DataLabel="Completed">@context.Completed</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter]
+    public string assignmentID { get; set; }
+
+    [Parameter]
+    public AssignmentModel AssignmentModel { get; set; }
+
+    [Parameter]
+    public EventCallback<AssignmentModel> AssignmentModelChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // Fetch assignment from server using assignmentID
+    }
+}

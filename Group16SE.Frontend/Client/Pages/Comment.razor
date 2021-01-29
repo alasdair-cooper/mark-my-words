@@ -1,30 +1,62 @@
 ﻿@using Group16SE.Frontend.Shared
+@using static Group16SE.Frontend.Shared.CommentModel
 @using MudBlazor
-
-<MudTextField T="string" 
-              @bind-Value="CommentModel.Content" 
-              @oninput="@((e) => 
+<MudGrid>
+    <MudItem xs="10" md="11">
+        @if (EditMode == EditMode.Bank && CommentModel.OriginalCommentModel != null)
+        {
+            <MudTextField T="string"
+                          @bind-Value="CommentModel.OriginalCommentModel.Content"
+                          @oninput="@((e) =>
                           {
                               CommentModel.Content = (string) e.Value;
-                          })" 
-              @onfocus="EditComment"
-              @onblur="@(async(e) => 
+                          })"
+                          @onfocus="() => EditComment(EditMode.Bank)"
+                          @onblur="@(async(e) =>
                          {
                              currentLabel = "";
-                             ReadonlyComment = true; 
-                             await ReadComment(); 
-                         })" 
-              ReadOnly="ReadonlyComment" 
-              Variant="Variant.Outlined" 
-              Lines="2" 
-              Adornment="Adornment.End" 
-              Label="@currentLabel"
-              AdornmentIcon="@Icons.Material.Delete" 
-              OnAdornmentClick="DeleteComment">
-</MudTextField>
-@*<MudIconButton Icon="@Icons.Material.Create" @onclick="EditComment" Size="Size.Small"></MudIconButton>*@
-@*<MudIconButton Icon="@Icons.Material.Delete" @onclick="DeleteComment" Size="Size.Small"></MudIconButton>*@
-
+                             ReadonlyComment = true;
+                             await ReadComment();
+                         })"
+                          ReadOnly="ReadonlyComment"
+                          Variant="Variant.Outlined"
+                          Lines="2"
+                          Label="@currentLabel">
+            </MudTextField>
+        }
+        else
+        {
+            <MudTextField T="string"
+                          @bind-Value="CommentModel.Content"
+                          @oninput="@((e) =>
+                          {
+                              CommentModel.Content = (string) e.Value;
+                          })"
+                          @onfocus="() => EditComment(EditMode.Instance)"
+                          @onblur="@(async(e) =>
+                         {
+                             currentLabel = "";
+                             ReadonlyComment = true;
+                             await ReadComment();
+                         })"
+                          ReadOnly="ReadonlyComment"
+                          Variant="Variant.Outlined"
+                          Lines="2"
+                          Label="@currentLabel">
+            </MudTextField>
+        }
+    </MudItem>
+    <MudItem xs="2" md="1" Class="d-flex align-center justify-end">
+        <MudMenu Icon="@Icons.Material.MoreVert" Class="ml-1">
+            <MudMenuItem OnClick="() => EditComment(EditMode.Instance)">Edit this</MudMenuItem>
+            @if (CommentModel.OriginalCommentModel != null)
+            {
+                <MudMenuItem OnClick="() => EditComment(EditMode.Bank)">Edit bank</MudMenuItem>
+            }
+            <MudMenuItem OnClick="DeleteComment">Delete</MudMenuItem>
+        </MudMenu>
+    </MudItem>
+</MudGrid>
 @code {
     /// <summary>
     /// Contains data relating to a single comment
@@ -57,18 +89,18 @@
     /// <summary>
     /// Updates a comment so the text area can have values entered in it
     /// </summary>
-    private void EditComment()
+    private void EditComment(EditMode mode)
     {
-        EditMode = CommentModel.EditMode.Instance;
+        EditMode = mode;
         switch (EditMode)
         {
-            case CommentModel.EditMode.Bank:
+            case EditMode.Bank:
                 currentLabel = bankLabel;
                 break;
-            case CommentModel.EditMode.Instance:
+            case EditMode.Instance:
                 currentLabel = instanceLabel;
                 break;
-            case CommentModel.EditMode.None:
+            case EditMode.None:
             default:
                 break;
         }

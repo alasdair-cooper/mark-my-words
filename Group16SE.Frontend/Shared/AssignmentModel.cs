@@ -9,8 +9,15 @@ namespace Group16SE.Frontend.Shared
     public class AssignmentModel
     {
         public string AssignmentID { get; set; }
-        public List<AttemptModel> Attempts { get; set; }
         public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; }
+        public List<AttemptModel> Attempts { get; set; }
+
+        public AssignmentModel()
+        {
+            AssignmentID = "";
+            Attempts = new List<AttemptModel>();
+            SectionCommentBanks = new Dictionary<string, List<CommentModel>>();
+        }
 
         public AssignmentModel(List<AttemptModel> attempts = default, Dictionary<string, List<CommentModel>> sectionCommentBanks = default)
         {

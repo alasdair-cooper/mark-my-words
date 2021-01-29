@@ -1,0 +1,83 @@
+﻿@using Group16SE.Frontend.Shared
+@using MudBlazor
+@page "/assignments"
+
+<MudTable Items="assignments" Hover="true">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.AssignmentID</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<AssignmentModel> assignments = new List<AssignmentModel>() { new AssignmentModel(new List<AttemptModel>(){
+    new AttemptModel(new List<SectionModel>(){
+        {
+            new SectionModel("Section 1", new List<CommentModel>(){
+                {
+                    new CommentModel("This is a comment in section 1")
+                },
+                {
+                    new CommentModel("This is another but with different words")
+                },
+                {
+                    new CommentModel("Short Comment")
+                },
+                {
+                    new CommentModel("This is a quite long comment that could be even longer, many, many lines even")
+                }
+            }, switchPoints: new List<SwitchPointModel>(){
+                {
+                    new SwitchPointModel("Completed")
+                },
+                {
+                    new SwitchPointModel("Original")
+                }
+            }, sliderPoints: new List<SliderPointModel>(){
+                {
+                    new SliderPointModel("Code Quality", 1, 0, 0, 5)
+                },
+                {
+                    new SliderPointModel("Grammar", 1, 0, 0, 3)
+                },
+                {
+                    new SliderPointModel("Understanding", 1, 0, 0, 10)
+                }
+            })
+        },
+        {
+            new SectionModel("Section 2", new List<CommentModel>(){
+                {
+                    new CommentModel("This is a comment in section 2")
+                },
+                {
+                    new CommentModel("This is another but with different words")
+                }
+            }, sliderPoints: new List<SliderPointModel>(){
+                {
+                new SliderPointModel("Understanding", 1, 0, 0, 10)
+                }
+            })
+        }
+    })
+}, new Dictionary<string, List<CommentModel>>
+{
+        {
+            "Section 1",
+            new List<CommentModel>{
+                new CommentModel("A comment from the section 1 comment bank"),
+                new CommentModel("Another comment from the section 1 comment bank"),
+                new CommentModel("A final comment from the section 1 comment bank")
+            }
+        },
+        {
+            "Section 2",
+            new List<CommentModel>{
+                new CommentModel("A comment from the section 2 comment bank")
+            }
+        }
+    }) };
+}
+}

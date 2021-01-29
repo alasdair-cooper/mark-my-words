@@ -1,6 +1,8 @@
 ﻿@using Group16SE.Frontend.Shared
 @using MudBlazor
 
+@inject IDialogService Dialog
+
 <MudGrid Spacing="4">
     <MudItem xs="8">
         <MudAutocomplete T="CommentModel"
@@ -31,7 +33,7 @@
                                  md="11">
                             <div @onclick='async () =>
                                            {
-                                               await NewComment(e);
+                                               await CommentFromBank(BankComments.Where(comment => comment.Content == e.Content).ElementAt(0));
                                                RefreshAutocomplete();
                                            }'>
                                 <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
@@ -48,9 +50,14 @@
                                            @onclick='async () =>
                                                      {
                                                          // This is a hack to force the dropdown to refresh
-                                                         await DeleteBankComment(e);
+                                                         autocomplete.ToggleMenu();
+                                                         IDialogReference dialog = Dialog.Show<DeleteBankCommentDialog>("Delete comment");
+                                                         DialogResult result = await dialog.Result;
+                                                         if (!result.Cancelled)
+                                                         {
+                                                            await DeleteBankComment(e);
+                                                         }
                                                          RefreshAutocomplete();
-                                                         Console.WriteLine("clicked");
                                                      }'
                                            Size="Size.Small">
                             </MudIconButton>
@@ -64,7 +71,7 @@
                                  md="11">
                             <div @onclick='async () =>
                                            {
-                                               await NewComment(e);
+                                               await CommentFromInput();
                                            }'>
                                 <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
                                                 UntilNextBoundary="true"
@@ -236,8 +243,6 @@
 
     private async Task<IEnumerable<CommentModel>> SortCommentsFunc(string sortString)
     {
-        Task.Delay(1);
-
         searchComments = new List<CommentModel>(BankComments);
         searchComments.Insert(0, new CommentModel());
 
@@ -253,12 +258,12 @@
         SavedInputText = CommentInputText;
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(SavedInputText))
         {
-            CommentModel currentComment = new CommentModel(SavedInputText);
-            await NewComment(currentComment);
+            await CommentFromInput();
             autocomplete.ToggleMenu();
-        } else if(e.Key == "Backspace")
+        }
+        else if (e.Key == "Backspace")
         {
-            if(SavedInputText.Length == 1)
+            if (SavedInputText.Length == 1)
             {
                 SavedInputText = "(*_*)";
             }
@@ -283,9 +288,20 @@
         await BankCommentsChanged.InvokeAsync(BankComments);
     }
 
-    private async Task NewComment(CommentModel comment)
+    private async Task CommentFromBank(CommentModel comment)
     {
-        SectionModel.Comments.Add(comment);
+        CommentModel newComment = new CommentModel(comment);
+        newComment.OriginalCommentModel = comment;
+        SectionModel.Comments.Add(newComment);
+        CommentInputText = "";
+        SavedInputText = "(*_*)";
+        await SectionModelChanged.InvokeAsync(SectionModel);
+    }
+
+    private async Task CommentFromInput()
+    {
+        CommentModel newComment = new CommentModel(SavedInputText);
+        SectionModel.Comments.Add(newComment);
         CommentInputText = "";
         SavedInputText = "(*_*)";
         await SectionModelChanged.InvokeAsync(SectionModel);

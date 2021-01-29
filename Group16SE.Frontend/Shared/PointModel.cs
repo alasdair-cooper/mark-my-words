@@ -21,6 +21,15 @@ namespace Group16SE.Frontend.Shared
         public int Value { get; set; }
         public int Min { get; set; }
         public int Max { get; set; }
+        
+        public SliderPointModel()
+        {
+            Tag = "";
+            Value = 0;
+            Min = 0;
+            Max = 10;
+            Step = 1;
+        }
 
         public SliderPointModel(string tag, int step, int value, int min, int max)
         {
@@ -36,6 +45,12 @@ namespace Group16SE.Frontend.Shared
     {
         public bool Value { get; set; }
 
+        public SwitchPointModel()
+        {
+            Tag = "";
+            Value = false;
+        }
+
         public SwitchPointModel(string tag, bool value = false)
         {
             Tag = tag;
@@ -47,5 +62,11 @@ namespace Group16SE.Frontend.Shared
     {
         public string Value { get; set; }
         public string[] PossibleValues { get; set; }
+
+        public AutocompletePointModel()
+        {
+            Value = "";
+            PossibleValues = null;
+        }
     }
 }
