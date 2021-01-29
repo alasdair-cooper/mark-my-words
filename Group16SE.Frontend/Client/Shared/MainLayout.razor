@@ -1,54 +1,71 @@
 ﻿@*@inherits LayoutComponentBase
-@using MudBlazor
+    @using MudBlazor
 
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <div class="main">
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
         </div>
 
-        <div class="content px-4">
-            @Body
+        <div class="main">
+            <div class="top-row px-4 auth">
+                <LoginDisplay />
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>
+
+            <div class="content px-4">
+                @Body
+            </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 
 @inherits LayoutComponentBase
+@inject SignOutSessionStateManager SignOutManager
 @inject NavigationManager NavMan
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using MudBlazor
 
 <MudThemeProvider Theme="currentTheme" />
-<MudDialogProvider FullWidth="true" 
+<MudDialogProvider FullWidth="true"
                    MaxWidth="MaxWidth.ExtraSmall" />
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Menu" 
-                       Color="Color.Inherit" 
-                       Edge="Edge.Start" 
+        <MudIconButton Icon="@Icons.Material.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
                        OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
             Group16SE.Frontend
         </MudText>
         <MudAppBarSpacer />
+
+        <AuthorizeView>
+            <Authorized>
+                Hello, @context.User.Identity.Name!
+                <MudTooltip Text="Account">
+                    <MudMenu Icon="@Icons.Material.AccountCircle" Color="Color.Inherit">
+                        <MudMenuItem OnClick="BeginLogout">Log out</MudMenuItem>
+                    </MudMenu>
+                </MudTooltip>
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Color="Color.Inherit" OnClick='() => NavMan.NavigateTo("authentication/login")'>Log in</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
         <MudTooltip Text="Toggle light/dark theme">
-            <MudIconButton Icon="@Icons.Material.Brightness4" 
-                           Color="Color.Inherit" 
+            <MudIconButton Icon="@Icons.Material.Brightness4"
+                           Color="Color.Inherit"
                            OnClick="@((e) => DarkMode())" />
         </MudTooltip>
     </MudAppBar>
-    <MudDrawer @bind-Open=_drawerOpen 
-               Elevation="5" 
+    <MudDrawer @bind-Open=_drawerOpen
+               Elevation="5"
                Class="mudblazor-appbar-band">
         <MudDrawerHeader Class="mudblazor-brand" LinkToIndex="true">
         </MudDrawerHeader>
@@ -59,7 +76,12 @@
     </MudMainContent>
 </MudLayout>
 
-@code {
+@code{
+    private async Task BeginLogout(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        NavMan.NavigateTo("authentication/logout");
+    }
 
     bool _drawerOpen = false;
 
