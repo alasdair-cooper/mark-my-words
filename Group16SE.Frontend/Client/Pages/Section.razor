@@ -11,19 +11,11 @@
                          @ref="autocomplete"
                          @bind-Text="@CommentInputText"
                          @bind-Placeholder="@SavedInputText"
-                         @onkeyup="KeyPressed"
-                         @onfocus="() =>
-                                   {
-                                       autocomplete.ScrollToListItem(0);
-                                       autocomplete.SelectOption(new CommentModel());
-                                       CommentInputText = SavedInputText;
-                                   }"
-                         @onblur='() =>
-                                  {
-                                      autocomplete.ScrollToListItem(0);
-                                  }'
+                         OnKeyUp="KeyPressed"
+                         @onfocus="() => CommentInputText = SavedInputText"
                          SearchFunc="SortCommentsFunc"
-                         ToStringFunc="@(e => e.Content)">
+                         ToStringFunc="@(e => e.Content)"
+                         Immediate="true">
             <ItemTemplate Context="e">
                 @if (!string.IsNullOrWhiteSpace(e.Content))
                 {
@@ -34,7 +26,6 @@
                             <div @onclick='async () =>
                                            {
                                                await CommentFromBank(BankComments.Where(comment => comment.Content == e.Content).ElementAt(0));
-                                               RefreshAutocomplete();
                                            }'>
                                 <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
                                                 UntilNextBoundary="true"
@@ -55,9 +46,8 @@
                                                          DialogResult result = await dialog.Result;
                                                          if (!result.Cancelled)
                                                          {
-                                                            await DeleteBankComment(e);
+                                                             await DeleteBankComment(e);
                                                          }
-                                                         RefreshAutocomplete();
                                                      }'
                                            Size="Size.Small">
                             </MudIconButton>
@@ -88,6 +78,7 @@
                                                      {
                                                          CommentInputText = "";
                                                          SavedInputText = "(*_*)";
+                                                         autocomplete.ToggleMenu();
                                                      }'
                                            Size="Size.Small">
                             </MudIconButton>
@@ -153,27 +144,27 @@
 </MudGrid>
 
 @code {
-    /// <summary>
-    /// Contains data relating to a single section within an attempt
-    /// </summary>
-    [Parameter]
-    public SectionModel SectionModel { get; set; }
-    /// <summary>
-    /// Contains all the comments in a comment bank for a section
-    /// </summary>
-    [Parameter]
-    public List<CommentModel> BankComments { get; set; }
+        /// <summary>
+        /// Contains data relating to a single section within an attempt
+        /// </summary>
+        [Parameter]
+        public SectionModel SectionModel { get; set; }
+        /// <summary>
+        /// Contains all the comments in a comment bank for a section
+        /// </summary>
+        [Parameter]
+        public List<CommentModel> BankComments { get; set; }
 
-    /// <summary>
-    /// Callback for when section data is changed
-    /// </summary>
-    [Parameter]
-    public EventCallback<SectionModel> SectionModelChanged { get; set; }
-    /// <summary>
-    /// Callback for when bank data is changed
-    /// </summary>
-    [Parameter]
-    public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
+        /// <summary>
+        /// Callback for when section data is changed
+        /// </summary>
+        [Parameter]
+        public EventCallback<SectionModel> SectionModelChanged { get; set; }
+        /// <summary>
+        /// Callback for when bank data is changed
+        /// </summary>
+        [Parameter]
+        public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
 
     private List<CommentModel> searchComments;
 
@@ -243,6 +234,8 @@
 
     private async Task<IEnumerable<CommentModel>> SortCommentsFunc(string sortString)
     {
+        SavedInputText = sortString;
+
         searchComments = new List<CommentModel>(BankComments);
         searchComments.Insert(0, new CommentModel());
 
@@ -255,11 +248,9 @@
 
     private async Task KeyPressed(KeyboardEventArgs e)
     {
-        SavedInputText = CommentInputText;
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(SavedInputText))
+        if (e.Key == "Enter")
         {
             await CommentFromInput();
-            autocomplete.ToggleMenu();
         }
         else if (e.Key == "Backspace")
         {
@@ -300,10 +291,14 @@
 
     private async Task CommentFromInput()
     {
-        CommentModel newComment = new CommentModel(SavedInputText);
-        SectionModel.Comments.Add(newComment);
-        CommentInputText = "";
-        SavedInputText = "(*_*)";
-        await SectionModelChanged.InvokeAsync(SectionModel);
+        SavedInputText = CommentInputText;
+        if (!string.IsNullOrWhiteSpace(SavedInputText)) 
+        {
+            CommentModel newComment = new CommentModel(SavedInputText);
+            SectionModel.Comments.Add(newComment);
+            CommentInputText = "";
+            SavedInputText = "(*_*)";
+            await SectionModelChanged.InvokeAsync(SectionModel);
+        } 
     }
 }

@@ -8,20 +8,22 @@ namespace Group16SE.Frontend.Shared
 {
     public class AssignmentModel
     {
-        public string AssignmentID { get; set; }
+        public string AssignmentId { get; set; }
         public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; }
         public List<AttemptModel> Attempts { get; set; }
 
         public AssignmentModel()
         {
-            AssignmentID = "";
+            AssignmentId = Guid.NewGuid().ToString().Substring(0, 5);
             Attempts = new List<AttemptModel>();
             SectionCommentBanks = new Dictionary<string, List<CommentModel>>();
         }
 
-        public AssignmentModel(List<AttemptModel> attempts = default, Dictionary<string, List<CommentModel>> sectionCommentBanks = default)
+        public AssignmentModel(string assignmentId, List<AttemptModel> attempts = default, Dictionary<string, List<CommentModel>> sectionCommentBanks = default)
         {
-            if(attempts == default)
+            AssignmentId = assignmentId;
+
+            if (attempts == default)
             {
                 Attempts = new List<AttemptModel>();
             }

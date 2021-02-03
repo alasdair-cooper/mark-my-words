@@ -1,0 +1,175 @@
+{
+  "$id": "1",
+  "AssignmentId": "Test Assignment",
+  "SectionCommentBanks": {
+    "$id": "2",
+    "Section 1": {
+      "$id": "3",
+      "$values": [
+        {
+          "$id": "4",
+          "Content": "A comment from the section 1 comment bank",
+          "OriginalCommentModel": null
+        },
+        {
+          "$id": "5",
+          "Content": "Another comment from the section 1 comment bank",
+          "OriginalCommentModel": null
+        },
+        {
+          "$id": "6",
+          "Content": "A final comment from the section 1 comment bank",
+          "OriginalCommentModel": null
+        }
+      ]
+    },
+    "Section 2": {
+      "$id": "7",
+      "$values": [
+        {
+          "$id": "8",
+          "Content": "A comment from the section 2 comment bank",
+          "OriginalCommentModel": null
+        }
+      ]
+    }
+  },
+  "Attempts": {
+    "$id": "9",
+    "$values": [
+      {
+        "$id": "10",
+        "AttemptID": null,
+        "Sections": {
+          "$id": "11",
+          "$values": [
+            {
+              "$id": "12",
+              "SectionID": "Section 1",
+              "Comments": {
+                "$id": "13",
+                "$values": [
+                  {
+                    "$id": "14",
+                    "Content": "This is a comment in section 1",
+                    "OriginalCommentModel": null
+                  },
+                  {
+                    "$id": "15",
+                    "Content": "This is another but with different words",
+                    "OriginalCommentModel": null
+                  },
+                  {
+                    "$id": "16",
+                    "Content": "Short Comment",
+                    "OriginalCommentModel": null
+                  },
+                  {
+                    "$id": "17",
+                    "Content": "This is a quite long comment that could be even longer, many, many lines even",
+                    "OriginalCommentModel": null
+                  }
+                ]
+              },
+              "SliderPoints": {
+                "$id": "18",
+                "$values": [
+                  {
+                    "$id": "19",
+                    "Step": 1,
+                    "Value": 0,
+                    "Min": 0,
+                    "Max": 5,
+                    "Tag": "Code Quality"
+                  },
+                  {
+                    "$id": "20",
+                    "Step": 1,
+                    "Value": 0,
+                    "Min": 0,
+                    "Max": 3,
+                    "Tag": "Grammar"
+                  },
+                  {
+                    "$id": "21",
+                    "Step": 1,
+                    "Value": 0,
+                    "Min": 0,
+                    "Max": 10,
+                    "Tag": "Understanding"
+                  }
+                ]
+              },
+              "SwitchPoints": {
+                "$id": "22",
+                "$values": [
+                  {
+                    "$id": "23",
+                    "Value": false,
+                    "Tag": "Completed"
+                  },
+                  {
+                    "$id": "24",
+                    "Value": false,
+                    "Tag": "Original"
+                  }
+                ]
+              },
+              "AutocompletePoints": {
+                "$id": "25",
+                "$values": []
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaximumMark": 10
+            },
+            {
+              "$id": "26",
+              "SectionID": "Section 2",
+              "Comments": {
+                "$id": "27",
+                "$values": [
+                  {
+                    "$id": "28",
+                    "Content": "This is a comment in section 2",
+                    "OriginalCommentModel": null
+                  },
+                  {
+                    "$id": "29",
+                    "Content": "This is another but with different words",
+                    "OriginalCommentModel": null
+                  }
+                ]
+              },
+              "SliderPoints": {
+                "$id": "30",
+                "$values": [
+                  {
+                    "$id": "31",
+                    "Step": 1,
+                    "Value": 0,
+                    "Min": 0,
+                    "Max": 10,
+                    "Tag": "Understanding"
+                  }
+                ]
+              },
+              "SwitchPoints": {
+                "$id": "32",
+                "$values": []
+              },
+              "AutocompletePoints": {
+                "$id": "33",
+                "$values": []
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaximumMark": 10
+            }
+          ]
+        },
+        "Completed": false
+      }
+    ]
+  }
+}

@@ -1,89 +1,70 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using System.IO;
 
 using Group16SE.Frontend.Shared;
 
 namespace Group16SE.Frontend.Server.Controllers
 {
-    public class AssignmentController : Controller
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [ApiController]
+    public class AssignmentController : ControllerBase
     {
-        // GET: AssignmentController
-        public ActionResult Index()
+        private readonly IWebHostEnvironment hostEnvironment;
+
+        public AssignmentController(IWebHostEnvironment webHostEnvironment)
         {
-            return View();
+            hostEnvironment = webHostEnvironment;
         }
 
-        // GET: AssignmentController/Details/5
-        public ActionResult Details(int id)
+        // GET: api/<AssignmentController>
+        [HttpGet]
+        public async Task<ActionResult<AssignmentModel>> Get([FromHeader] string AssignmentId)
         {
-            return View();
+            JsonSerializerOptions options = new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                WriteIndented = true
+            };
+            using FileStream openStream = System.IO.File.OpenRead(Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json"));
+            AssignmentModel model = await JsonSerializer.DeserializeAsync<AssignmentModel>(openStream, options);
+
+            return Ok(model);
         }
 
-        // GET: AssignmentController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AssignmentController/Create
+        // POST api/<AssignmentController>
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Post([FromHeader] string AssignmentId, AssignmentModel assignmentModel)
         {
-            try
+            JsonSerializerOptions options = new JsonSerializerOptions()
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+                ReferenceHandler = ReferenceHandler.Preserve,
+                WriteIndented = true
+            };
+            
+            using FileStream writeStream = System.IO.File.OpenWrite(Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json"));
+            await JsonSerializer.SerializeAsync<AssignmentModel>(writeStream, assignmentModel, options);
+            return Ok();
         }
 
-        // GET: AssignmentController/Edit/5
-        public ActionResult Edit(int id)
+        // DELETE api/<AssignmentController>
+        [HttpDelete]
+        public IActionResult Delete([FromHeader] string AssignmentID)
         {
-            return View();
-        }
-
-        // POST: AssignmentController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: AssignmentController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: AssignmentController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            System.IO.File.Delete($"./{AssignmentID}.json");
+            return Ok();
         }
     }
 }

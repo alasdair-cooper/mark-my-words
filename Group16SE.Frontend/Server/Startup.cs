@@ -62,6 +62,8 @@ namespace Group16SE.Frontend.Server
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
             });
+
+            
         }
     }
 }
