@@ -31,31 +31,32 @@ namespace Group16SE.Frontend.Server.Controllers
 
         // GET: api/<AssignmentController>
         [HttpGet]
-        public async Task<ActionResult<AssignmentModel>> Get([FromHeader] string AssignmentId)
+        public async Task<IActionResult> Get([FromHeader] string AssignmentId)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions()
-            {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                WriteIndented = true
-            };
-            using FileStream openStream = System.IO.File.OpenRead(Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json"));
-            AssignmentModel model = await JsonSerializer.DeserializeAsync<AssignmentModel>(openStream, options);
+            string filePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json");
 
-            return Ok(model);
+            using FileStream readStream = System.IO.File.OpenRead(filePath);
+
+            await readStream.CopyToAsync(HttpContext.Response.Body);
+
+            return Ok();
         }
 
         // POST api/<AssignmentController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromHeader] string AssignmentId, AssignmentModel assignmentModel)
+        public async Task<IActionResult> Post([FromHeader] string AssignmentId)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions()
+            string filePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json");
+
+            if (System.IO.File.Exists(filePath))
             {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                WriteIndented = true
-            };
-            
-            using FileStream writeStream = System.IO.File.OpenWrite(Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json"));
-            await JsonSerializer.SerializeAsync<AssignmentModel>(writeStream, assignmentModel, options);
+                System.IO.File.Delete(filePath);
+            }
+
+            using FileStream writeStream = System.IO.File.OpenWrite(filePath);
+
+            await HttpContext.Request.Body.CopyToAsync(writeStream);
+
             return Ok();
         }
 

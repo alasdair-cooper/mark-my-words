@@ -8,43 +8,48 @@
 @using System.IO
 @using System.Net.Http.Headers;
 
-<MudLayout>
-    <MudAppBar Elevation="0"
-               Color="Color.Primary"
-               Fixed="false">
-        <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
-            Attempt ttnt59
-        </MudText>
-        <MudAppBarSpacer />
-        <MudSwitch Class="ml-auto"
-                   Color="Color.Secondary"
-                   Label="Attempt marked"
-                   @bind-Checked="assignmentModel.Attempts[0].Completed">
-        </MudSwitch>
-    </MudAppBar>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Medium">
-            @*<MudOverlay @bind-Visible="assignmentModel.Attempts[0].Completed" LightBackground="true" Absolute="true"></MudOverlay>*@
+@if (assignmentModel != null)
+{
+    <MudLayout>
 
-            <MudExpansionPanels MultiExpansion="true"
-                                Elevation="2">
-                @for (int i = 0; i < assignmentModel.Attempts[0].Sections.Count; i++)
-                {
-                    int local = i;
+        <MudAppBar Elevation="0"
+                   Color="Color.Primary"
+                   Fixed="false">
+            <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+                Attempt ttnt59
+            </MudText>
+            <MudAppBarSpacer />
+            <MudSwitch Class="ml-auto"
+                       Color="Color.Secondary"
+                       Label="Attempt marked"
+                       @bind-Checked="assignmentModel.Attempts[0].Completed">
+            </MudSwitch>
+        </MudAppBar>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.Medium">
+                @*<MudOverlay @bind-Visible="assignmentModel.Attempts[0].Completed" LightBackground="true" Absolute="true"></MudOverlay>*@
 
-                    SectionModel temp = assignmentModel.Attempts[0].Sections.ElementAt(i);
+                <MudExpansionPanels MultiExpansion="true"
+                                    Elevation="2">
+                    @for (int i = 0; i < assignmentModel.Attempts[0].Sections.Count; i++)
+                    {
+                        int local = i;
 
-                    <MudExpansionPanel Text="@temp.SectionID">
-                        <Section @bind-SectionModel="temp"
-                                 @bind-BankComments='assignmentModel.SectionCommentBanks[temp.SectionID]'>
-                        </Section>
-                    </MudExpansionPanel>
-                }
-            </MudExpansionPanels>
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
-<MudIconButton Icon="@Icons.Material.Save" Size="Size.Large" OnClick="async () => await AssignmentToServer() "></MudIconButton>
+                        SectionModel temp = assignmentModel.Attempts[0].Sections.ElementAt(i);
+
+                        <MudExpansionPanel Text="@temp.SectionID">
+                            <Section @bind-SectionModel="temp"
+                                     @bind-BankComments='assignmentModel.SectionCommentBanks[temp.SectionID]'>
+                            </Section>
+                        </MudExpansionPanel>
+                    }
+                </MudExpansionPanels>
+                
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+    <MudIconButton Icon="@Icons.Material.Save" Size="Size.Large" OnClick="async () => await AssignmentToServer() "></MudIconButton>
+}
 
 @code {
     [Parameter]
@@ -58,86 +63,50 @@
 
     private HttpClient client = new HttpClient();
 
-    protected override void OnParametersSet()
+    private AssignmentModel assignmentModel;
+
+    protected override async Task OnInitializedAsync()
     {
-        client.BaseAddress = new Uri("https://localhost:44387/");
-        client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add(
-            new MediaTypeWithQualityHeaderValue("application/json"));
+        await AssignmentFromServer();
     }
 
     public async Task AssignmentToServer()
     {
         HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44387/api/assignment");
+
         JsonSerializerOptions options = new JsonSerializerOptions()
         {
             ReferenceHandler = ReferenceHandler.Preserve,
             WriteIndented = true
         };
-        requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignmentModel), Encoding.UTF8, "application/json");
-        requestMessage.Headers.Add("AssignmentId", assignmentModel.AssignmentId);
+
+        requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignmentModel, options), Encoding.UTF8, "application/json");
+        requestMessage.Headers.Add("AssignmentId", "Test Assignment");
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
         HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+
         responseMessage.EnsureSuccessStatusCode();
-        Console.WriteLine("OK!");
     }
 
-    // Just for demonstration & testing purposes
-    private AssignmentModel assignmentModel = new AssignmentModel("Test Assignment", new List<AttemptModel>()
-{
-    new AttemptModel(new List<SectionModel>()
-{
+    public async Task AssignmentFromServer()
+    {
+        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44387/api/assignment");
+
+        JsonSerializerOptions options = new JsonSerializerOptions()
         {
-            new SectionModel("Section 1", new List<CommentModel>()
-        {
-                {
-                    new CommentModel("This is a comment in section 1")
-                },
-                {
-                    new CommentModel("This is another but with different words")
-                },
-                {
-                    new CommentModel("Short Comment")
-                },
-                {
-                    new CommentModel("This is a quite long comment that could be even longer, many, many lines even")
-                }
-            }, switchPoints: new List<SwitchPointModel>()
-        {
-                {
-                    new SwitchPointModel("Completed")
-                },
-                {
-                    new SwitchPointModel("Original")
-                }
-            }, sliderPoints: new List<SliderPointModel>()
-        {
-                {
-                    new SliderPointModel("Code Quality", 1, 0, 0, 5)
-                },
-                {
-                    new SliderPointModel("Grammar", 1, 0, 0, 3)
-                },
-                {
-                    new SliderPointModel("Understanding", 1, 0, 0, 10)
-                }
-            })
-        },
-        {
-            new SectionModel("Section 2", new List<CommentModel>()
-        {
-                {
-                    new CommentModel("This is a comment in section 2")
-                },
-                {
-                    new CommentModel("This is another but with different words")
-                }
-            }, sliderPoints: new List<SliderPointModel>()
-        {
-                {
-                new SliderPointModel("Understanding", 1, 0, 0, 10)
-                }
-            })
-        }
-    })
-}, new Dictionary<string, List<CommentModel>> { { "Section 1", new List<CommentModel> { new CommentModel("A comment from the section 1 comment bank"), new CommentModel("Another comment from the section 1 comment bank"), new CommentModel("A final comment from the section 1 comment bank") } }, { "Section 2", new List<CommentModel> { new CommentModel("A comment from the section 2 comment bank") } } });
+            ReferenceHandler = ReferenceHandler.Preserve,
+            WriteIndented = true
+        };
+
+        requestMessage.Headers.Add("AssignmentId", "Test Assignment");
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+
+        Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
+        assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
+
+        responseMessage.EnsureSuccessStatusCode();
+    }
 }
