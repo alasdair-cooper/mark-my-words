@@ -3,21 +3,13 @@
 @using MudBlazor
 <MudGrid>
     <MudItem xs="10" md="11">
-        @if (EditMode == EditMode.Bank && CommentModel.OriginalCommentModel != null)
+        @if (CommentModel.EditMode == EditMode.Bank && CommentModel.OriginalCommentModel != null)
         {
             <MudTextField T="string"
                           @bind-Value="CommentModel.OriginalCommentModel.Content"
-                          @oninput="@((e) =>
-                          {
-                              CommentModel.Content = (string) e.Value;
-                          })"
+                          @oninput="(e) => CommentModel.Content = (string) e.Value"
                           @onfocus="() => EditComment(EditMode.Bank)"
-                          @onblur="@(async(e) =>
-                         {
-                             currentLabel = "";
-                             ReadonlyComment = true;
-                             await ReadComment();
-                         })"
+                          @onblur="async(e) => await ReadComment()"
                           ReadOnly="ReadonlyComment"
                           Variant="Variant.Outlined"
                           Lines="2"
@@ -28,17 +20,9 @@
         {
             <MudTextField T="string"
                           @bind-Value="CommentModel.Content"
-                          @oninput="@((e) =>
-                          {
-                              CommentModel.Content = (string) e.Value;
-                          })"
+                          @oninput="(e) => CommentModel.Content = (string) e.Value"
                           @onfocus="() => EditComment(EditMode.Instance)"
-                          @onblur="@(async(e) =>
-                         {
-                             currentLabel = "";
-                             ReadonlyComment = true;
-                             await ReadComment();
-                         })"
+                          @onblur="async(e) => await ReadComment()"
                           ReadOnly="ReadonlyComment"
                           Variant="Variant.Outlined"
                           Lines="2"
@@ -49,10 +33,10 @@
     <MudItem xs="2" md="1" Class="d-flex align-center justify-end">
         <MudMenu Icon="@Icons.Material.MoreVert" Class="ml-1">
             <MudMenuItem OnClick="() => EditComment(EditMode.Instance)">Edit this</MudMenuItem>
-            @if (CommentModel.OriginalCommentModel != null)
-            {
-                <MudMenuItem OnClick="() => EditComment(EditMode.Bank)">Edit bank</MudMenuItem>
-            }
+                @if (CommentModel.OriginalCommentModel != null)
+                {
+                    <MudMenuItem OnClick="() => EditComment(EditMode.Bank)">Edit bank</MudMenuItem>
+                }
             <MudMenuItem OnClick="DeleteComment">Delete</MudMenuItem>
         </MudMenu>
     </MudItem>
@@ -69,6 +53,11 @@
     [Parameter]
     public EventCallback<CommentModel> CommentModelChanged { get; set; }
     /// <summary>
+    /// Callback for when a comment is edited
+    /// </summary>
+    [Parameter]
+    public EventCallback<CommentModel> OnCommentEdited { get; set; }
+    /// <summary>
     /// Callback for when a comment is deleted
     /// </summary>
     [Parameter]
@@ -79,20 +68,22 @@
     [Parameter]
     public bool ReadonlyComment { get; set; } = true;
 
-    [Parameter]
-    public CommentModel.EditMode EditMode { get; set; }
-
     private string instanceLabel = "Editing section comment";
     private string bankLabel = "Editing bank comment";
     private string currentLabel = "";
 
+    private string previousContent = "";
+
     /// <summary>
-    /// Updates a comment so the text area can have values entered in it
+    /// Chenges the EditMode of the comment so it can be edited, or it's original can be edited
     /// </summary>
     private void EditComment(EditMode mode)
     {
-        EditMode = mode;
-        switch (EditMode)
+        previousContent = CommentModel.Content;
+
+        CommentModel.EditMode = mode;
+
+        switch (CommentModel.EditMode)
         {
             case EditMode.Bank:
                 currentLabel = bankLabel;
@@ -109,13 +100,18 @@
     }
 
     /// <summary>
-    /// Triggers a callback to update the comments values in the parent container and makes the comment readonly (grayed out)
+    /// Triggers a callback to update the comments values in the parent container and makes the comment readonly
     /// </summary>
     /// <returns></returns>
     private async Task ReadComment()
     {
-        await CommentModelChanged.InvokeAsync(CommentModel);
+        currentLabel = "";
         ReadonlyComment = true;
+        if(CommentModel.Content != previousContent)
+        {
+            await CommentModelChanged.InvokeAsync(CommentModel);
+            await OnCommentEdited.InvokeAsync(CommentModel);
+        }
     }
 
     /// <summary>

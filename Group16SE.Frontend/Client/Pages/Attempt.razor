@@ -52,12 +52,21 @@
 }
 
 @code {
+    /// <summary>
+    /// The unique ID of the current attempt.
+    /// </summary>
     [Parameter]
     public string AttemptID { get; set; }
 
+    /// <summary>
+    /// The current attempt.
+    /// </summary>
     [Parameter]
     public AttemptModel AttemptModel { get; set; }
 
+    /// <summary>
+    /// Callback for when the attempt is modified.
+    /// </summary>
     [Parameter]
     public EventCallback<AttemptModel> AttemptModelChanged { get; set; }
 
@@ -70,6 +79,10 @@
         await AssignmentFromServer();
     }
 
+    /// <summary>
+    /// Serializes and sends an assignment to the server.
+    /// </summary>
+    /// <returns></returns>
     public async Task AssignmentToServer()
     {
         HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44387/api/assignment");
@@ -89,6 +102,10 @@
         responseMessage.EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// Fetches and deserializes an assignment from the server.
+    /// </summary>
+    /// <returns></returns>
     public async Task AssignmentFromServer()
     {
         HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44387/api/assignment");

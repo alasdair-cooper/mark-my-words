@@ -23,10 +23,7 @@
 
                         <MudItem xs="10"
                                  md="11">
-                            <div @onclick='async () =>
-                                           {
-                                               await CommentFromBank(BankComments.Where(comment => comment.Content == e.Content).ElementAt(0));
-                                           }'>
+                            <div @onclick="async () => await CommentFromBank(BankComments.Where(comment => comment.Content == e.Content).ElementAt(0))">
                                 <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
                                                 UntilNextBoundary="true"
                                                 Style="background-color:transparent; font-weight:bold; padding:initial"
@@ -38,17 +35,7 @@
 
                         <MudItem xs="2" md="1">
                             <MudIconButton Icon="@Icons.Material.DeleteForever"
-                                           @onclick='async () =>
-                                                     {
-                                                         // This is a hack to force the dropdown to refresh
-                                                         autocomplete.ToggleMenu();
-                                                         IDialogReference dialog = Dialog.Show<DeleteBankCommentDialog>("Delete comment");
-                                                         DialogResult result = await dialog.Result;
-                                                         if (!result.Cancelled)
-                                                         {
-                                                             await DeleteBankComment(e);
-                                                         }
-                                                     }'
+                                           @onclick="async () => await DeleteBankComment(e)"
                                            Size="Size.Small">
                             </MudIconButton>
                         </MudItem>
@@ -59,10 +46,7 @@
                     <MudGrid>
                         <MudItem xs="10"
                                  md="11">
-                            <div @onclick='async () =>
-                                           {
-                                               await CommentFromInput();
-                                           }'>
+                            <div @onclick="async () => await CommentFromInput()">
                                 <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
                                                 UntilNextBoundary="true"
                                                 Style="background-color:transparent; font-weight:bold; padding:initial"
@@ -74,12 +58,7 @@
 
                         <MudItem xs="2" md="1">
                             <MudIconButton Icon="@Icons.Material.Clear"
-                                           @onclick='async () =>
-                                                     {
-                                                         CommentInputText = "";
-                                                         SavedInputText = "(*_*)";
-                                                         autocomplete.ToggleMenu();
-                                                     }'
+                                           @onclick="ClearAutocomplete"
                                            Size="Size.Small">
                             </MudIconButton>
                         </MudItem>
@@ -95,7 +74,7 @@
             <MudItem xs="12">
                 <Comment @bind-CommentModel="temp"
                          OnCommentDeleted="DeleteComment"
-                         EditMode="CommentModel.EditMode.None">
+                         OnCommentEdited="UpdateComment">
                 </Comment>
             </MudItem>
         }
@@ -137,34 +116,34 @@
                     string suggestedMarkText = "Suggested mark: " + suggestedMark;
                     string maximumMarkText = "/" + maximumMark;
                 }
-                <MudTextField T="string" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" />
+                <MudTextField T="int"  @bind-Value="SectionModel.GivenMark" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" />
             </MudItem>
         </MudGrid>
     </MudItem>
 </MudGrid>
 
 @code {
-        /// <summary>
-        /// Contains data relating to a single section within an attempt
-        /// </summary>
-        [Parameter]
-        public SectionModel SectionModel { get; set; }
-        /// <summary>
-        /// Contains all the comments in a comment bank for a section
-        /// </summary>
-        [Parameter]
-        public List<CommentModel> BankComments { get; set; }
+    /// <summary>
+    /// Contains data relating to a single section within an attempt.
+    /// </summary>
+    [Parameter]
+    public SectionModel SectionModel { get; set; }
+    /// <summary>
+    /// Contains all the comments in a comment bank for a section.
+    /// </summary>
+    [Parameter]
+    public List<CommentModel> BankComments { get; set; }
 
-        /// <summary>
-        /// Callback for when section data is changed
-        /// </summary>
-        [Parameter]
-        public EventCallback<SectionModel> SectionModelChanged { get; set; }
-        /// <summary>
-        /// Callback for when bank data is changed
-        /// </summary>
-        [Parameter]
-        public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
+    /// <summary>
+    /// Callback for when section data is modified..
+    /// </summary>
+    [Parameter]
+    public EventCallback<SectionModel> SectionModelChanged { get; set; }
+    /// <summary>
+    /// Callback for when bank data is modified.
+    /// </summary>
+    [Parameter]
+    public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
 
     private List<CommentModel> searchComments;
 
@@ -174,6 +153,9 @@
     private string inputText;
     private string savedText;
 
+    /// <summary>
+    /// Stores the most recent non-blank user input.
+    /// </summary>
     public string SavedInputText
     {
         get
@@ -193,6 +175,9 @@
         }
     }
 
+    /// <summary>
+    /// Stores the user input.
+    /// </summary>
     public string CommentInputText
     {
         get
@@ -210,12 +195,15 @@
         }
     }
 
+    /// <summary>
+    /// Reference to the autocomplete component.
+    /// </summary>
     private MudAutocomplete<CommentModel> autocomplete;
 
     /// <summary>
-    /// Triggers the callback to update bank comments in the parent component
+    /// Triggers the callback to update bank comments in the parent component.
     /// </summary>
-    /// <param name="comments">The updated comments</param>
+    /// <param name="comments">The updated comments.</param>
     /// <returns></returns>
     public async Task OnBankCommentsChanged(List<CommentModel> comments)
     {
@@ -223,20 +211,28 @@
     }
 
     /// <summary>
-    /// Triggers the callback to update section comments in the parent component
+    /// Triggers the callback to update section comments in the parent component.
     /// </summary>
-    /// <param name="comments">The updated comments</param>
+    /// <param name="comments">The updated comments.</param>
     private async Task SectionCommentsChanged(List<CommentModel> comments)
     {
         SectionModel.Comments = comments;
         await SectionModelChanged.InvokeAsync(SectionModel);
     }
 
+    /// <summary>
+    /// Sorts the bank for the autocomplete component.
+    /// </summary>
+    /// <param name="sortString">The string to search for.</param>
+    /// <returns>Array of CommentModels that contain the sortString.</returns>
     private async Task<IEnumerable<CommentModel>> SortCommentsFunc(string sortString)
     {
+        // As this effectively runs OnChange, the saved text is updated here.
         SavedInputText = sortString;
 
+        // Creates a copy of BankComments but the objects within are references (intended).
         searchComments = new List<CommentModel>(BankComments);
+        // Blank comment to go at the start so the user can select whatever they are currently inputting.
         searchComments.Insert(0, new CommentModel());
 
         if (string.IsNullOrEmpty(sortString))
@@ -246,6 +242,11 @@
         return searchComments.ToArray().Where(comment => comment.Content.Contains(sortString, StringComparison.InvariantCultureIgnoreCase) || string.IsNullOrWhiteSpace(comment.Content));
     }
 
+    /// <summary>
+    /// Creates a new comment if the enter key is pressed.
+    /// </summary>
+    /// <param name="e">The events that just occured.</param>
+    /// <returns></returns>
     private async Task KeyPressed(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -254,6 +255,8 @@
         }
         else if (e.Key == "Backspace")
         {
+            // Prevents there being permanently one character left in the input box.
+            // The saved input text preserves the user input but prevents null & whitespace.
             if (SavedInputText.Length == 1)
             {
                 SavedInputText = "(*_*)";
@@ -261,44 +264,130 @@
         }
     }
 
-    private void RefreshAutocomplete()
+    /// <summary>
+    /// Clears the contents of the autocomplete and the saved text.
+    /// </summary>
+    private void ClearAutocomplete()
     {
-        autocomplete.ToggleMenu();
+        CommentInputText = "";
+        SavedInputText = "(*_*)";
+        // This seems to force update the autocomplete.
         autocomplete.ToggleMenu();
     }
 
+    /// <summary>
+    /// Deletes a single comment from the section.
+    /// </summary>
+    /// <param name="comment">Comment to be deleted.</param>
+    /// <returns></returns>
     private async Task DeleteComment(CommentModel comment)
     {
-        SectionModel.Comments.Remove(comment);
+        SectionModel.DeleteCommentInstance(comment);
+        if (comment.OriginalCommentModel.Uses <= 0)
+        {
+            BankComments.Remove(comment.OriginalCommentModel);
+        }
         await SectionModelChanged.InvokeAsync(SectionModel);
-    }
-
-    private async Task DeleteBankComment(CommentModel comment)
-    {
-        BankComments.Remove(comment);
         await BankCommentsChanged.InvokeAsync(BankComments);
     }
 
-    private async Task CommentFromBank(CommentModel comment)
+    /// <summary>
+    /// Deletes a single comment from the bank.
+    /// </summary>
+    /// <param name="comment">Comment to be deleted.</param>
+    /// <returns></returns>
+    private async Task DeleteBankComment(CommentModel comment)
     {
-        CommentModel newComment = new CommentModel(comment);
-        newComment.OriginalCommentModel = comment;
-        SectionModel.Comments.Add(newComment);
-        CommentInputText = "";
-        SavedInputText = "(*_*)";
+        autocomplete.ToggleMenu();
+
+        // Displays warning dialog.
+        IDialogReference dialog = Dialog.Show<DeleteBankCommentDialog>("Delete comment");
+        DialogResult result = await dialog.Result;
+
+        // If the user submits.
+        if (!result.Cancelled)
+        {
+            BankComments.Remove(comment);
+            await BankCommentsChanged.InvokeAsync(BankComments);
+        }
+    }
+
+    /// <summary>
+    /// Updates a comment when it is edited.
+    /// </summary>
+    /// <param name="comment">The comment to be updated.</param>
+    /// <returns></returns>
+    private async Task UpdateComment(CommentModel comment)
+    {
+        if(comment.EditMode == EditMode.Bank)
+        {
+            comment.EditCommentGlobal();
+        }
+        else if(comment.EditMode == EditMode.Instance)
+        {
+            comment.EditCommentInstance(BankComments);
+        }
+        comment.EditMode = EditMode.None;
+        // If it is not being used anywhere (across attempts).
+        if(comment.OriginalCommentModel.Uses <= 0)
+        {
+            // Remove comment from the bank.
+            BankComments.Remove(comment.OriginalCommentModel);
+        }
+        await BankCommentsChanged.InvokeAsync(BankComments);
         await SectionModelChanged.InvokeAsync(SectionModel);
     }
 
+    /// <summary>
+    /// Creates a comment from another comment (a bank comment).
+    /// </summary>
+    /// <param name="comment">The comment to create another comment from.</param>
+    /// <returns></returns>
+    private async Task CommentFromBank(CommentModel comment)
+    {
+        SectionModel.NewCommentFromComment(comment);
+        await SectionModelChanged.InvokeAsync(SectionModel);
+        await BankCommentsChanged.InvokeAsync(BankComments);
+        ClearAutocomplete();
+    }
+
+    /// <summary>
+    /// Creates a comment from the text in the input.
+    /// </summary>
+    /// <returns></returns>
     private async Task CommentFromInput()
     {
         SavedInputText = CommentInputText;
-        if (!string.IsNullOrWhiteSpace(SavedInputText)) 
+
+        // This is to prevent the user from entering the exact same comment twice and
+        // both being put in the bank. Also prevents an identical comment being added 
+        // when selecting a comment with the arrow keys and pressing enter.
+        CommentModel bankComment = null;
+        foreach (CommentModel comment in BankComments)
         {
-            CommentModel newComment = new CommentModel(SavedInputText);
-            SectionModel.Comments.Add(newComment);
-            CommentInputText = "";
-            SavedInputText = "(*_*)";
+            if (comment.Content == SavedInputText)
+            {
+                bankComment = comment;
+                ClearAutocomplete();
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(SavedInputText))
+        {
+            if (bankComment == null)
+            {
+                // If an identical comment is found in the bank, the new comment is created 
+                // from that instead.
+                SectionModel.NewCommentFromString(BankComments, SavedInputText);
+            }
+            else
+            {
+                SectionModel.NewCommentFromComment(bankComment);
+            }
             await SectionModelChanged.InvokeAsync(SectionModel);
-        } 
+            await BankCommentsChanged.InvokeAsync(BankComments);
+            ClearAutocomplete();
+
+        }
     }
 }
