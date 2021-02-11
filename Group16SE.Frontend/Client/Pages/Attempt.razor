@@ -1,7 +1,5 @@
-﻿@page "/attempt"
+﻿@page "/attempt/{AttemptId}"
 
-@using Group16SE.Frontend.Shared
-@using MudBlazor
 @using System.Text
 @using System.Text.Json
 @using System.Text.Json.Serialization
@@ -22,8 +20,13 @@
             <MudSwitch Class="ml-auto"
                        Color="Color.Secondary"
                        Label="Attempt marked"
-                       @bind-Checked="assignmentModel.Attempts[0].Completed">
+                       @bind-Checked="AttemptModel.Completed">
             </MudSwitch>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" 
+                           Color="Color.Primary"
+                           Size="Size.Large" 
+                           OnClick="async () => await AssignmentToServer(assignmentModel) ">
+            </MudIconButton>
         </MudAppBar>
         <MudMainContent>
             <MudContainer MaxWidth="MaxWidth.Medium">
@@ -31,15 +34,16 @@
 
                 <MudExpansionPanels MultiExpansion="true"
                                     Elevation="2">
-                    @for (int i = 0; i < assignmentModel.Attempts[0].Sections.Count; i++)
+                    @for (int i = 0; i < AttemptModel.Sections.Count; i++)
                     {
                         int local = i;
 
-                        SectionModel temp = assignmentModel.Attempts[0].Sections.ElementAt(i);
+                        SectionModel temp = AttemptModel.Sections.ElementAt(i);
 
                         <MudExpansionPanel Text="@temp.SectionID">
                             <Section @bind-SectionModel="temp"
-                                     @bind-BankComments='assignmentModel.SectionCommentBanks[temp.SectionID]'>
+                                     @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
+                                     OnUpdateAttempt="async () => await AssignmentToServer(assignmentModel)">
                             </Section>
                         </MudExpansionPanel>
                     }
@@ -48,7 +52,6 @@
             </MudContainer>
         </MudMainContent>
     </MudLayout>
-    <MudIconButton Icon="@Icons.Material.Save" Size="Size.Large" OnClick="async () => await AssignmentToServer() "></MudIconButton>
 }
 
 @code {
@@ -76,14 +79,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await AssignmentFromServer();
+        assignmentModel = await AssignmentFromServer();
+        AttemptModel = GetAttempt(AttemptID);
+    }
+
+    public async Task AttemptToServer(AttemptModel attempt)
+    {
+        await AssignmentToServer(assignmentModel);
     }
 
     /// <summary>
     /// Serializes and sends an assignment to the server.
     /// </summary>
     /// <returns></returns>
-    public async Task AssignmentToServer()
+    public async Task AssignmentToServer(AssignmentModel assignment)
     {
         HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44387/api/assignment");
 
@@ -93,7 +102,7 @@
             WriteIndented = true
         };
 
-        requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignmentModel, options), Encoding.UTF8, "application/json");
+        requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, "application/json");
         requestMessage.Headers.Add("AssignmentId", "Test Assignment");
         requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -102,11 +111,16 @@
         responseMessage.EnsureSuccessStatusCode();
     }
 
+    public AttemptModel GetAttempt(string attemptId)
+    {
+        return assignmentModel.Attempts.Where(attempt => attempt.AttemptId == attemptId).First();
+    }
+
     /// <summary>
     /// Fetches and deserializes an assignment from the server.
     /// </summary>
     /// <returns></returns>
-    public async Task AssignmentFromServer()
+    public async Task<AssignmentModel> AssignmentFromServer()
     {
         HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44387/api/assignment");
 
@@ -122,8 +136,10 @@
         HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
 
         Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-        assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
+        AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
 
         responseMessage.EnsureSuccessStatusCode();
+
+        return assignmentModel;
     }
 }

@@ -1,5 +1,4 @@
 ﻿@using Group16SE.Frontend.Shared
-@using MudBlazor
 
 @inject IDialogService Dialog
 
@@ -7,15 +6,15 @@
     <MudItem xs="8">
         <MudAutocomplete T="CommentModel"
                          ResetValueOnEmptyText="true"
+                         Immediate="true"
                          Dense="true"
+                         SearchFunc="SortCommentsFunc"
+                         ToStringFunc="@(e => e.Content)"
                          @ref="autocomplete"
                          @bind-Text="@CommentInputText"
                          @bind-Placeholder="@SavedInputText"
                          OnKeyUp="KeyPressed"
-                         @onfocus="() => CommentInputText = SavedInputText"
-                         SearchFunc="SortCommentsFunc"
-                         ToStringFunc="@(e => e.Content)"
-                         Immediate="true">
+                         @onfocus="() => CommentInputText = SavedInputText">
             <ItemTemplate Context="e">
                 @if (!string.IsNullOrWhiteSpace(e.Content))
                 {
@@ -24,17 +23,18 @@
                         <MudItem xs="10"
                                  md="11">
                             <div @onclick="async () => await CommentFromBank(BankComments.Where(comment => comment.Content == e.Content).ElementAt(0))">
-                                <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
+                                @*<MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
                                                 UntilNextBoundary="true"
                                                 Style="background-color:transparent; font-weight:bold; padding:initial"
                                                 Text="@e.Content"
                                                 HighlightedText="@CommentInputText">
-                                </MudHighlighter>
+                                </MudHighlighter>*@
+                                <MudText>@e.Content</MudText>
                             </div>
                         </MudItem>
 
                         <MudItem xs="2" md="1">
-                            <MudIconButton Icon="@Icons.Material.DeleteForever"
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever"
                                            @onclick="async () => await DeleteBankComment(e)"
                                            Size="Size.Small">
                             </MudIconButton>
@@ -47,17 +47,18 @@
                         <MudItem xs="10"
                                  md="11">
                             <div @onclick="async () => await CommentFromInput()">
-                                <MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
+                                @*<MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
                                                 UntilNextBoundary="true"
                                                 Style="background-color:transparent; font-weight:bold; padding:initial"
                                                 @bind-Text="@CommentInputText"
                                                 HighlightedText="@CommentInputText">
-                                </MudHighlighter>
+                                </MudHighlighter>*@
+                                <MudText>@CommentInputText</MudText>
                             </div>
                         </MudItem>
 
                         <MudItem xs="2" md="1">
-                            <MudIconButton Icon="@Icons.Material.Clear"
+                            <MudIconButton Icon="@Icons.Material.Filled.Clear"
                                            @onclick="ClearAutocomplete"
                                            Size="Size.Small">
                             </MudIconButton>
@@ -116,7 +117,7 @@
                     string suggestedMarkText = "Suggested mark: " + suggestedMark;
                     string maximumMarkText = "/" + maximumMark;
                 }
-                <MudTextField T="int"  @bind-Value="SectionModel.GivenMark" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" />
+                <MudTextField T="int"  @bind-Value="SectionModel.GivenMark" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" @onfocus="UpdateAttempt"/>
             </MudItem>
         </MudGrid>
     </MudItem>
@@ -144,6 +145,9 @@
     /// </summary>
     [Parameter]
     public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
 
     private List<CommentModel> searchComments;
 
@@ -220,6 +224,11 @@
         await SectionModelChanged.InvokeAsync(SectionModel);
     }
 
+    private async Task UpdateAttempt()
+    {
+        await OnUpdateAttempt.InvokeAsync(SectionModel);
+    }
+
     /// <summary>
     /// Sorts the bank for the autocomplete component.
     /// </summary>
@@ -239,7 +248,10 @@
         {
             return (searchComments.ToArray());
         }
-        return searchComments.ToArray().Where(comment => comment.Content.Contains(sortString, StringComparison.InvariantCultureIgnoreCase) || string.IsNullOrWhiteSpace(comment.Content));
+
+        IEnumerable<CommentModel> commentModels = searchComments.ToArray().Where(comment => comment.Content.Contains(sortString, StringComparison.InvariantCultureIgnoreCase) || string.IsNullOrWhiteSpace(comment.Content));
+
+        return commentModels;
     }
 
     /// <summary>
@@ -321,11 +333,11 @@
     {
         if(comment.EditMode == EditMode.Bank)
         {
-            comment.EditCommentGlobal();
+            comment.OriginalCommentModel.Content = comment.Content;
         }
         else if(comment.EditMode == EditMode.Instance)
         {
-            comment.EditCommentInstance(BankComments);
+            // Warn user that major edits should be new comments
         }
         comment.EditMode = EditMode.None;
         // If it is not being used anywhere (across attempts).

@@ -5,14 +5,9 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using MudBlazor
 
-<MudThemeProvider Theme="currentTheme" />
-<MudDialogProvider FullWidth="true"
-                   MaxWidth="MaxWidth.ExtraSmall" />
-<MudSnackbarProvider />
-
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Menu"
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Inherit"
                        Edge="Edge.Start"
                        OnClick="@((e) => DrawerToggle())" />
@@ -25,7 +20,7 @@
             <Authorized>
                 Hello, @context.User.Identity.Name!
                 <MudTooltip Text="Account">
-                    <MudMenu Icon="@Icons.Material.AccountCircle" Color="Color.Inherit">
+                    <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit">
                         <MudMenuItem OnClick="BeginLogout">Log out</MudMenuItem>
                     </MudMenu>
                 </MudTooltip>
@@ -35,9 +30,9 @@
             </NotAuthorized>
         </AuthorizeView>
         <MudTooltip Text="Toggle light/dark theme">
-            <MudIconButton Icon="@Icons.Material.Brightness4"
+            @*<MudIconButton Icon="@Icons.Material.Filled.Brightness4"
                            Color="Color.Inherit"
-                           OnClick="@((e) => DarkMode())" />
+                           OnClick="@((e) => DarkMode())" />*@
         </MudTooltip>
     </MudAppBar>
     <MudDrawer @bind-Open=_drawerOpen

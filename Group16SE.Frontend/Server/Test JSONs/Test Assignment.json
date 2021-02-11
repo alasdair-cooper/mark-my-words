@@ -9,68 +9,140 @@
         {
           "$id": "4",
           "EditMode": 0,
-          "CommentId": "525d3f59-df52-44a2-bce7-47a33843653d",
-          "Content": "The first comment",
+          "CommentId": "2a09b0b9-a9fe-41b8-bcff-1fa3060cd27b",
+          "Content": "a",
           "Uses": 1,
           "OriginalCommentModel": null
         },
         {
           "$id": "5",
           "EditMode": 0,
-          "CommentId": "fcf04005-39d7-48ef-8936-71749c9a093c",
-          "Content": "The second comment",
+          "CommentId": "06c2d279-f50a-414b-bb88-7293e92bbfa6",
+          "Content": "a new co",
+          "Uses": 1,
+          "OriginalCommentModel": null
+        },
+        {
+          "$id": "6",
+          "EditMode": 0,
+          "CommentId": "4e982579-b95a-4eea-a9e5-55bf777d16bc",
+          "Content": "a totally new comment",
+          "Uses": 1,
+          "OriginalCommentModel": null
+        },
+        {
+          "$id": "7",
+          "EditMode": 0,
+          "CommentId": "0219e2bf-0e09-452b-9ad5-a6e39dc4b2ba",
+          "Content": "a comment",
+          "Uses": 1,
+          "OriginalCommentModel": null
+        },
+        {
+          "$id": "8",
+          "EditMode": 0,
+          "CommentId": "7e810d52-b165-4335-bf2c-e9187f8b4b75",
+          "Content": "a new comment",
+          "Uses": 1,
+          "OriginalCommentModel": null
+        },
+        {
+          "$id": "9",
+          "EditMode": 0,
+          "CommentId": "2de7c4e0-1d64-4665-bbd8-1f71bcb2eb60",
+          "Content": "a sad little comment",
           "Uses": 1,
           "OriginalCommentModel": null
         }
       ]
     },
     "Section 2": {
-      "$id": "6",
+      "$id": "10",
       "$values": []
     }
   },
   "Attempts": {
-    "$id": "7",
+    "$id": "11",
     "$values": [
       {
-        "$id": "8",
-        "AttemptId": "0db2b4fb-ec44-4e36-ade9-0708acdcff70",
+        "$id": "12",
+        "AttemptId": "ttnt59",
         "Sections": {
-          "$id": "9",
+          "$id": "13",
           "$values": [
             {
-              "$id": "10",
+              "$id": "14",
               "SectionID": "Section 1",
               "Comments": {
-                "$id": "11",
+                "$id": "15",
                 "$values": [
                   {
-                    "$id": "12",
+                    "$id": "16",
                     "EditMode": 0,
-                    "CommentId": "525d3f59-df52-44a2-bce7-47a33843653d",
-                    "Content": "The first comment",
+                    "CommentId": "2a09b0b9-a9fe-41b8-bcff-1fa3060cd27b",
+                    "Content": "a",
                     "Uses": -1,
                     "OriginalCommentModel": {
                       "$ref": "4"
                     }
                   },
                   {
-                    "$id": "13",
+                    "$id": "17",
                     "EditMode": 0,
-                    "CommentId": "fcf04005-39d7-48ef-8936-71749c9a093c",
-                    "Content": "The second comment",
+                    "CommentId": "06c2d279-f50a-414b-bb88-7293e92bbfa6",
+                    "Content": "a new co",
                     "Uses": -1,
                     "OriginalCommentModel": {
                       "$ref": "5"
+                    }
+                  },
+                  {
+                    "$id": "18",
+                    "EditMode": 0,
+                    "CommentId": "4e982579-b95a-4eea-a9e5-55bf777d16bc",
+                    "Content": "a totally new comment",
+                    "Uses": -1,
+                    "OriginalCommentModel": {
+                      "$ref": "6"
+                    }
+                  },
+                  {
+                    "$id": "19",
+                    "EditMode": 0,
+                    "CommentId": "0219e2bf-0e09-452b-9ad5-a6e39dc4b2ba",
+                    "Content": "a comment",
+                    "Uses": -1,
+                    "OriginalCommentModel": {
+                      "$ref": "7"
+                    }
+                  },
+                  {
+                    "$id": "20",
+                    "EditMode": 0,
+                    "CommentId": "7e810d52-b165-4335-bf2c-e9187f8b4b75",
+                    "Content": "a new comment",
+                    "Uses": -1,
+                    "OriginalCommentModel": {
+                      "$ref": "8"
+                    }
+                  },
+                  {
+                    "$id": "21",
+                    "EditMode": 0,
+                    "CommentId": "2de7c4e0-1d64-4665-bbd8-1f71bcb2eb60",
+                    "Content": "a sad little comment",
+                    "Uses": -1,
+                    "OriginalCommentModel": {
+                      "$ref": "9"
                     }
                   }
                 ]
               },
               "SliderPoints": {
-                "$id": "14",
+                "$id": "22",
                 "$values": [
                   {
-                    "$id": "15",
+                    "$id": "23",
                     "Step": 1,
                     "Value": 4,
                     "Min": 0,
@@ -78,7 +150,7 @@
                     "Tag": "Code Quality"
                   },
                   {
-                    "$id": "16",
+                    "$id": "24",
                     "Step": 1,
                     "Value": 1,
                     "Min": 0,
@@ -86,7 +158,7 @@
                     "Tag": "Grammar"
                   },
                   {
-                    "$id": "17",
+                    "$id": "25",
                     "Step": 1,
                     "Value": 7,
                     "Min": 0,
@@ -96,40 +168,41 @@
                 ]
               },
               "SwitchPoints": {
-                "$id": "18",
+                "$id": "26",
                 "$values": [
                   {
-                    "$id": "19",
+                    "$id": "27",
                     "Value": true,
                     "Tag": "Completed"
                   },
                   {
-                    "$id": "20",
+                    "$id": "28",
                     "Value": true,
                     "Tag": "Original"
                   }
                 ]
               },
               "AutocompletePoints": {
-                "$id": "21",
+                "$id": "29",
                 "$values": []
               },
               "GivenMark": 6,
               "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
               "MaximumMark": 10
             },
             {
-              "$id": "22",
+              "$id": "30",
               "SectionID": "Section 2",
               "Comments": {
-                "$id": "23",
+                "$id": "31",
                 "$values": []
               },
               "SliderPoints": {
-                "$id": "24",
+                "$id": "32",
                 "$values": [
                   {
-                    "$id": "25",
+                    "$id": "33",
                     "Step": 1,
                     "Value": 5,
                     "Min": 0,
@@ -139,20 +212,21 @@
                 ]
               },
               "SwitchPoints": {
-                "$id": "26",
+                "$id": "34",
                 "$values": []
               },
               "AutocompletePoints": {
-                "$id": "27",
+                "$id": "35",
                 "$values": []
               },
               "GivenMark": 4,
               "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
               "MaximumMark": 10
             }
           ]
         },
-        "Completed": false
+        "Completed": true
       }
     ]
   }

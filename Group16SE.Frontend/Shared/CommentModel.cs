@@ -76,7 +76,6 @@ namespace Group16SE.Frontend.Shared
             CommentId = originalCommentModel.CommentId;
             Content = originalCommentModel.Content;
             OriginalCommentModel = originalCommentModel;
-
             Uses = -1;
         }
 
@@ -84,23 +83,23 @@ namespace Group16SE.Frontend.Shared
         /// Edits a comment in a section.
         /// </summary>
         /// <param name="commentBank">The bank of the current section.</param>
-        public void EditCommentInstance(List<CommentModel> commentBank)
-        {
-            CommentModel newBankComment = new CommentModel(Content);
-            newBankComment.Uses = 1;
+        //public void EditCommentInstance(List<CommentModel> commentBank)
+        //{
+        //    CommentModel newBankComment = new CommentModel(Content);
+        //    newBankComment.Uses = 1;
 
-            OriginalCommentModel.Uses -= 1;
-            OriginalCommentModel = newBankComment;
+        //    OriginalCommentModel.Uses -= 1;
+        //    OriginalCommentModel = newBankComment;
 
-            commentBank.Add(newBankComment);
-        }
+        //    commentBank.Add(newBankComment);
+        //}
 
         /// <summary>
         /// Edits a comment in a bank
         /// </summary>
-        public void EditCommentGlobal()
-        {
-            OriginalCommentModel.Content = Content;
-        }
+        //public void EditCommentGlobal()
+        //{
+        //    OriginalCommentModel.Content = Content;
+        //}
     }
 }

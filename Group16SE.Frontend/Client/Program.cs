@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using MudBlazor;
-using MudBlazor.Dialog;
 using MudBlazor.Services;
 
 namespace Group16SE.Frontend.Client
@@ -26,16 +24,13 @@ namespace Group16SE.Frontend.Client
 
             // Supply HttpClient instances that include access tokens when making requests to the server project
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Group16SE.Frontend.ServerAPI"));
+            builder.Services.AddMudServices();
 
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
                 options.ProviderOptions.DefaultAccessTokenScopes.Add("api://66e5de8e-9995-4881-be17-76797be325e9/API.Access");
             });
-
-            builder.Services.AddMudBlazorDialog();
-            builder.Services.AddMudBlazorSnackbar();
-            builder.Services.AddMudBlazorResizeListener();
 
             await builder.Build().RunAsync();
         }

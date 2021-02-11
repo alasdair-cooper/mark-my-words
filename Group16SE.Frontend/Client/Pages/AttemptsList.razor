@@ -1,31 +1,91 @@
-﻿@page "/attempts/{assignmentID}"
+﻿@page "/attempts/{assignmentId}"
 
 @using Group16SE.Frontend.Shared
-@using MudBlazor
+@using System.Text
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.IO
+@using System.Net.Http.Headers;
 
-@*<MudTable Items="AssignmentModel.Attempts" Hover="true">
-    <HeaderContent>
-        <MudTh>ID</MudTh>
-        <MudTh>Completed</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="ID">@context.AttemptID</MudTd>
-        <MudTd DataLabel="Completed">@context.Completed</MudTd>
-    </RowTemplate>
-</MudTable>*@
+@inject NavigationManager NavMan
 
-@code {
+@*<MudTable Items="AssignmentModel.Attempts" Hover="true" OnRowClick="(e) => e.">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Completed</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.AttemptId</MudTd>
+            <MudTd DataLabel="Completed">@context.Completed</MudTd>
+        </RowTemplate>
+    </MudTable>*@
+<MudLayout>
+    <MudMainContent>
+
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            @if (AssignmentModel != null)
+            {
+                <MudSimpleTable Hover="true">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Completed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (AttemptModel attempt in AssignmentModel.Attempts)
+                        {
+                            <tr @onclick='() => NavMan.NavigateTo($"attempt/{attempt.AttemptId}")'>
+                                <td>@attempt.AttemptId</td>
+                                <td>@attempt.Completed</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            }
+        </MudContainer>
+
+    </MudMainContent>
+</MudLayout>
+@code{
     [Parameter]
-    public string assignmentID { get; set; }
+    public string assignmentId { get; set; }
 
     [Parameter]
     public AssignmentModel AssignmentModel { get; set; }
 
-    [Parameter]
-    public EventCallback<AssignmentModel> AssignmentModelChanged { get; set; }
+    private HttpClient client = new HttpClient();
 
-    protected override void OnParametersSet()
+    protected override async Task OnInitializedAsync()
     {
-        // Fetch assignment from server using assignmentID
+        AssignmentModel = await AssignmentFromServer();
+        Console.WriteLine(AssignmentModel.AssignmentId);
+    }
+
+    /// <summary>
+    /// Fetches and deserializes an assignment from the server.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<AssignmentModel> AssignmentFromServer()
+    {
+        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44387/api/assignment");
+
+        JsonSerializerOptions options = new JsonSerializerOptions()
+        {
+            ReferenceHandler = ReferenceHandler.Preserve,
+            WriteIndented = true
+        };
+
+        requestMessage.Headers.Add("AssignmentId", "Test Assignment");
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+
+        Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
+        AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
+
+        responseMessage.EnsureSuccessStatusCode();
+
+        return assignmentModel;
     }
 }
