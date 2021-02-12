@@ -1,9 +1,8 @@
-﻿@using Group16SE.Frontend.Shared
-
-@inject IDialogService Dialog
+﻿@inject IDialogService Dialog
 
 <MudGrid Spacing="4">
     <MudItem xs="8">
+        @* There is a CoerceText value for the below, could be used to replace the code that tries to prevent the default behaviour. *@
         <MudAutocomplete T="CommentModel"
                          ResetValueOnEmptyText="true"
                          Immediate="true"
@@ -310,7 +309,7 @@
     /// <returns></returns>
     private async Task DeleteBankComment(CommentModel comment)
     {
-        autocomplete.ToggleMenu();
+        // autocomplete.ToggleMenu();
 
         // Displays warning dialog.
         IDialogReference dialog = Dialog.Show<DeleteBankCommentDialog>("Delete comment");

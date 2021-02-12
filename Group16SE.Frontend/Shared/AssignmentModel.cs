@@ -16,6 +16,9 @@ namespace Group16SE.Frontend.Shared
         /// Banks of previously used comments.
         /// </summary>
         public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; }
+
+        public Dictionary<string, PointSet> SectionPointBanks { get; set; }
+
         /// <summary>
         /// All the attempts to be marked and commented in this assignment.
         /// </summary>
