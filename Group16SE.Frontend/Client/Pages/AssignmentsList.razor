@@ -1,5 +1,7 @@
 ﻿@page "/assignments"
 
+@attribute [Authorize]
+
 @inject IDialogService Dialog
 
 <MudTable Items="assignmentsIds" Hover="true">

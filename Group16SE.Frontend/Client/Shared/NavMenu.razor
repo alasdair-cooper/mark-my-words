@@ -4,17 +4,24 @@
 @inject IDialogService Dialog;
 
 <MudNavMenu Class="mudblazor-navmenu">
-    <MudButton StartIcon="@Icons.Material.Filled.Add"
-               IconColor="Color.Primary"
-               Variant="Variant.Filled"
-               Color="Color.Primary"
-               OnClick="NewAssignment">
-        New Assignment
-    </MudButton>
-    @foreach (string assignmentId in assignmentsIds)
-    {
-        <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
-    }
+    <AuthorizeView>
+        <Authorized>
+            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                       IconColor="Color.Primary"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="NewAssignment">
+                New Assignment
+            </MudButton>
+            @foreach (string assignmentId in assignmentsIds)
+            {
+                <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
+            }
+        </Authorized>
+        <NotAuthorized>
+
+        </NotAuthorized>
+    </AuthorizeView>
 </MudNavMenu>
 
 @code {
