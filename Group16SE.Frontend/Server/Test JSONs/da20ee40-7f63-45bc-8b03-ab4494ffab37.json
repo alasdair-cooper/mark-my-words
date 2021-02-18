@@ -1,0 +1,342 @@
+{
+  "$id": "1",
+  "AssignmentId": "da20ee40-7f63-45bc-8b03-ab4494ffab37",
+  "AssignmentName": "test",
+  "SectionCommentBanks": {
+    "$id": "2",
+    "4970b7b1-2dbc-4e41-b43e-a56aaab05e7d": {
+      "$id": "3",
+      "$values": [
+        {
+          "$id": "4",
+          "EditMode": 0,
+          "CommentId": "574e203d-75af-41f3-888d-5a9be8d5f78a",
+          "Content": "comment",
+          "Uses": 1,
+          "OriginalCommentModel": null
+        }
+      ]
+    }
+  },
+  "SectionPointBanks": {
+    "$id": "5",
+    "4970b7b1-2dbc-4e41-b43e-a56aaab05e7d": {
+      "$id": "6",
+      "$values": [
+        {
+          "EnumType": 1,
+          "StringType": "Slider",
+          "Value": 2,
+          "Step": 1,
+          "Min": 0,
+          "Max": 5,
+          "Tag": "slider 1"
+        },
+        {
+          "EnumType": 1,
+          "StringType": "Slider",
+          "Value": 0,
+          "Step": 5,
+          "Min": 5,
+          "Max": 20,
+          "Tag": "slider 2"
+        },
+        {
+          "EnumType": 2,
+          "StringType": "Switch",
+          "Value": true,
+          "Tag": "switch 1"
+        }
+      ]
+    }
+  },
+  "Attempts": {
+    "$id": "7",
+    "$values": [
+      {
+        "$id": "8",
+        "AttemptId": "e538b2a6-8d34-4ad4-a231-eb27c0c4e357",
+        "Sections": {
+          "$id": "9",
+          "$values": [
+            {
+              "$id": "10",
+              "SectionID": "4970b7b1-2dbc-4e41-b43e-a56aaab05e7d",
+              "SectionName": "",
+              "Comments": {
+                "$id": "11",
+                "$values": [
+                  {
+                    "$id": "12",
+                    "EditMode": 0,
+                    "CommentId": "574e203d-75af-41f3-888d-5a9be8d5f78a",
+                    "Content": "comment",
+                    "Uses": -1,
+                    "OriginalCommentModel": {
+                      "$ref": "4"
+                    }
+                  }
+                ]
+              },
+              "Points": {
+                "$ref": "6"
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "13",
+        "AttemptId": "8149398d-2d03-4073-a077-9d0e0f0133bc",
+        "Sections": {
+          "$id": "14",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": true
+      },
+      {
+        "$id": "15",
+        "AttemptId": "1a2ef882-a958-43ed-8f7c-9048720e953d",
+        "Sections": {
+          "$id": "16",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "17",
+        "AttemptId": "0ea17cab-93f1-42e4-8271-a0c947da4a28",
+        "Sections": {
+          "$id": "18",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "19",
+        "AttemptId": "0b3c8309-3ff9-40d8-b8e1-17b270ca9ff9",
+        "Sections": {
+          "$id": "20",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "21",
+        "AttemptId": "ffe4ba3f-572b-4318-b32d-9d2f368ddf65",
+        "Sections": {
+          "$id": "22",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "23",
+        "AttemptId": "30246f54-0983-4bac-9dd6-79f0eca609dd",
+        "Sections": {
+          "$id": "24",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "25",
+        "AttemptId": "ebe62163-fa75-4aa3-bcf0-9f22ad52f543",
+        "Sections": {
+          "$id": "26",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "27",
+        "AttemptId": "7ab73a80-e0e1-4c21-99b0-898506eefd1e",
+        "Sections": {
+          "$id": "28",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "29",
+        "AttemptId": "ee58dc77-e06d-4f66-9d93-bddd9040a00c",
+        "Sections": {
+          "$id": "30",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "31",
+        "AttemptId": "b975a254-68c6-49d0-a904-5959d87c2e63",
+        "Sections": {
+          "$id": "32",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "33",
+        "AttemptId": "a8ff5069-bcb9-4c1b-8103-bf5a034cb934",
+        "Sections": {
+          "$id": "34",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "35",
+        "AttemptId": "8ce74658-000b-4244-89b7-9dc4379bbd82",
+        "Sections": {
+          "$id": "36",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "37",
+        "AttemptId": "f21549e3-982f-4280-8f6d-f6f26de58a39",
+        "Sections": {
+          "$id": "38",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "39",
+        "AttemptId": "f8440ece-2fff-4d9e-b2e9-ed562093f77f",
+        "Sections": {
+          "$id": "40",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "41",
+        "AttemptId": "3ea7ec9c-91e3-4548-8a8e-4603bd0a0a20",
+        "Sections": {
+          "$id": "42",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "43",
+        "AttemptId": "740ab1ad-9c15-49c5-970e-6977dc2e8b93",
+        "Sections": {
+          "$id": "44",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "45",
+        "AttemptId": "bffbfae0-b487-48e5-83e2-8d3715ea9e1a",
+        "Sections": {
+          "$id": "46",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "47",
+        "AttemptId": "449c2910-2813-4ae8-bda5-286db953cabf",
+        "Sections": {
+          "$id": "48",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "49",
+        "AttemptId": "580c7988-1e22-47a2-a494-0605b2165b46",
+        "Sections": {
+          "$id": "50",
+          "$values": [
+            {
+              "$ref": "10"
+            }
+          ]
+        },
+        "Completed": false
+      }
+    ]
+  }
+}

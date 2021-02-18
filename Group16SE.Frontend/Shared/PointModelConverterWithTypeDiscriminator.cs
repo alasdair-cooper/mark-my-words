@@ -26,7 +26,7 @@ namespace Group16SE.Frontend.Shared
             }
 
             string propertyName = reader.GetString();
-            if(propertyName != "Type")
+            if(propertyName != "EnumType")
             {
                 throw new JsonException();
             }
@@ -37,11 +37,11 @@ namespace Group16SE.Frontend.Shared
                 throw new JsonException();
             }
 
-            string pointType = reader.GetString();
+            PointType pointType = (PointType)reader.GetInt32();
             PointModel pointModel = pointType switch
             {
-                "Slider" => new SliderPointModel(),
-                "Switch" => new SwitchPointModel(),
+                PointType.Slider => new SliderPointModel(),
+                PointType.Switch => new SwitchPointModel(),
                 _ => throw new JsonException()
             };
 
@@ -65,11 +65,11 @@ namespace Group16SE.Frontend.Shared
                         case "Value":
                             switch (pointType)
                             {
-                                case "Slider":
+                                case PointType.Slider:
                                     int intValue = reader.GetInt32();
                                     ((SliderPointModel)pointModel).Value = intValue;
                                     break;
-                                case "Switch":
+                                case PointType.Switch:
                                     bool boolValue = reader.GetBoolean();
                                     ((SwitchPointModel)pointModel).Value = boolValue;
                                     break;
@@ -99,7 +99,8 @@ namespace Group16SE.Frontend.Shared
         {
             writer.WriteStartObject();
 
-            writer.WriteString("Type", pointModel.Type);
+            writer.WriteNumber("EnumType", Convert.ToInt32(pointModel.Type));
+            writer.WriteString("StringType", pointModel.Type.ToString());
 
             if(pointModel is SwitchPointModel switchPointModel)
             {

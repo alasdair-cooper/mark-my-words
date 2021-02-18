@@ -80,32 +80,51 @@
     </MudItem>
     <MudItem xs="4">
         <MudGrid Spacing="1">
-            @*@for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
+            @foreach (PointModel pointModel in SectionModel.Points)
             {
-                int local = i;
-                <MudItem xs="12">
-                    @{
-                        SliderPointModel sliderPointModel = SectionModel.SliderPoints[local];
-                        <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
-                    }
-                </MudItem>
+                if (pointModel is SliderPointModel sliderPointModel)
+                {
+                    <MudItem xs="12">
+                        @{
+                            <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
+                        }
+                    </MudItem>
+                }
+                else if (pointModel is SwitchPointModel switchPointModel)
+                {
+                    <MudItem xs="12">
+                        @{
+                            <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
+                        }
+                    </MudItem>
+                }
             }
-            @for (int i = 0; i < SectionModel.SwitchPoints.Count; i++)
-            {
-                int local = i;
-                <MudItem xs="12">
-                    @{
-                        SwitchPointModel switchPointModel = SectionModel.SwitchPoints[local];
-                        <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
-                    }
-                </MudItem>
-            }*@
+            @*@for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
+        {
+            int local = i;
+            <MudItem xs="12">
+                @{
+                    SliderPointModel sliderPointModel = SectionModel.SliderPoints[local];
+                    <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
+                }
+            </MudItem>
+        }
+        @for (int i = 0; i < SectionModel.SwitchPoints.Count; i++)
+        {
+            int local = i;
+            <MudItem xs="12">
+                @{
+                    SwitchPointModel switchPointModel = SectionModel.SwitchPoints[local];
+                    <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
+                }
+            </MudItem>
+        }*@
             <MudItem xs="12">
                 @{
                     string suggestedMarkText = "Suggested mark: " + suggestedMark;
                     string maximumMarkText = "/" + maximumMark;
                 }
-                <MudTextField T="int"  @bind-Value="SectionModel.GivenMark" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" @onfocus="UpdateAttempt"/>
+                <MudTextField T="int" @bind-Value="SectionModel.GivenMark" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" @onfocus="UpdateAttempt" />
             </MudItem>
         </MudGrid>
     </MudItem>

@@ -4,9 +4,29 @@ using System.Text;
 
 namespace Group16SE.Frontend.Shared
 {
+    public enum PointType
+    {
+        Default,
+        Slider,
+        Switch
+    }
+
     public class PointModel
     {
-        public string Type { get; set; }
+        private string stringPointType;
+        private PointType enumPointType;
+        public PointType Type
+        {
+            get
+            {
+                return enumPointType;
+            }
+            set
+            {
+                stringPointType = nameof(value);
+                enumPointType = value;
+            }
+        }
         public string Tag { get; set; }
     }
 
@@ -20,7 +40,7 @@ namespace Group16SE.Frontend.Shared
         public SliderPointModel()
         {
             Tag = "";
-            Type = "Slider";
+            Type = PointType.Slider;
             Value = 0;
             Min = 0;
             Max = 10;
@@ -30,7 +50,7 @@ namespace Group16SE.Frontend.Shared
         public SliderPointModel(string tag, int step, int value, int min, int max)
         {
             Tag = tag;
-            Type = "Slider";
+            Type = PointType.Slider;
             Step = step;
             Value = value;
             Min = min;
@@ -45,14 +65,14 @@ namespace Group16SE.Frontend.Shared
         public SwitchPointModel()
         {
             Tag = "";
-            Type = "Switch";
+            Type = PointType.Switch;
             Value = false;
         }
 
         public SwitchPointModel(string tag, bool value = false)
         {
             Tag = tag;
-            Type = "Switch";
+            Type = PointType.Switch;
             Value = value;
         }
     }

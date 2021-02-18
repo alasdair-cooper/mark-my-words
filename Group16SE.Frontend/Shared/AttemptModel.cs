@@ -9,24 +9,22 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// Unique ID.
         /// </summary>
-        public string AttemptId { get; set; }
+        public string AttemptId { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
         /// Sections to display and mark.
         /// </summary>
-        public List<SectionModel> Sections { get; set; }
+        public List<SectionModel> Sections { get; set; } = new List<SectionModel>();
         /// <summary>
         /// Specifies if an attempt has finished being marked.
         /// </summary>
-        public bool Completed { get; set; }
+        public bool Completed { get; set; } = false;
 
         /// <summary>
         /// Creates a new attempt with a random ID and empty sections.
         /// </summary>
         public AttemptModel()
         {
-            AttemptId = Guid.NewGuid().ToString();
-            Sections = new List<SectionModel>();
-            Completed = false;
+            
         }
 
         /// <summary>
@@ -42,7 +40,7 @@ namespace Group16SE.Frontend.Shared
             }
             AttemptId = attemptId;
 
-            Sections = sections;
+            Sections = Utils.DeepClone<List<SectionModel>>(sections);
 
             Completed = false;
         }

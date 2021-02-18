@@ -7,6 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.IO;
+
+using Group16SE.Frontend.Shared;
+
 namespace Group16SE.Frontend.Server
 {
     public class Program
@@ -22,5 +28,6 @@ namespace Group16SE.Frontend.Server
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
     }
 }

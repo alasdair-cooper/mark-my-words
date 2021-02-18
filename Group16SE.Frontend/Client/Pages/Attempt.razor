@@ -40,7 +40,7 @@
 
                         SectionModel temp = AttemptModel.Sections.ElementAt(i);
 
-                        <MudExpansionPanel Text="@temp.SectionID"
+                        <MudExpansionPanel Text="@temp.SectionName"
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"

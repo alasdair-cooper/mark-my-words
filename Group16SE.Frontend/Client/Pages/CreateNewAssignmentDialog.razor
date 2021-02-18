@@ -88,10 +88,11 @@
                                     </RowTemplate>
                                     <RowEditingTemplate>
                                         <MudTd DataLabel="Type">
-                                            <MudSelect T="string"
+                                            <MudSelect T="PointType"
+                                                       ToStringFunc="converter"
                                                        @bind-Value="context.Type">
-                                                <MudSelectItem Value="@("Slider")"></MudSelectItem>
-                                                <MudSelectItem Value="@("Switch")"></MudSelectItem>
+                                                <MudSelectItem Value="PointType.Slider"></MudSelectItem>
+                                                <MudSelectItem Value="PointType.Switch"></MudSelectItem>
                                             </MudSelect>
                                         </MudTd>
                                         <MudTd DataLabel="Label">
@@ -143,6 +144,8 @@
 
     private int attemptCount;
 
+    private Func<PointType, string> converter = type => type.ToString();
+
     private void Submit()
     {
         AssignmentModel assignmentModel = new AssignmentModel(assignmentName, attemptCount, sections);
@@ -172,7 +175,7 @@
 
     private async Task EditPoint(PointModel pointModel, SectionModel sectionModel)
     {
-        if (!string.IsNullOrWhiteSpace(pointModel.Type))
+        if (pointModel.Type != PointType.Default)
         {
             sectionModel.Points.Remove(pointModel);
 
@@ -204,13 +207,13 @@
 
     private PointModel UpdatePoint(PointModel pointModel)
     {
-        if (pointModel.Type == "Slider" && !(pointModel is SliderPointModel))
+        if (pointModel.Type == PointType.Slider && !(pointModel is SliderPointModel))
         {
             string label = pointModel.Tag;
             pointModel = new SliderPointModel();
             pointModel.Tag = label;
         }
-        else if (pointModel.Type == "Switch" && !(pointModel is SwitchPointModel))
+        else if (pointModel.Type == PointType.Switch && !(pointModel is SwitchPointModel))
         {
             string label = pointModel.Tag;
             pointModel = new SwitchPointModel();
