@@ -1,16 +1,50 @@
 ﻿@using MudBlazor 
+@using Pages
+
+@inject IDialogService Dialog;
 
 <MudNavMenu Class="mudblazor-navmenu">
-    <MudNavLink Href="/assignments">All Assignments</MudNavLink>
-    <MudNavLink Href="/attempts/Test Assignment">Test Assignment</MudNavLink>
-    <MudNavGroup Title="Assignments"
-                 Icon="@Icons.Material.Filled.School"
-                 Expanded="true"
-                 ExpandIcon="@Icons.Material.Filled.ExpandMore" Style="margin-top: 40px;">
-        <MudNavLink Href="/attempt/ttnt59">Attempt ttnt59</MudNavLink>
-    </MudNavGroup>
+    <MudButton StartIcon="@Icons.Material.Filled.Add"
+               IconColor="Color.Primary"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               OnClick="NewAssignment">
+        New Assignment
+    </MudButton>
+    @foreach (string assignmentId in assignmentsIds)
+    {
+        <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
+    }
 </MudNavMenu>
 
 @code {
+    public List<string> assignmentsIds { get; set; } = new List<string>();
 
+    protected async override Task OnInitializedAsync()
+    {
+        await RefreshAssignmentsList();
+    }
+
+    private async Task NewAssignment()
+    {
+        DialogOptions options = new DialogOptions()
+        {
+            MaxWidth = MaxWidth.Large
+        };
+        IDialogReference dialog = Dialog.Show<CreateNewAssignmentDialog>("Create Assignment", options);
+        DialogResult result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            AssignmentModel assignmentModel = (AssignmentModel)result.Data;
+            await ServerCommunicator.AssignmentToServer(assignmentModel);
+        }
+
+        await RefreshAssignmentsList();
+    }
+
+    private async Task RefreshAssignmentsList()
+    {
+        assignmentsIds = await ServerCommunicator.AssignmentListFromServer();
+    }
 }

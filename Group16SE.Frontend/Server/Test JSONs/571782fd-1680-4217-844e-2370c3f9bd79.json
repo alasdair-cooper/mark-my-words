@@ -1,0 +1,23 @@
+{
+  "$id": "1",
+  "AssignmentId": "571782fd-1680-4217-844e-2370c3f9bd79",
+  "AssignmentName": "test",
+  "SectionCommentBanks": {
+    "$id": "2",
+    "2d9c72e6-cb2c-4234-b487-602cb51ec343": {
+      "$id": "3",
+      "$values": []
+    }
+  },
+  "SectionPointBanks": {
+    "$id": "4",
+    "2d9c72e6-cb2c-4234-b487-602cb51ec343": {
+      "$id": "5",
+      "$values": []
+    }
+  },
+  "Attempts": {
+    "$id": "6",
+    "$values": []
+  }
+}

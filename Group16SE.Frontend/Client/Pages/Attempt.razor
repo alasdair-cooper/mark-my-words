@@ -1,4 +1,4 @@
-﻿@page "/attempt/{AttemptId}"
+﻿@page "/attempt/{AssignmentId}/{AttemptId}"
 
 @using System.Text
 @using System.Text.Json
@@ -25,7 +25,7 @@
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Color="Color.Primary"
                            Size="Size.Large"
-                           OnClick="async () => await AssignmentToServer(assignmentModel) ">
+                           OnClick="async () => await ServerCommunicator.AssignmentToServer(assignmentModel) ">
             </MudIconButton>
         </MudAppBar>
         <MudMainContent>
@@ -44,7 +44,7 @@
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
-                                     OnUpdateAttempt="async () => await AssignmentToServer(assignmentModel)">
+                                     OnUpdateAttempt="async () => await ServerCommunicator.AssignmentToServer(assignmentModel)">
                             </Section>
                         </MudExpansionPanel>
                     }
@@ -61,6 +61,9 @@
     /// </summary>
     [Parameter]
     public string AttemptID { get; set; }
+
+    [Parameter]
+    public string AssignmentId { get; set; }
 
     /// <summary>
     /// The current attempt.
@@ -80,79 +83,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        assignmentModel = await AssignmentFromServer();
+        assignmentModel = await ServerCommunicator.AssignmentFromServer(AssignmentId);
         AttemptModel = GetAttempt(AttemptID);
     }
 
     public async Task AttemptToServer(AttemptModel attempt)
     {
-        await AssignmentToServer(assignmentModel);
-    }
-
-    /// <summary>
-    /// Serializes and sends an assignment to the server.
-    /// </summary>
-    /// <returns></returns>
-    public async Task AssignmentToServer(AssignmentModel assignment)
-    {
-        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44387/api/assignment");
-
-        JsonSerializerOptions options = new JsonSerializerOptions()
-        {
-            ReferenceHandler = ReferenceHandler.Preserve,
-            WriteIndented = true
-        };
-        options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-        assignment.Attempts.First().Sections.First().Points = new List<PointModel>() { new SliderPointModel("Tag 1", 2, 0, 0, 10), new SwitchPointModel("Tag 2") };
-
-        requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, "application/json");
-        requestMessage.Headers.Add("AssignmentId", "Test Assignment");
-        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-        responseMessage.EnsureSuccessStatusCode();
-        //List<PointModel> pointList = new List<PointModel>() { new SliderPointModel("Tag 1", 2, 0, 0, 10), new SwitchPointModel("Tag 2") };
-        //SectionModel sectionModel = new SectionModel();
-        //sectionModel.Points = pointList;
-        //string jsonString = JsonSerializer.Serialize<SectionModel>(sectionModel, options);
-        //string jsonString = JsonSerializer.Serialize(pointList, options);
-        //Console.WriteLine(jsonString);
-        //Console.WriteLine(JsonSerializer.Deserialize<SectionModel>(jsonString, options).SectionID);
-        //Console.WriteLine(JsonSerializer.Deserialize<List<PointModel>>(jsonString, options).First().Tag);
+        await ServerCommunicator.AssignmentToServer(assignmentModel);
     }
 
     public AttemptModel GetAttempt(string attemptId)
     {
         return assignmentModel.Attempts.Where(attempt => attempt.AttemptId == attemptId).First();
-    }
-
-    /// <summary>
-    /// Fetches and deserializes an assignment from the server.
-    /// </summary>
-    /// <returns></returns>
-    public async Task<AssignmentModel> AssignmentFromServer()
-    {
-        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44387/api/assignment");
-
-        JsonSerializerOptions options = new JsonSerializerOptions()
-        {
-            ReferenceHandler = ReferenceHandler.Preserve,
-            WriteIndented = true
-        };
-        // options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-        requestMessage.Headers.Add("AssignmentId", "Test Assignment");
-        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-        Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-        AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
-
-        responseMessage.EnsureSuccessStatusCode();
-
-        return assignmentModel;
     }
 }

@@ -2,20 +2,30 @@
 
 @inject IDialogService Dialog
 
-@*<MudTable Items="assignments" Hover="true">
+<MudTable Items="assignmentsIds" Hover="true">
     <HeaderContent>
         <MudTh>ID</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="ID">@context.AssignmentId</MudTd>
+        <MudTd DataLabel="ID">@context</MudTd>
     </RowTemplate>
-</MudTable>*@
+</MudTable>
 
 <MudIconButton Icon="@Icons.Material.Filled.Add"
                Color="Color.Primary"
-               OnClick="NewAssignment"></MudIconButton>
+               OnClick="NewAssignment">
+
+</MudIconButton>
 
 @code {
+
+    public List<string> assignmentsIds { get; set; } = new List<string>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await RefreshAssignmentsList();
+    }
+
     private async Task NewAssignment()
     {
         DialogOptions options = new DialogOptions()
@@ -29,7 +39,13 @@
         {
             AssignmentModel assignmentModel = (AssignmentModel)result.Data;
             await ServerCommunicator.AssignmentToServer(assignmentModel);
-            Console.WriteLine(assignmentModel.AssignmentName);
         }
+
+        await RefreshAssignmentsList();
+    }
+
+    private async Task RefreshAssignmentsList()
+    {
+        assignmentsIds = await ServerCommunicator.AssignmentListFromServer();
     }
 }

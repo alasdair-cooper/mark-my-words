@@ -1,4 +1,4 @@
-﻿@page "/attempts/{assignmentId}"
+﻿@page "/attempts/{AssignmentId}"
 
 @using System.Text
 @using System.Text.Json
@@ -7,17 +7,6 @@
 @using System.Net.Http.Headers;
 
 @inject NavigationManager NavMan
-
-@*<MudTable Items="AssignmentModel.Attempts" Hover="true" OnRowClick="(e) => e.">
-        <HeaderContent>
-            <MudTh>ID</MudTh>
-            <MudTh>Completed</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="ID">@context.AttemptId</MudTd>
-            <MudTd DataLabel="Completed">@context.Completed</MudTd>
-        </RowTemplate>
-    </MudTable>*@
 <MudLayout>
     <MudMainContent>
 
@@ -34,7 +23,7 @@
                     <tbody>
                         @foreach (AttemptModel attempt in AssignmentModel.Attempts)
                         {
-                            <tr @onclick='() => NavMan.NavigateTo($"attempt/{attempt.AttemptId}")'>
+                            <tr @onclick='() => NavMan.NavigateTo($"attempt/{AssignmentId}/{attempt.AttemptId}")'>
                                 <td>@attempt.AttemptId</td>
                                 <td>@attempt.Completed</td>
                             </tr>
@@ -48,7 +37,7 @@
 </MudLayout>
 @code{
     [Parameter]
-    public string assignmentId { get; set; }
+    public string AssignmentId { get; set; }
 
     [Parameter]
     public AssignmentModel AssignmentModel { get; set; }
@@ -57,36 +46,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        AssignmentModel = await AssignmentFromServer();
-        Console.WriteLine(AssignmentModel.AssignmentId);
-    }
-
-    /// <summary>
-    /// Fetches and deserializes an assignment from the server.
-    /// </summary>
-    /// <returns></returns>
-    public async Task<AssignmentModel> AssignmentFromServer()
-    {
-        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44387/api/assignment");
-
-        JsonSerializerOptions options = new JsonSerializerOptions()
-        {
-            ReferenceHandler = ReferenceHandler.Preserve,
-            WriteIndented = true,
-        };
-
-        // options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-        requestMessage.Headers.Add("AssignmentId", "Test Assignment");
-        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-        Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-        AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
-
-        responseMessage.EnsureSuccessStatusCode();
-
-        return assignmentModel;
+        AssignmentModel = await ServerCommunicator.AssignmentFromServer(AssignmentId);
     }
 }
