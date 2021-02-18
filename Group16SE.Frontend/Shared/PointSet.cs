@@ -10,9 +10,14 @@ namespace Group16SE.Frontend.Shared
     {
         public List<SliderPointModel> SliderPoints { get; set; }
         public List<SwitchPointModel> SwitchPoints { get; set; }
-        public List<AutocompletePointModel> AutocompletePoints { get; set; }
 
-        public PointSet(List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default, List<AutocompletePointModel> autocompletePoints = default)
+        public PointSet()
+        {
+            SliderPoints = new List<SliderPointModel>();
+            SwitchPoints = new List<SwitchPointModel>();
+        }
+
+        public PointSet(List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default)
         {
             if (sliderPoints == default)
             {
@@ -25,12 +30,6 @@ namespace Group16SE.Frontend.Shared
                 switchPoints = new List<SwitchPointModel>();
             }
             SwitchPoints = switchPoints;
-
-            if (autocompletePoints == default)
-            {
-                autocompletePoints = new List<AutocompletePointModel>();
-            }
-            AutocompletePoints = autocompletePoints;
         }
     }
 }

@@ -22,9 +22,9 @@
                        Label="Attempt marked"
                        @bind-Checked="AttemptModel.Completed">
             </MudSwitch>
-            <MudIconButton Icon="@Icons.Material.Filled.Save" 
+            <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Color="Color.Primary"
-                           Size="Size.Large" 
+                           Size="Size.Large"
                            OnClick="async () => await AssignmentToServer(assignmentModel) ">
             </MudIconButton>
         </MudAppBar>
@@ -40,7 +40,8 @@
 
                         SectionModel temp = AttemptModel.Sections.ElementAt(i);
 
-                        <MudExpansionPanel Text="@temp.SectionID">
+                        <MudExpansionPanel Text="@temp.SectionID"
+                                           IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
                                      OnUpdateAttempt="async () => await AssignmentToServer(assignmentModel)">
@@ -48,7 +49,7 @@
                         </MudExpansionPanel>
                     }
                 </MudExpansionPanels>
-                
+
             </MudContainer>
         </MudMainContent>
     </MudLayout>
@@ -101,6 +102,9 @@
             ReferenceHandler = ReferenceHandler.Preserve,
             WriteIndented = true
         };
+        options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+
+        assignment.Attempts.First().Sections.First().Points = new List<PointModel>() { new SliderPointModel("Tag 1", 2, 0, 0, 10), new SwitchPointModel("Tag 2") };
 
         requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, "application/json");
         requestMessage.Headers.Add("AssignmentId", "Test Assignment");
@@ -109,6 +113,14 @@
         HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
 
         responseMessage.EnsureSuccessStatusCode();
+        //List<PointModel> pointList = new List<PointModel>() { new SliderPointModel("Tag 1", 2, 0, 0, 10), new SwitchPointModel("Tag 2") };
+        //SectionModel sectionModel = new SectionModel();
+        //sectionModel.Points = pointList;
+        //string jsonString = JsonSerializer.Serialize<SectionModel>(sectionModel, options);
+        //string jsonString = JsonSerializer.Serialize(pointList, options);
+        //Console.WriteLine(jsonString);
+        //Console.WriteLine(JsonSerializer.Deserialize<SectionModel>(jsonString, options).SectionID);
+        //Console.WriteLine(JsonSerializer.Deserialize<List<PointModel>>(jsonString, options).First().Tag);
     }
 
     public AttemptModel GetAttempt(string attemptId)
@@ -129,6 +141,7 @@
             ReferenceHandler = ReferenceHandler.Preserve,
             WriteIndented = true
         };
+        // options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
 
         requestMessage.Headers.Add("AssignmentId", "Test Assignment");
         requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

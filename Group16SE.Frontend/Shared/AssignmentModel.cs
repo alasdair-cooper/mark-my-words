@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace Group16SE.Frontend.Shared
 {
@@ -11,54 +9,47 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// Unique ID.
         /// </summary>
-        public string AssignmentId { get; set; }
+        public string AssignmentId { get; set; } = Guid.NewGuid().ToString();
+
+        public string AssignmentName { get; set; } = "";
         /// <summary>
         /// Banks of previously used comments.
         /// </summary>
-        public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; }
+        public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; } = new Dictionary<string, List<CommentModel>>();
 
-        public Dictionary<string, PointSet> SectionPointBanks { get; set; }
+        // public Dictionary<string, PointSet> SectionPointBanks { get; set; }
+
+        public Dictionary<string, List<PointModel>> SectionPointBanks { get; set; } = new Dictionary<string, List<PointModel>>();
 
         /// <summary>
         /// All the attempts to be marked and commented in this assignment.
         /// </summary>
-        public List<AttemptModel> Attempts { get; set; }
+        public List<AttemptModel> Attempts { get; set; } = new List<AttemptModel>();
+
+        private HttpClient client = new HttpClient();
 
         /// <summary>
         /// Creates a new assignment with a random ID and no attempts, as well as empty comment banks.
         /// </summary>
         public AssignmentModel()
         {
-            AssignmentId = Guid.NewGuid().ToString();
-            Attempts = new List<AttemptModel>();
-            SectionCommentBanks = new Dictionary<string, List<CommentModel>>();
+            
         }
 
-        /// <summary>
-        /// Creates a new assignment with optional ID, attempts and banks.
-        /// </summary>
-        /// <param name="assignmentId">Unique ID, else becomes a new GUID.</param>
-        /// <param name="attempts">Attempts to be added to assignment.</param>
-        /// <param name="sectionCommentBanks">Banks to be linked to sections in attempts.</param>
-        public AssignmentModel(string assignmentId = default, List<AttemptModel> attempts = default, Dictionary<string, List<CommentModel>> sectionCommentBanks = default)
+        public AssignmentModel(string assignmentName, int attemptCount, List<SectionModel> sections)
         {
-            if(assignmentId == default)
-            {
-                assignmentId = Guid.NewGuid().ToString();
-            }
-            AssignmentId = assignmentId;
+            AssignmentName = assignmentName;
 
-            if (attempts == default)
+            for (int i = 0; i < attemptCount; i++)
             {
-                attempts = new List<AttemptModel>();
+                Attempts.Add(new AttemptModel(new List<SectionModel>(sections)));
             }
-            Attempts = attempts;
-            
-            if (sectionCommentBanks == default)
+
+            foreach (SectionModel sectionModel in sections)
             {
-                sectionCommentBanks = new Dictionary<string, List<CommentModel>>();
+                SectionPointBanks.Add(sectionModel.SectionID, sectionModel.Points);
+                SectionCommentBanks.Add(sectionModel.SectionID, new List<CommentModel>());
             }
-            SectionCommentBanks = sectionCommentBanks;    
         }
     }
 }

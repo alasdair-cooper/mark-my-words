@@ -1,5 +1,7 @@
 ﻿@page "/assignments"
 
+@inject IDialogService Dialog
+
 @*<MudTable Items="assignments" Hover="true">
     <HeaderContent>
         <MudTh>ID</MudTh>
@@ -9,8 +11,25 @@
     </RowTemplate>
 </MudTable>*@
 
-<MudIconButton></MudIconButton>
+<MudIconButton Icon="@Icons.Material.Filled.Add"
+               Color="Color.Primary"
+               OnClick="NewAssignment"></MudIconButton>
 
 @code {
-    
+    private async Task NewAssignment()
+    {
+        DialogOptions options = new DialogOptions()
+        {
+            MaxWidth = MaxWidth.Large
+        };
+        IDialogReference dialog = Dialog.Show<CreateNewAssignmentDialog>("Create Assignment", options);
+        DialogResult result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            AssignmentModel assignmentModel = (AssignmentModel)result.Data;
+            await ServerCommunicator.AssignmentToServer(assignmentModel);
+            Console.WriteLine(assignmentModel.AssignmentName);
+        }
+    }
 }

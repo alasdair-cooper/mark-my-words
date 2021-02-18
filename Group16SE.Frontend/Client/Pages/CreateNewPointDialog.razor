@@ -1,0 +1,104 @@
+﻿@using System.Windows.Input
+@using FluentValidation
+
+<MudDialog>
+    <DialogContent>
+        @if (pointModel is SliderPointModel sliderPointModel)
+        {
+            pointModel = sliderPointModel;
+            <MudForm @bind-IsValid="formValid">
+                <MudText>Sliders are draggable points that have a minimum and maximum value. The step is the distance between each 'notch', so the slider is forced to move in intervals of 5 instead of 1, for example.</MudText>
+                <MudTextField Label="Label"
+                              T="string"
+                              Required="true"
+                              RequiredError="Label is required!"
+                              @bind-Value="sliderPointModel.Tag">
+
+                </MudTextField>
+                <MudTextField Label="Minimum"
+                              T="int"
+                              @bind-Value="sliderPointModel.Min">
+
+                </MudTextField>
+                <MudTextField Label="Maximum"
+                              T="int"
+                              Validation="maxValidator.Validation"
+                              @bind-Value="sliderPointModel.Max">
+
+                </MudTextField>
+                <MudTextField Label="Step"
+                              T="int"
+                              Validation="stepValidator.Validation"
+                              @bind-Value="sliderPointModel.Step">
+
+                </MudTextField>
+            </MudForm>
+        }
+        else if (pointModel is SwitchPointModel switchPointModel)
+        {
+            <MudForm @bind-IsValid="formValid">
+                <MudText>Switches are simple true or false values. They can represent completion or the presence of something or lack of, for example.</MudText>
+                <MudTextField Label="Label"
+                              T="string"
+                              Required="true"
+                              RequiredError="Label is required!"
+                              @bind-Value="switchPointModel.Tag">
+
+                </MudTextField>
+            </MudForm>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success"
+                   OnClick="Submit"
+                   Disabled="!formValid">
+            Create Point
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public PointModel pointModel { get; set; } = new PointModel();
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(pointModel));
+    void Cancel() => MudDialog.Cancel();
+
+    private FluentValueValidator<int> maxValidator;
+    private FluentValueValidator<int> stepValidator;
+
+    private bool formValid { get; set; } = false;
+
+    protected override void OnParametersSet()
+    {
+        if (pointModel is SliderPointModel sliderPointModel) 
+        {
+            maxValidator = new FluentValueValidator<int>(x => x.GreaterThan(sliderPointModel.Min).WithMessage("Must be greater than the minimum!"));
+            stepValidator = new FluentValueValidator<int>(x => x.Must(value => (sliderPointModel.Max - sliderPointModel.Min) % value == 0).WithMessage("Must be a multiple of the maximum - minimum!"));
+        } 
+    }
+
+    public class FluentValueValidator<T> : AbstractValidator<T>
+    {
+        public FluentValueValidator(Action<IRuleBuilderInitial<T, T>> rule)
+        {
+            rule(RuleFor(x => x));
+        }
+
+        private IEnumerable<string> ValidateValue(T arg)
+        {
+            FluentValidation.Results.ValidationResult result = Validate(arg);
+            if (result.IsValid)
+            {
+                return new string[0];
+            }
+            return result.Errors.Select(e => e.ErrorMessage);
+        }
+
+        public Func<T, IEnumerable<string>> Validation => ValidateValue;
+    }
+}

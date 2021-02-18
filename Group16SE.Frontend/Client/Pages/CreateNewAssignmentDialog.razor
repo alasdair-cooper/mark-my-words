@@ -1,0 +1,276 @@
+﻿@using System.Windows.Input
+@using FluentValidation
+
+@inject IDialogService Dialog
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer Class="d-flex flex-column">
+            <div Style="max-height: 600px; overflow-y: scroll">
+                <MudTextField T="string"
+                              Label="Assignment Name"
+                              Class="ma-4"
+                              @bind-Value="assignmentName">
+                </MudTextField>
+                <MudTextField T="int"
+                              Label="Number of Attempts"
+                              Class="ma-4"
+                              @bind-Value="attemptCount">
+                </MudTextField>
+                <MudButton StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="NewSection"
+                           Variant="Variant.Text"
+                           Class="ma-4"
+                           Style="width: 100%">
+                    Add Section
+                </MudButton>
+                @{
+                    int count = 1;
+                    foreach (SectionModel section in sections)
+                    {
+                        <MudContainer>
+                            <MudPaper Elevation="8" Class="pa-4 my-4">
+                                @*<MudText Typo="@Typo.h6">
+                                    Section @count
+                                </MudText>*@
+                                <MudForm>
+                                    <MudTextField T="string"
+                                                  Label="Section name"
+                                                  Required="true"
+                                                  RequiredError="Section name is required!"
+                                                  Adornment="Adornment.End"
+                                                  AdornmentIcon="@Icons.Filled.DeleteForever"
+                                                  OnAdornmentClick="() => DeleteSection(section)"
+                                                  Style="width: 100%">
+
+                                    </MudTextField>
+                                    <MudTextField T="int"
+                                                  Label="Maximum mark"
+                                                  Required="true"
+                                                  RequiredError="Maximum mark is required!"
+                                                  HelperText="Must be a number"
+                                                  Validation="greaterThanZeroValidator.Validation">
+
+                                    </MudTextField>
+                                </MudForm>
+                                <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                           OnClick="() => NewPoint(section)"
+                                           Variant="Variant.Text"
+                                           Class="ma-4"
+                                           Style="width: 100%">
+                                    Add Point
+                                </MudButton>
+                                <MudTable Items="@section.Points"
+                                          Hover="true"
+                                          Breakpoint="Breakpoint.Sm"
+                                          CommitEditCommand="editCommand"
+                                          CommitEditTooltip="Save Point"
+                                          Class="ma-4">
+                                    <HeaderContent>
+                                        <MudTh>Type</MudTh>
+                                        <MudTh>Label</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="Type">
+                                            @context.Type
+                                        </MudTd>
+                                        <MudTd DataLabel="Label">
+                                            @context.Tag
+                                        </MudTd>
+                                        <MudTd>
+                                            <MudTooltip Text="Edit Point">
+                                                <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                                               Size="Size.Small"
+                                                               OnClick="() => EditPoint(context, section)">
+                                                </MudIconButton>
+                                            </MudTooltip>
+                                        </MudTd>
+                                    </RowTemplate>
+                                    <RowEditingTemplate>
+                                        <MudTd DataLabel="Type">
+                                            <MudSelect T="string"
+                                                       @bind-Value="context.Type">
+                                                <MudSelectItem Value="@("Slider")"></MudSelectItem>
+                                                <MudSelectItem Value="@("Switch")"></MudSelectItem>
+                                            </MudSelect>
+                                        </MudTd>
+                                        <MudTd DataLabel="Label">
+                                            <MudTextField @bind-Value="context.Tag"></MudTextField>
+                                        </MudTd>
+                                        <MudTd>
+                                            <MudTooltip Text="Edit Point">
+                                                <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                                               Size="Size.Small"
+                                                               OnClick="() => EditPoint(context, section)">
+                                                </MudIconButton>
+                                            </MudTooltip>
+                                            <MudTooltip Text="Delete Point">
+                                                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                               Size="Size.Small"
+                                                               OnClick="() => section.Points.Remove(context)">
+                                                </MudIconButton>
+                                            </MudTooltip>
+                                        </MudTd>
+                                    </RowEditingTemplate>
+                                </MudTable>
+                            </MudPaper>
+                        </MudContainer>
+                        count += 1;
+                    }
+                }
+            </div>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success"
+                   OnClick="Submit">
+            Create Assignment
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private List<SectionModel> sections = new List<SectionModel>();
+
+    private ICommand editCommand;
+
+    private FluentValueValidator<int> greaterThanZeroValidator = new FluentValueValidator<int>(x => x.GreaterThan(0).WithMessage("Must be greater than zero!"));
+
+    private string assignmentName;
+
+    private int attemptCount;
+
+    private void Submit()
+    {
+        AssignmentModel assignmentModel = new AssignmentModel(assignmentName, attemptCount, sections);
+
+        MudDialog.Close(DialogResult.Ok(assignmentModel));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    protected override void OnInitialized()
+    {
+        editCommand = new EditCommand(OnEditPoint);
+    }
+
+    private void OnEditPoint(object parameter)
+    {
+
+    }
+
+    private void NewPoint(SectionModel section)
+    {
+        section.Points.Add(new PointModel());
+    }
+
+    private async Task EditPoint(PointModel pointModel, SectionModel sectionModel)
+    {
+        if (!string.IsNullOrWhiteSpace(pointModel.Type))
+        {
+            sectionModel.Points.Remove(pointModel);
+
+            pointModel = UpdatePoint(pointModel);
+
+            DialogParameters parameters = new DialogParameters()
+            {
+                ["PointModel"] = pointModel
+            };
+            DialogOptions options = new DialogOptions()
+            {
+                CloseButton = true
+            };
+
+            IDialogReference dialog = Dialog.Show<CreateNewPointDialog>("Create New Point", parameters, options);
+            DialogResult result = await dialog.Result;
+
+
+            if (!result.Cancelled)
+            {
+                sectionModel.Points.Add((PointModel)result.Data);
+            }
+            else
+            {
+                sectionModel.Points.Add(pointModel);
+            }
+        }
+    }
+
+    private PointModel UpdatePoint(PointModel pointModel)
+    {
+        if (pointModel.Type == "Slider" && !(pointModel is SliderPointModel))
+        {
+            string label = pointModel.Tag;
+            pointModel = new SliderPointModel();
+            pointModel.Tag = label;
+        }
+        else if (pointModel.Type == "Switch" && !(pointModel is SwitchPointModel))
+        {
+            string label = pointModel.Tag;
+            pointModel = new SwitchPointModel();
+            pointModel.Tag = label;
+        }
+
+        return pointModel;
+    }
+
+    private void DeleteSection(SectionModel sectionModel)
+    {
+        sections.Remove(sectionModel);
+    }
+
+    private void NewSection()
+    {
+        SectionModel newSection = new SectionModel();
+        sections.Add(newSection);
+        StateHasChanged();
+    }
+
+    public class EditCommand : ICommand
+    {
+        public EditCommand(Action<object> execute)
+        {
+            Action = execute;
+        }
+
+        public Action<object> Action { get; } = null;
+
+        public void Execute(object parameter)
+        {
+            Action?.Invoke(parameter);
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public event EventHandler CanExecuteChanged;
+    }
+
+    public class FluentValueValidator<T> : AbstractValidator<T>
+    {
+        public FluentValueValidator(Action<IRuleBuilderInitial<T, T>> rule)
+        {
+            rule(RuleFor(x => x));
+        }
+
+        private IEnumerable<string> ValidateValue(T arg)
+        {
+            FluentValidation.Results.ValidationResult result = Validate(arg);
+            if (result.IsValid)
+            {
+                return new string[0];
+            }
+            return result.Errors.Select(e => e.ErrorMessage);
+        }
+
+        public Func<T, IEnumerable<string>> Validation => ValidateValue;
+    }
+}

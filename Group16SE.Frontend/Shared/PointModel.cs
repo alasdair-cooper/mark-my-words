@@ -6,13 +6,8 @@ namespace Group16SE.Frontend.Shared
 {
     public class PointModel
     {
-        private readonly int weight;
+        public string Type { get; set; }
         public string Tag { get; set; }
-
-        public PointModel(int newPointWeight = 1)
-        {
-            weight = newPointWeight;
-        }
     }
 
     public class SliderPointModel : PointModel
@@ -25,6 +20,7 @@ namespace Group16SE.Frontend.Shared
         public SliderPointModel()
         {
             Tag = "";
+            Type = "Slider";
             Value = 0;
             Min = 0;
             Max = 10;
@@ -34,6 +30,7 @@ namespace Group16SE.Frontend.Shared
         public SliderPointModel(string tag, int step, int value, int min, int max)
         {
             Tag = tag;
+            Type = "Slider";
             Step = step;
             Value = value;
             Min = min;
@@ -48,25 +45,15 @@ namespace Group16SE.Frontend.Shared
         public SwitchPointModel()
         {
             Tag = "";
+            Type = "Switch";
             Value = false;
         }
 
         public SwitchPointModel(string tag, bool value = false)
         {
             Tag = tag;
+            Type = "Switch";
             Value = value;
-        }
-    }
-
-    public class AutocompletePointModel : PointModel
-    {
-        public string Value { get; set; }
-        public string[] PossibleValues { get; set; }
-
-        public AutocompletePointModel()
-        {
-            Value = "";
-            PossibleValues = null;
         }
     }
 }

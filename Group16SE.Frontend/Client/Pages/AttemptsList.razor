@@ -72,8 +72,10 @@
         JsonSerializerOptions options = new JsonSerializerOptions()
         {
             ReferenceHandler = ReferenceHandler.Preserve,
-            WriteIndented = true
+            WriteIndented = true,
         };
+
+        // options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
 
         requestMessage.Headers.Add("AssignmentId", "Test Assignment");
         requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

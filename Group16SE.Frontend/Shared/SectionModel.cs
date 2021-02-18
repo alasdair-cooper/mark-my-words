@@ -10,22 +10,21 @@ namespace Group16SE.Frontend.Shared
         /// Unique ID.
         /// </summary>
         public string SectionID { get; set; }
+        public string SectionName { get; set; }
         /// <summary>
         /// Comments within the section.
         /// </summary>
         public List<CommentModel> Comments { get; set; }
+
+        public List<PointModel> Points { get; set; }
         /// <summary>
         /// Sliders in the section.
         /// </summary>
-        public List<SliderPointModel> SliderPoints { get; set; }
+        //public List<SliderPointModel> SliderPoints { get; set; }
         /// <summary>
         /// Switches in the section.
         /// </summary>
-        public List<SwitchPointModel> SwitchPoints { get; set; }
-        /// <summary>
-        /// Autocompletes in the section.
-        /// </summary>
-        public List<AutocompletePointModel> AutocompletePoints { get; set; }
+        //public List<SwitchPointModel> SwitchPoints { get; set; }
         /// <summary>
         /// Mark specified by the user.
         /// </summary>
@@ -49,56 +48,54 @@ namespace Group16SE.Frontend.Shared
         public SectionModel()
         {
             SectionID = Guid.NewGuid().ToString();
+            SectionName = "";
+            //PointSet = new PointSet();
             Comments = new List<CommentModel>();
-            SliderPoints = new List<SliderPointModel>();
-            SwitchPoints = new List<SwitchPointModel>();
-            AutocompletePoints = new List<AutocompletePointModel>();
+            Points = new List<PointModel>();
+            //SliderPoints = new List<SliderPointModel>();
+            //SwitchPoints = new List<SwitchPointModel>();
             GivenMark = 0;
             SuggestedMark = 0;
-            MaximumMark = 10;
+            MaximumMark = 0;
         }
 
-        /// <summary>
-        /// Creates a section with specified comments, and can also take a unique ID, point lists, and max mark.
-        /// </summary>
-        /// <param name="comments"></param>
-        /// <param name="sectionID"></param>
-        /// <param name="sliderPoints"></param>
-        /// <param name="switchPoints"></param>
-        /// <param name="autocompletePoints"></param>
-        /// <param name="maximumMark"></param>
-        public SectionModel(List<CommentModel> comments, string sectionID = default, List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default, List<AutocompletePointModel> autocompletePoints = default, int maximumMark = 10)
-        {
-            if(sectionID == default)
-            {
-                sectionID = Guid.NewGuid().ToString();
-            }
-            SectionID = sectionID;
+        ///// <summary>
+        ///// Creates a section with specified comments, and can also take a unique ID, point lists, and max mark.
+        ///// </summary>
+        ///// <param name="comments"></param>
+        ///// <param name="sectionID"></param>
+        ///// <param name="sliderPoints"></param>
+        ///// <param name="switchPoints"></param>
+        ///// <param name="autocompletePoints"></param>
+        ///// <param name="maximumMark"></param>
+        //public SectionModel(List<CommentModel> comments, string sectionID = default, List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default, int maximumMark = 0)
+        //{
+        //    if(sectionID == default)
+        //    {
+        //        sectionID = Guid.NewGuid().ToString();
+        //    }
+        //    SectionID = sectionID;
 
-            Comments = comments;
+        //    SectionName = "";
 
-            if(sliderPoints == default)
-            {
-                sliderPoints = new List<SliderPointModel>();
-            }
-            SliderPoints = sliderPoints;
+        //    Comments = comments;
+
+        //    //if(sliderPoints == default)
+        //    //{
+        //    //    sliderPoints = new List<SliderPointModel>();
+        //    //}
+        //    //SliderPoints = sliderPoints;
             
-            if(switchPoints == default)
-            {
-                switchPoints = new List<SwitchPointModel>();
-            }
-            SwitchPoints = switchPoints;
-            
-            if(autocompletePoints == default)
-            {
-                autocompletePoints = new List<AutocompletePointModel>();
-            }
-            AutocompletePoints = autocompletePoints;    
+        //    //if(switchPoints == default)
+        //    //{
+        //    //    switchPoints = new List<SwitchPointModel>();
+        //    //}
+        //    //SwitchPoints = switchPoints;  
 
-            GivenMark = 0;
-            SuggestedMark = 0;
-            MaximumMark = maximumMark;
-        }
+        //    GivenMark = 0;
+        //    SuggestedMark = 0;
+        //    MaximumMark = maximumMark;
+        //}
     
         /// <summary>
         /// Adds a comment to the section from text.

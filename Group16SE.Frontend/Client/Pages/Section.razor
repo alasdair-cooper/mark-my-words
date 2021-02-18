@@ -11,7 +11,6 @@
                          ToStringFunc="@(e => e.Content)"
                          @ref="autocomplete"
                          @bind-Text="@CommentInputText"
-                         @bind-Placeholder="@SavedInputText"
                          OnKeyUp="KeyPressed"
                          @onfocus="() => CommentInputText = SavedInputText">
             <ItemTemplate Context="e">
@@ -81,7 +80,7 @@
     </MudItem>
     <MudItem xs="4">
         <MudGrid Spacing="1">
-            @for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
+            @*@for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
             {
                 int local = i;
                 <MudItem xs="12">
@@ -100,17 +99,7 @@
                         <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
                     }
                 </MudItem>
-            }
-            @for (int i = 0; i < SectionModel.AutocompletePoints.Count; i++)
-            {
-                int local = i;
-                <MudItem xs="12">
-                    @{
-                        AutocompletePointModel autocompletePointModel = SectionModel.AutocompletePoints[local];
-                        <MudAutocomplete @bind-Value="autocompletePointModel.Value"></MudAutocomplete>
-                    }
-                </MudItem>
-            }
+            }*@
             <MudItem xs="12">
                 @{
                     string suggestedMarkText = "Suggested mark: " + suggestedMark;
@@ -144,6 +133,11 @@
     /// </summary>
     [Parameter]
     public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
+
+    /// <summary>
+    /// Reference to the autocomplete component.
+    /// </summary>
+    private MudAutocomplete<CommentModel> autocomplete;
 
     [Parameter]
     public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
@@ -197,11 +191,6 @@
             }
         }
     }
-
-    /// <summary>
-    /// Reference to the autocomplete component.
-    /// </summary>
-    private MudAutocomplete<CommentModel> autocomplete;
 
     /// <summary>
     /// Triggers the callback to update bank comments in the parent component.

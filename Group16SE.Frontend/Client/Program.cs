@@ -14,6 +14,8 @@ namespace Group16SE.Frontend.Client
 {
     public class Program
     {
+        public HttpClient client { get; set; } = new HttpClient();
+
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);

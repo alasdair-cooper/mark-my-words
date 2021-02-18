@@ -36,11 +36,33 @@ namespace Group16SE.Frontend.Shared
         /// </summary>
         public int Uses { get; set; }
 
+        // ID for the backend to use
+        private string originalCommentModelId = null;
+        private CommentModel _originalCommentModel = null;
+
         /// <summary>
         /// The comment where the comment came from (for comments in sections).
         /// </summary>
-        public CommentModel OriginalCommentModel { get; set; }
-
+        public CommentModel OriginalCommentModel
+        {
+            get
+            {
+                return _originalCommentModel;
+            }
+            set
+            {
+                _originalCommentModel = value;
+                if (value != null)
+                {
+                    originalCommentModelId = value.CommentId;
+                }
+                else
+                {
+                    originalCommentModelId = null;
+                }
+            } 
+        }
+      
         /// <summary>
         /// Cretes an empty comment from no original with a random ID. 
         /// </summary>
@@ -49,7 +71,6 @@ namespace Group16SE.Frontend.Shared
             EditMode = EditMode.None;
             CommentId = Guid.NewGuid().ToString();
             Content = "";
-            OriginalCommentModel = null;
             Uses = -1;
         }
 
@@ -62,7 +83,6 @@ namespace Group16SE.Frontend.Shared
             EditMode = EditMode.None;
             CommentId = Guid.NewGuid().ToString();
             Content = content;
-            OriginalCommentModel = null;
             Uses = -1;
         }
 
