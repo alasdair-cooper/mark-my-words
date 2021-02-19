@@ -19,22 +19,22 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// The editmode specifies if a comment is being edited, or the attached original is.
         /// </summary>
-        public EditMode EditMode { get; set; }
+        public EditMode EditMode { get; set; } = EditMode.None;
 
         /// <summary>
         /// Unique ID.
         /// </summary>
-        public string CommentId { get; set; }
+        public string CommentId { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// The user decided content.
         /// </summary>
-        public string Content { get; set; }
+        public string Content { get; set; } = "";
 
         /// <summary>
         /// Number of uses of a comment (for when it is in a bank).
         /// </summary>
-        public int Uses { get; set; }
+        public int Uses { get; set; } = -1;
 
         // ID for the backend to use
         private string originalCommentModelId = null;
@@ -62,16 +62,13 @@ namespace Group16SE.Frontend.Shared
                 }
             } 
         }
-      
+
         /// <summary>
-        /// Cretes an empty comment from no original with a random ID. 
+        /// Empty constructor intended for the deserializer.
         /// </summary>
         public CommentModel()
         {
-            EditMode = EditMode.None;
-            CommentId = Guid.NewGuid().ToString();
-            Content = "";
-            Uses = -1;
+
         }
 
         /// <summary>
@@ -98,28 +95,5 @@ namespace Group16SE.Frontend.Shared
             OriginalCommentModel = originalCommentModel;
             Uses = -1;
         }
-
-        /// <summary>
-        /// Edits a comment in a section.
-        /// </summary>
-        /// <param name="commentBank">The bank of the current section.</param>
-        //public void EditCommentInstance(List<CommentModel> commentBank)
-        //{
-        //    CommentModel newBankComment = new CommentModel(Content);
-        //    newBankComment.Uses = 1;
-
-        //    OriginalCommentModel.Uses -= 1;
-        //    OriginalCommentModel = newBankComment;
-
-        //    commentBank.Add(newBankComment);
-        //}
-
-        /// <summary>
-        /// Edits a comment in a bank
-        /// </summary>
-        //public void EditCommentGlobal()
-        //{
-        //    OriginalCommentModel.Content = Content;
-        //}
     }
 }

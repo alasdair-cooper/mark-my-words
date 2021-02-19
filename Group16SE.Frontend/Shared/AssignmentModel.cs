@@ -10,15 +10,17 @@ namespace Group16SE.Frontend.Shared
         /// Unique ID.
         /// </summary>
         public string AssignmentId { get; set; } = Guid.NewGuid().ToString();
-
+        /// <summary>
+        /// Name of the assignment.
+        /// </summary>
         public string AssignmentName { get; set; } = "";
         /// <summary>
         /// Banks of previously used comments.
         /// </summary>
         public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; } = new Dictionary<string, List<CommentModel>>();
-
-        // public Dictionary<string, PointSet> SectionPointBanks { get; set; }
-
+        /// <summary>
+        /// Banks of all the points in each section.
+        /// </summary>
         public Dictionary<string, List<PointModel>> SectionPointBanks { get; set; } = new Dictionary<string, List<PointModel>>();
 
         /// <summary>
@@ -26,16 +28,16 @@ namespace Group16SE.Frontend.Shared
         /// </summary>
         public List<AttemptModel> Attempts { get; set; } = new List<AttemptModel>();
 
-        private HttpClient client = new HttpClient();
-
         /// <summary>
-        /// Creates a new assignment with a random ID and no attempts, as well as empty comment banks.
+        /// Empty constructor intended for the deserializer.
         /// </summary>
-        public AssignmentModel()
-        {
-            
-        }
-
+        public AssignmentModel() { }
+        /// <summary>
+        /// Creates a new assignment with a specified name, number of attempts and sections.
+        /// </summary>
+        /// <param name="assignmentName">The name of the assignment.</param>
+        /// <param name="attemptCount">The number of attempts to be created in the assignment.</param>
+        /// <param name="sections">The sections containing the points to be in each attempt</param>
         public AssignmentModel(string assignmentName, int attemptCount, List<SectionModel> sections)
         {
             AssignmentName = assignmentName;

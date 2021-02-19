@@ -58,6 +58,10 @@ namespace Group16SE.Frontend.Shared
                     reader.Read();
                     switch (propertyName)
                     {
+                        case "PointId":
+                            string pointId = reader.GetString();
+                            pointModel.PointId = pointId;
+                            break;
                         case "Tag":
                             string tag = reader.GetString();
                             pointModel.Tag = tag;
@@ -100,6 +104,7 @@ namespace Group16SE.Frontend.Shared
             writer.WriteStartObject();
 
             writer.WriteNumber("EnumType", Convert.ToInt32(pointModel.Type));
+            writer.WriteString("PointId", pointModel.PointId);
             writer.WriteString("StringType", pointModel.Type.ToString());
 
             if(pointModel is SwitchPointModel switchPointModel)

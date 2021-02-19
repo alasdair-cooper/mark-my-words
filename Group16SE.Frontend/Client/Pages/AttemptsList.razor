@@ -38,14 +38,24 @@
     </MudMainContent>
 </MudLayout>
 @code{
+    /// <summary>
+    /// The unique ID of the current assignment.
+    /// </summary>
     [Parameter]
     public string AssignmentId { get; set; }
 
+    /// <summary>
+    /// The current assignment.
+    /// </summary>
     [Parameter]
     public AssignmentModel AssignmentModel { get; set; }
 
     private HttpClient client = new HttpClient();
 
+    /// <summary>
+    /// Fetches the assignment from the server when the component is intialized.
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
         AssignmentModel = await ServerCommunicator.AssignmentFromServer(AssignmentId);

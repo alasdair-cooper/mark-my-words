@@ -20,7 +20,7 @@ namespace Group16SE.Frontend.Shared
         public bool Completed { get; set; } = false;
 
         /// <summary>
-        /// Creates a new attempt with a random ID and empty sections.
+        /// Empty constructor intended for the deserializer.
         /// </summary>
         public AttemptModel()
         {

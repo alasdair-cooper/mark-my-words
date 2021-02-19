@@ -9,14 +9,17 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// Unique ID.
         /// </summary>
-        public string SectionID { get; set; }
-        public string SectionName { get; set; }
+        public string SectionID { get; set; } = Guid.NewGuid().ToString();
+        /// <summary>
+        /// Name of the section.
+        /// </summary>
+        public string SectionName { get; set; } = "";
         /// <summary>
         /// Comments within the section.
         /// </summary>
-        public List<CommentModel> Comments { get; set; }
+        public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
 
-        public List<PointModel> Points { get; set; }
+        public List<PointModel> Points { get; set; } = new List<PointModel>();
         /// <summary>
         /// Sliders in the section.
         /// </summary>
@@ -28,11 +31,11 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// Mark specified by the user.
         /// </summary>
-        public int GivenMark { get; set; }
+        public int GivenMark { get; set; } = 0;
         /// <summary>
         /// Minimum mark suggested by the system.
         /// </summary>
-        public int SuggestedMark { get; set; }
+        public int SuggestedMark { get; set; } = 0;
         /// <summary>
         /// Maximum mark suggested by the system.
         /// </summary>
@@ -40,62 +43,15 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// Maximum mark allowed for the section.
         /// </summary>
-        public int MaximumMark { get; set; }
+        public int MaximumMark { get; set; } = 0;
 
         /// <summary>
-        /// Creates an empty section with a random ID.
+        /// Empty constructor intended for the deserializer.
         /// </summary>
         public SectionModel()
         {
-            SectionID = Guid.NewGuid().ToString();
-            SectionName = "";
-            //PointSet = new PointSet();
-            Comments = new List<CommentModel>();
-            Points = new List<PointModel>();
-            //SliderPoints = new List<SliderPointModel>();
-            //SwitchPoints = new List<SwitchPointModel>();
-            GivenMark = 0;
-            SuggestedMark = 0;
-            MaximumMark = 0;
+
         }
-
-        ///// <summary>
-        ///// Creates a section with specified comments, and can also take a unique ID, point lists, and max mark.
-        ///// </summary>
-        ///// <param name="comments"></param>
-        ///// <param name="sectionID"></param>
-        ///// <param name="sliderPoints"></param>
-        ///// <param name="switchPoints"></param>
-        ///// <param name="autocompletePoints"></param>
-        ///// <param name="maximumMark"></param>
-        //public SectionModel(List<CommentModel> comments, string sectionID = default, List<SliderPointModel> sliderPoints = default, List<SwitchPointModel> switchPoints = default, int maximumMark = 0)
-        //{
-        //    if(sectionID == default)
-        //    {
-        //        sectionID = Guid.NewGuid().ToString();
-        //    }
-        //    SectionID = sectionID;
-
-        //    SectionName = "";
-
-        //    Comments = comments;
-
-        //    //if(sliderPoints == default)
-        //    //{
-        //    //    sliderPoints = new List<SliderPointModel>();
-        //    //}
-        //    //SliderPoints = sliderPoints;
-            
-        //    //if(switchPoints == default)
-        //    //{
-        //    //    switchPoints = new List<SwitchPointModel>();
-        //    //}
-        //    //SwitchPoints = switchPoints;  
-
-        //    GivenMark = 0;
-        //    SuggestedMark = 0;
-        //    MaximumMark = maximumMark;
-        //}
     
         /// <summary>
         /// Adds a comment to the section from text.

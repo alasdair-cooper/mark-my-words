@@ -64,6 +64,9 @@
     [Parameter]
     public string AttemptID { get; set; }
 
+    /// <summary>
+    /// The unique ID of the current assignment.
+    /// </summary>
     [Parameter]
     public string AssignmentId { get; set; }
 
@@ -83,17 +86,31 @@
 
     private AssignmentModel assignmentModel;
 
+    /// <summary>
+    /// Fetches the assignment from the server when the component is initialized.
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
         assignmentModel = await ServerCommunicator.AssignmentFromServer(AssignmentId);
         AttemptModel = GetAttempt(AttemptID);
     }
 
+    /// <summary>
+    /// Sends the assignment to the server.
+    /// </summary>
+    /// <param name="attempt"></param>
+    /// <returns></returns>
     public async Task AttemptToServer(AttemptModel attempt)
     {
         await ServerCommunicator.AssignmentToServer(assignmentModel);
     }
 
+    /// <summary>
+    /// Gets a single attempt from the server.
+    /// </summary>
+    /// <param name="attemptId">The ID of the attempt to be fetched.</param>
+    /// <returns></returns>
     public AttemptModel GetAttempt(string attemptId)
     {
         return assignmentModel.Attempts.Where(attempt => attempt.AttemptId == attemptId).First();

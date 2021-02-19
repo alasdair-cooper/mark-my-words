@@ -11,10 +11,17 @@ namespace Group16SE.Frontend.Shared
         Switch
     }
 
+    /// <summary>
+    /// A parent class for all points in a section, that each represent a control type.
+    /// </summary>
     public class PointModel
     {
-        private string stringPointType;
-        private PointType enumPointType;
+        public string PointId { get; set; } = Guid.NewGuid().ToString();
+        private string stringPointType = "";
+        private PointType enumPointType = PointType.Default;
+        /// <summary>
+        /// The type of the control that represents this point graphically. It also updates the string representation for the backend.
+        /// </summary>
         public PointType Type
         {
             get
@@ -23,28 +30,41 @@ namespace Group16SE.Frontend.Shared
             }
             set
             {
-                stringPointType = nameof(value);
+                stringPointType = value.ToString();
                 enumPointType = value;
             }
         }
-        public string Tag { get; set; }
+        /// <summary>
+        /// A short string representing a label on a control.
+        /// </summary>
+        public string Tag { get; set; } = "";
     }
 
+    /// <summary>
+    /// Represents a slider control.
+    /// </summary>
     public class SliderPointModel : PointModel
     {
-        public int Step { get; set; }
-        public int Value { get; set; }
-        public int Min { get; set; }
-        public int Max { get; set; }
+        /// <summary>
+        /// The distance between values on the slider.
+        /// </summary>
+        public int Step { get; set; } = 1;
+        /// <summary>
+        /// The current value.
+        /// </summary>
+        public int Value { get; set; } = 0;
+        /// <summary>
+        /// The minimum value.
+        /// </summary>
+        public int Min { get; set; } = 1;
+        /// <summary>
+        /// The maximum value.
+        /// </summary>
+        public int Max { get; set; } = 10;
         
         public SliderPointModel()
         {
-            Tag = "";
             Type = PointType.Slider;
-            Value = 0;
-            Min = 0;
-            Max = 10;
-            Step = 1;
         }
 
         public SliderPointModel(string tag, int step, int value, int min, int max)
@@ -58,18 +78,22 @@ namespace Group16SE.Frontend.Shared
         }
     }
 
+    /// <summary>
+    /// Represents a switch control.
+    /// </summary>
     public class SwitchPointModel : PointModel
     {
-        public bool Value { get; set; }
+        /// <summary>
+        /// The current state of the switch control.
+        /// </summary>
+        public bool Value { get; set; } = false;
 
         public SwitchPointModel()
         {
-            Tag = "";
             Type = PointType.Switch;
-            Value = false;
         }
 
-        public SwitchPointModel(string tag, bool value = false)
+        public SwitchPointModel(string tag, bool value)
         {
             Tag = tag;
             Type = PointType.Switch;

@@ -144,8 +144,14 @@
 
     private int attemptCount;
 
+    /// <summary>
+    /// Converter for the PointType enum.
+    /// </summary>
     private Func<PointType, string> converter = type => type.ToString();
 
+    /// <summary>
+    /// Creates a new assignment model from the available data and returns it.
+    /// </summary>
     private void Submit()
     {
         AssignmentModel assignmentModel = new AssignmentModel(assignmentName, attemptCount, sections);
@@ -153,11 +159,17 @@
         MudDialog.Close(DialogResult.Ok(assignmentModel));
     }
 
+    /// <summary>
+    /// Cancels the dialog being submitted.
+    /// </summary>
     private void Cancel()
     {
         MudDialog.Cancel();
     }
 
+    /// <summary>
+    /// Sets up the editCommand for the tables when the component is intialized.
+    /// </summary>
     protected override void OnInitialized()
     {
         editCommand = new EditCommand(OnEditPoint);
@@ -168,11 +180,21 @@
 
     }
 
+    /// <summary>
+    /// Creates a new point in a <paramref name="section"/>.
+    /// </summary>
+    /// <param name="section">The section to add the point to.</param>
     private void NewPoint(SectionModel section)
     {
         section.Points.Add(new PointModel());
     }
 
+    /// <summary>
+    /// Edits a point in a specific <paramref name="sectionModel"/>.
+    /// </summary>
+    /// <param name="pointModel">The point to be edited.</param>
+    /// <param name="sectionModel">The section the point to be edited is in.</param>
+    /// <returns></returns>
     private async Task EditPoint(PointModel pointModel, SectionModel sectionModel)
     {
         if (pointModel.Type != PointType.Default)
@@ -205,6 +227,11 @@
         }
     }
 
+    /// <summary>
+    /// Updates a specific <paramref name="pointModel"/>.
+    /// </summary>
+    /// <param name="pointModel">The point to be updated.</param>
+    /// <returns></returns>
     private PointModel UpdatePoint(PointModel pointModel)
     {
         if (pointModel.Type == PointType.Slider && !(pointModel is SliderPointModel))
@@ -223,11 +250,18 @@
         return pointModel;
     }
 
+    /// <summary>
+    /// Deletes an entire <paramref name="sectionModel"/>.
+    /// </summary>
+    /// <param name="sectionModel">The section to be deleted.</param>
     private void DeleteSection(SectionModel sectionModel)
     {
         sections.Remove(sectionModel);
     }
 
+    /// <summary>
+    /// Creates a new section.
+    /// </summary>
     private void NewSection()
     {
         SectionModel newSection = new SectionModel();

@@ -62,9 +62,15 @@
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
 
+    /// <summary>
+    /// The point model being edited in this dialog.
+    /// </summary>
     [Parameter]
     public PointModel pointModel { get; set; } = new PointModel();
 
+    /// <summary>
+    /// Returns the point model.
+    /// </summary>
     void Submit() => MudDialog.Close(DialogResult.Ok(pointModel));
     void Cancel() => MudDialog.Cancel();
 
@@ -73,6 +79,9 @@
 
     private bool formValid { get; set; } = false;
 
+    /// <summary>
+    /// Sets up the validators based on the point's values.
+    /// </summary>
     protected override void OnParametersSet()
     {
         if (pointModel is SliderPointModel sliderPointModel) 

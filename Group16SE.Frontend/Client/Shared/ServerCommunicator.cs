@@ -72,7 +72,10 @@ namespace Group16SE.Frontend.Client.Shared
 
             return assignmentModel;
         }
-
+        /// <summary>
+        /// Fetches a list of all the available assignments from the server.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<string>> AssignmentListFromServer()
         {
             HttpClient client = new HttpClient();
