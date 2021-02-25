@@ -2,31 +2,20 @@
 
 <MudGrid Spacing="4">
     <MudItem xs="8">
-        @* There is a CoerceText value for the below, could be used to replace the code that tries to prevent the default behaviour. *@
         <MudAutocomplete T="CommentModel"
-                         ResetValueOnEmptyText="true"
-                         Immediate="true"
                          Dense="true"
+                         CoerceText="false"
                          SearchFunc="SortCommentsFunc"
                          ToStringFunc="@(e => e.Content)"
-                         @ref="autocomplete"
-                         @bind-Text="@CommentInputText"
-                         OnKeyUp="KeyPressed"
-                         @onfocus="() => CommentInputText = SavedInputText">
+                         @bind-Value="@InputModel">
             <ItemTemplate Context="e">
-                @if (!string.IsNullOrWhiteSpace(e.Content))
+                @if (e.CommentId != "FIRST")
                 {
                     <MudGrid>
 
                         <MudItem xs="10"
                                  md="11">
-                            <div @onclick="async () => await CommentFromBank(BankComments.Where(comment => comment.Content == e.Content).ElementAt(0))">
-                                @*<MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
-                                                UntilNextBoundary="true"
-                                                Style="background-color:transparent; font-weight:bold; padding:initial"
-                                                Text="@e.Content"
-                                                HighlightedText="@CommentInputText">
-                                </MudHighlighter>*@
+                            <div>
                                 <MudText>@e.Content</MudText>
                             </div>
                         </MudItem>
@@ -44,20 +33,13 @@
                     <MudGrid>
                         <MudItem xs="10"
                                  md="11">
-                            <div @onclick="async () => await CommentFromInput()">
-                                @*<MudHighlighter Class="pa-1 mud-elevation-2 mud-theme-primary"
-                                                UntilNextBoundary="true"
-                                                Style="background-color:transparent; font-weight:bold; padding:initial"
-                                                @bind-Text="@CommentInputText"
-                                                HighlightedText="@CommentInputText">
-                                </MudHighlighter>*@
-                                <MudText>@CommentInputText</MudText>
+                            <div>
+                                <MudText>@e.Content</MudText>
                             </div>
                         </MudItem>
 
                         <MudItem xs="2" md="1">
                             <MudIconButton Icon="@Icons.Material.Filled.Clear"
-                                           @onclick="ClearAutocomplete"
                                            Size="Size.Small">
                             </MudIconButton>
                         </MudItem>
@@ -99,26 +81,6 @@
                     </MudItem>
                 }
             }
-            @*@for (int i = 0; i < SectionModel.SliderPoints.Count; i++)
-        {
-            int local = i;
-            <MudItem xs="12">
-                @{
-                    SliderPointModel sliderPointModel = SectionModel.SliderPoints[local];
-                    <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
-                }
-            </MudItem>
-        }
-        @for (int i = 0; i < SectionModel.SwitchPoints.Count; i++)
-        {
-            int local = i;
-            <MudItem xs="12">
-                @{
-                    SwitchPointModel switchPointModel = SectionModel.SwitchPoints[local];
-                    <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
-                }
-            </MudItem>
-        }*@
             <MudItem xs="12">
                 @{
                     string suggestedMarkText = "Suggested mark: " + suggestedMark;
@@ -153,60 +115,31 @@
     [Parameter]
     public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
 
-    /// <summary>
-    /// Reference to the autocomplete component.
-    /// </summary>
-    private MudAutocomplete<CommentModel> autocomplete;
-
     [Parameter]
     public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
 
-    private List<CommentModel> searchComments;
+    private List<CommentModel> searchComments = new List<CommentModel>();
 
     private int suggestedMark = 6;
     private int maximumMark = 10;
 
-    private string inputText;
-    private string savedText;
-
-    /// <summary>
-    /// Stores the most recent non-blank user input.
-    /// </summary>
-    public string SavedInputText
+    private CommentModel commentModel = new CommentModel();
+    public CommentModel InputModel
     {
         get
         {
-            return (savedText);
+            return commentModel;
         }
         set
         {
-            if (value == "(*_*)")
+            if (!string.IsNullOrEmpty(value.Content))
             {
-                savedText = "";
-            }
-            else if (!string.IsNullOrWhiteSpace(value))
-            {
-                savedText = value;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Stores the user input.
-    /// </summary>
-    public string CommentInputText
-    {
-        get
-        {
-            return inputText;
-        }
-        set
-        {
-            inputText = value;
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                SavedInputText = inputText;
+                commentModel.Content = value.Content;
+                CommentFromInput();
+                commentModel.Content = "";
+                // If it's from input, then you have to reset the value, but if it's from the bank then resetting
+                // the value removes the content from the comment in the bank.
+                // value.Content = "";
             }
         }
     }
@@ -243,13 +176,12 @@
     /// <returns>Array of CommentModels that contain the sortString.</returns>
     private async Task<IEnumerable<CommentModel>> SortCommentsFunc(string sortString)
     {
-        // As this effectively runs OnChange, the saved text is updated here.
-        SavedInputText = sortString;
-
         // Creates a copy of BankComments but the objects within are references (intended).
         searchComments = new List<CommentModel>(BankComments);
+        CommentModel firstComment = new CommentModel(sortString);
+        firstComment.CommentId = "FIRST";
         // Blank comment to go at the start so the user can select whatever they are currently inputting.
-        searchComments.Insert(0, new CommentModel());
+        searchComments.Insert(0, firstComment);
 
         if (string.IsNullOrEmpty(sortString))
         {
@@ -259,39 +191,6 @@
         IEnumerable<CommentModel> commentModels = searchComments.ToArray().Where(comment => comment.Content.Contains(sortString, StringComparison.InvariantCultureIgnoreCase) || string.IsNullOrWhiteSpace(comment.Content));
 
         return commentModels;
-    }
-
-    /// <summary>
-    /// Creates a new comment if the enter key is pressed.
-    /// </summary>
-    /// <param name="e">The events that just occured.</param>
-    /// <returns></returns>
-    private async Task KeyPressed(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            await CommentFromInput();
-        }
-        else if (e.Key == "Backspace")
-        {
-            // Prevents there being permanently one character left in the input box.
-            // The saved input text preserves the user input but prevents null & whitespace.
-            if (SavedInputText.Length == 1)
-            {
-                SavedInputText = "(*_*)";
-            }
-        }
-    }
-
-    /// <summary>
-    /// Clears the contents of the autocomplete and the saved text.
-    /// </summary>
-    private void ClearAutocomplete()
-    {
-        CommentInputText = "";
-        SavedInputText = "(*_*)";
-        // This seems to force update the autocomplete.
-        autocomplete.ToggleMenu();
     }
 
     /// <summary>
@@ -364,49 +263,46 @@
     /// <returns></returns>
     private async Task CommentFromBank(CommentModel comment)
     {
+        Console.WriteLine("From bank");
         SectionModel.NewCommentFromComment(comment);
         await SectionModelChanged.InvokeAsync(SectionModel);
         await BankCommentsChanged.InvokeAsync(BankComments);
-        ClearAutocomplete();
+        InputModel = new CommentModel();
     }
 
     /// <summary>
     /// Creates a comment from the text in the input.
     /// </summary>
     /// <returns></returns>
-    private async Task CommentFromInput()
+    private void CommentFromInput()
     {
-        SavedInputText = CommentInputText;
-
+        Console.WriteLine("From input");
         // This is to prevent the user from entering the exact same comment twice and
         // both being put in the bank. Also prevents an identical comment being added 
         // when selecting a comment with the arrow keys and pressing enter.
         CommentModel bankComment = null;
         foreach (CommentModel comment in BankComments)
         {
-            if (comment.Content == SavedInputText)
+            if (comment.Content == InputModel.Content)
             {
                 bankComment = comment;
-                ClearAutocomplete();
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(SavedInputText))
+        if (!string.IsNullOrWhiteSpace(InputModel.Content))
         {
             if (bankComment == null)
             {
                 // If an identical comment is found in the bank, the new comment is created 
                 // from that instead.
-                SectionModel.NewCommentFromString(BankComments, SavedInputText);
+                SectionModel.NewCommentFromString(BankComments, InputModel.Content);
             }
             else
             {
                 SectionModel.NewCommentFromComment(bankComment);
             }
-            await SectionModelChanged.InvokeAsync(SectionModel);
-            await BankCommentsChanged.InvokeAsync(BankComments);
-            ClearAutocomplete();
-
         }
+        InputModel.Content = "";
+
     }
 }

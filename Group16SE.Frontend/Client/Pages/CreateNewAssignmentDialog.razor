@@ -24,100 +24,96 @@
                            Style="width: 100%">
                     Add Section
                 </MudButton>
-                @{
-                    int count = 1;
-                    foreach (SectionModel section in sections)
-                    {
-                        <MudContainer>
-                            <MudPaper Elevation="8" Class="pa-4 my-4">
-                                @*<MudText Typo="@Typo.h6">
-                                    Section @count
-                                </MudText>*@
-                                <MudForm>
-                                    <MudTextField T="string"
-                                                  Label="Section name"
-                                                  Required="true"
-                                                  RequiredError="Section name is required!"
-                                                  Adornment="Adornment.End"
-                                                  AdornmentIcon="@Icons.Filled.DeleteForever"
-                                                  OnAdornmentClick="() => DeleteSection(section)"
-                                                  Style="width: 100%">
+                
+                @foreach (SectionModel section in sections)
+                {
+                    <MudContainer>
+                        <MudPaper Elevation="8" Class="pa-4 my-4">
+                            <MudForm>
+                                <MudTextField T="string"
+                                                Label="Section name"
+                                                Required="true"
+                                                RequiredError="Section name is required!"
+                                                Adornment="Adornment.End"
+                                                AdornmentIcon="@Icons.Filled.DeleteForever"
+                                                OnAdornmentClick="() => DeleteSection(section)"
+                                                Style="width: 100%"
+                                                @bind-Value="section.SectionName">
 
-                                    </MudTextField>
-                                    <MudTextField T="int"
-                                                  Label="Maximum mark"
-                                                  Required="true"
-                                                  RequiredError="Maximum mark is required!"
-                                                  HelperText="Must be a number"
-                                                  Validation="greaterThanZeroValidator.Validation">
+                                </MudTextField>
+                                <MudTextField T="int"
+                                                Label="Maximum mark"
+                                                Required="true"
+                                                RequiredError="Maximum mark is required!"
+                                                HelperText="Must be a number"
+                                                Validation="greaterThanZeroValidator.Validation"
+                                                @bind-Value="section.MaximumMark">
 
-                                    </MudTextField>
-                                </MudForm>
-                                <MudButton StartIcon="@Icons.Material.Filled.Add"
-                                           OnClick="() => NewPoint(section)"
-                                           Variant="Variant.Text"
-                                           Class="ma-4"
-                                           Style="width: 100%">
-                                    Add Point
-                                </MudButton>
-                                <MudTable Items="@section.Points"
-                                          Hover="true"
-                                          Breakpoint="Breakpoint.Sm"
-                                          CommitEditCommand="editCommand"
-                                          CommitEditTooltip="Save Point"
-                                          Class="ma-4">
-                                    <HeaderContent>
-                                        <MudTh>Type</MudTh>
-                                        <MudTh>Label</MudTh>
-                                    </HeaderContent>
-                                    <RowTemplate>
-                                        <MudTd DataLabel="Type">
-                                            @context.Type
-                                        </MudTd>
-                                        <MudTd DataLabel="Label">
-                                            @context.Tag
-                                        </MudTd>
-                                        <MudTd>
-                                            <MudTooltip Text="Edit Point">
-                                                <MudIconButton Icon="@Icons.Material.Outlined.Edit"
-                                                               Size="Size.Small"
-                                                               OnClick="() => EditPoint(context, section)">
-                                                </MudIconButton>
-                                            </MudTooltip>
-                                        </MudTd>
-                                    </RowTemplate>
-                                    <RowEditingTemplate>
-                                        <MudTd DataLabel="Type">
-                                            <MudSelect T="PointType"
-                                                       ToStringFunc="converter"
-                                                       @bind-Value="context.Type">
-                                                <MudSelectItem Value="PointType.Slider"></MudSelectItem>
-                                                <MudSelectItem Value="PointType.Switch"></MudSelectItem>
-                                            </MudSelect>
-                                        </MudTd>
-                                        <MudTd DataLabel="Label">
-                                            <MudTextField @bind-Value="context.Tag"></MudTextField>
-                                        </MudTd>
-                                        <MudTd>
-                                            <MudTooltip Text="Edit Point">
-                                                <MudIconButton Icon="@Icons.Material.Outlined.Edit"
-                                                               Size="Size.Small"
-                                                               OnClick="() => EditPoint(context, section)">
-                                                </MudIconButton>
-                                            </MudTooltip>
-                                            <MudTooltip Text="Delete Point">
-                                                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                                               Size="Size.Small"
-                                                               OnClick="() => section.Points.Remove(context)">
-                                                </MudIconButton>
-                                            </MudTooltip>
-                                        </MudTd>
-                                    </RowEditingTemplate>
-                                </MudTable>
-                            </MudPaper>
-                        </MudContainer>
-                        count += 1;
-                    }
+                                </MudTextField>
+                            </MudForm>
+                            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                        OnClick="() => NewPoint(section)"
+                                        Variant="Variant.Text"
+                                        Class="ma-4"
+                                        Style="width: 100%">
+                                Add Point
+                            </MudButton>
+                            <MudTable Items="@section.Points"
+                                        Hover="true"
+                                        Breakpoint="Breakpoint.Sm"
+                                        CommitEditCommand="editCommand"
+                                        CommitEditTooltip="Save Point"
+                                        Class="ma-4">
+                                <HeaderContent>
+                                    <MudTh>Type</MudTh>
+                                    <MudTh>Label</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Type">
+                                        @context.Type
+                                    </MudTd>
+                                    <MudTd DataLabel="Label">
+                                        @context.Tag
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudTooltip Text="Edit Point">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                                            Size="Size.Small"
+                                                            OnClick="() => EditPoint(context, section)">
+                                            </MudIconButton>
+                                        </MudTooltip>
+                                    </MudTd>
+                                </RowTemplate>
+                                <RowEditingTemplate>
+                                    <MudTd DataLabel="Type">
+                                        <MudSelect T="PointType"
+                                                    ToStringFunc="converter"
+                                                    @bind-Value="context.Type">
+                                            <MudSelectItem Value="PointType.Slider"></MudSelectItem>
+                                            <MudSelectItem Value="PointType.Switch"></MudSelectItem>
+                                        </MudSelect>
+                                    </MudTd>
+                                    <MudTd DataLabel="Label">
+                                        <MudTextField @bind-Value="context.Tag"></MudTextField>
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudTooltip Text="Edit Point">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                                            Size="Size.Small"
+                                                            OnClick="() => EditPoint(context, section)">
+                                            </MudIconButton>
+                                        </MudTooltip>
+                                        <MudTooltip Text="Delete Point">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                            Size="Size.Small"
+                                                            OnClick="() => section.Points.Remove(context)">
+                                            </MudIconButton>
+                                        </MudTooltip>
+                                    </MudTd>
+                                </RowEditingTemplate>
+                            </MudTable>
+                        </MudPaper>
+                    </MudContainer>
                 }
             </div>
         </MudContainer>

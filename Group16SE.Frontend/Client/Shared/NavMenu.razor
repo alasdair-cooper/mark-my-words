@@ -4,10 +4,10 @@
 @inject IDialogService Dialog;
 
 <MudNavMenu Class="mudblazor-navmenu">
-    <AuthorizeView>
-        <Authorized>
+    @*<AuthorizeView>
+        <Authorized>*@
             <MudButton StartIcon="@Icons.Material.Filled.Add"
-                       IconColor="Color.Primary"
+                       IconColor="Color.Secondary"
                        Variant="Variant.Filled"
                        Color="Color.Primary"
                        OnClick="NewAssignment">
@@ -17,11 +17,11 @@
             {
                 <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
             }
-        </Authorized>
+        @*</Authorized>
         <NotAuthorized>
 
         </NotAuthorized>
-    </AuthorizeView>
+    </AuthorizeView>*@
 </MudNavMenu>
 
 @code {
