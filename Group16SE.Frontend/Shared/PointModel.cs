@@ -8,7 +8,8 @@ namespace Group16SE.Frontend.Shared
     {
         Default,
         Slider,
-        Switch
+        Switch,
+        Select
     }
 
     /// <summary>
@@ -98,6 +99,25 @@ namespace Group16SE.Frontend.Shared
             Tag = tag;
             Type = PointType.Switch;
             Value = value;
+        }
+    }
+
+    public class SelectPointModel : PointModel
+    {
+        public string Value { get; set; } = "";
+
+        public List<string> Options = new List<string>();
+
+        public SelectPointModel()
+        {
+            Type = PointType.Select;
+        }
+
+        public SelectPointModel(string tag, List<string> options)
+        {
+            Tag = tag;
+            Type = PointType.Select;
+            Options = options;
         }
     }
 }

@@ -91,6 +91,7 @@
                                                     @bind-Value="context.Type">
                                             <MudSelectItem Value="PointType.Slider"></MudSelectItem>
                                             <MudSelectItem Value="PointType.Switch"></MudSelectItem>
+                                            <MudSelectItem Value="PointType.Select"></MudSelectItem>
                                         </MudSelect>
                                     </MudTd>
                                     <MudTd DataLabel="Label">
@@ -240,6 +241,12 @@
         {
             string label = pointModel.Tag;
             pointModel = new SwitchPointModel();
+            pointModel.Tag = label;
+        }
+        else if(pointModel.Type == PointType.Select && !(pointModel is SelectPointModel))
+        {
+            string label = pointModel.Tag;
+            pointModel = new SelectPointModel();
             pointModel.Tag = label;
         }
 

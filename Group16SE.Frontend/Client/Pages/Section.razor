@@ -3,9 +3,11 @@
 <MudGrid Spacing="4">
     <MudItem xs="8">
         <MudAutocomplete T="CommentModel"
+                         @ref="autocomplete"
                          Dense="true"
                          CoerceText="false"
                          SearchFunc="SortCommentsFunc"
+                         ResetValueOnEmptyText="true"
                          ToStringFunc="@(e => e.Content)"
                          @bind-Value="@InputModel">
             <ItemTemplate Context="e">
@@ -40,7 +42,8 @@
 
                         <MudItem xs="2" md="1">
                             <MudIconButton Icon="@Icons.Material.Filled.Clear"
-                                           Size="Size.Small">
+                                           Size="Size.Small"
+                                           OnClick="() => InputModel = new CommentModel()">
                             </MudIconButton>
                         </MudItem>
                     </MudGrid>
@@ -67,17 +70,34 @@
                 if (pointModel is SliderPointModel sliderPointModel)
                 {
                     <MudItem xs="12">
-                        @{
-                            <MudSlider @bind-Value="sliderPointModel.Value" Step="sliderPointModel.Step" Min="sliderPointModel.Min" Max="sliderPointModel.Max">@sliderPointModel.Tag: @sliderPointModel.Value</MudSlider>
-                        }
+                        <MudSlider @bind-Value="sliderPointModel.Value" 
+                                   Step="sliderPointModel.Step" 
+                                   Min="sliderPointModel.Min" 
+                                   Max="sliderPointModel.Max">
+                        @sliderPointModel.Tag: @sliderPointModel.Value
+                        </MudSlider>
                     </MudItem>
                 }
                 else if (pointModel is SwitchPointModel switchPointModel)
                 {
                     <MudItem xs="12">
-                        @{
-                            <MudSwitch @bind-Checked="switchPointModel.Value" Color="Color.Primary" Label="@switchPointModel.Tag"></MudSwitch>
-                        }
+                        <MudSwitch @bind-Checked="switchPointModel.Value" 
+                                   Color="Color.Primary" 
+                                   Label="@switchPointModel.Tag">
+
+                        </MudSwitch>
+                    </MudItem>
+                }
+                else if(pointModel is SelectPointModel selectPointModel) 
+                {
+                    <MudItem xs="12">
+                        <MudSelect T="string"
+                                   @bind-Value="selectPointModel.Value">
+                            @foreach(string option in selectPointModel.Options)
+                            {
+                                <MudSelectItem Value="option"></MudSelectItem>
+                            }
+                        </MudSelect>
                     </MudItem>
                 }
             }
@@ -123,6 +143,8 @@
     private int suggestedMark = 6;
     private int maximumMark = 10;
 
+    private MudAutocomplete<CommentModel> autocomplete;
+
     private CommentModel commentModel = new CommentModel();
     public CommentModel InputModel
     {
@@ -132,14 +154,14 @@
         }
         set
         {
+            commentModel.Content = value.Content;
             if (!string.IsNullOrEmpty(value.Content))
             {
-                commentModel.Content = value.Content;
                 CommentFromInput();
-                commentModel.Content = "";
                 // If it's from input, then you have to reset the value, but if it's from the bank then resetting
                 // the value removes the content from the comment in the bank.
                 // value.Content = "";
+                commentModel.Content = "";
             }
         }
     }

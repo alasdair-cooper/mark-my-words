@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Group16SE.Frontend.Shared
 {
@@ -42,6 +43,7 @@ namespace Group16SE.Frontend.Shared
             {
                 PointType.Slider => new SliderPointModel(),
                 PointType.Switch => new SwitchPointModel(),
+                PointType.Select => new SelectPointModel(),
                 _ => throw new JsonException()
             };
 
@@ -77,6 +79,10 @@ namespace Group16SE.Frontend.Shared
                                     bool boolValue = reader.GetBoolean();
                                     ((SwitchPointModel)pointModel).Value = boolValue;
                                     break;
+                                case PointType.Select:
+                                    string stringValue = reader.GetString();
+                                    ((SelectPointModel)pointModel).Value = stringValue;
+                                    break;
                                 default:
                                     break;
                             }
@@ -92,6 +98,10 @@ namespace Group16SE.Frontend.Shared
                         case "Step":
                             int step = reader.GetInt32();
                             ((SliderPointModel)pointModel).Step = step;
+                            break;
+                        case "Options":
+                            List<string> selectOptions = JsonSerializer.Deserialize<List<string>>(reader.GetString());
+                            ((SelectPointModel)pointModel).Options = selectOptions;
                             break;
                     }
                 }
@@ -117,6 +127,11 @@ namespace Group16SE.Frontend.Shared
                 writer.WriteNumber("Step", sliderPointModel.Step);
                 writer.WriteNumber("Min", sliderPointModel.Min);
                 writer.WriteNumber("Max", sliderPointModel.Max);
+            }
+            else if(pointModel is SelectPointModel selectPointModel)
+            {
+                writer.WriteString("Value", selectPointModel.Value);
+                writer.WriteString("Options", JsonSerializer.Serialize(selectPointModel.Options));
             }
 
             writer.WriteString("Tag", pointModel.Tag);

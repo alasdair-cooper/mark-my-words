@@ -1,0 +1,213 @@
+{
+  "$id": "1",
+  "AssignmentId": "6fa77311-1cc2-4f7d-b36a-68f2c9363cfc",
+  "AssignmentName": "an assignment",
+  "SectionCommentBanks": {
+    "$id": "2",
+    "5495d25c-cc59-45a7-afb3-8a7f597f1908": {
+      "$id": "3",
+      "$values": []
+    }
+  },
+  "SectionPointBanks": {
+    "$id": "4",
+    "5495d25c-cc59-45a7-afb3-8a7f597f1908": {
+      "$id": "5",
+      "$values": [
+        {
+          "EnumType": 3,
+          "PointId": "f6732890-d6fa-4b99-ad89-f758719bad95",
+          "StringType": "Select",
+          "Value": "",
+          "Options": "[]",
+          "Tag": "Options"
+        }
+      ]
+    }
+  },
+  "Attempts": {
+    "$id": "6",
+    "$values": [
+      {
+        "$id": "7",
+        "AttemptId": "968ca1c9-e5c1-491a-98c8-c0ea1a9f9596",
+        "Sections": {
+          "$id": "8",
+          "$values": [
+            {
+              "$id": "9",
+              "SectionID": "5495d25c-cc59-45a7-afb3-8a7f597f1908",
+              "SectionName": "section 1",
+              "Comments": {
+                "$id": "10",
+                "$values": []
+              },
+              "Points": {
+                "$id": "11",
+                "$values": [
+                  {
+                    "EnumType": 3,
+                    "PointId": "f6732890-d6fa-4b99-ad89-f758719bad95",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[]",
+                    "Tag": "Options"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "12",
+        "AttemptId": "85d10d29-62ef-47df-b6e7-5d296d1c23ba",
+        "Sections": {
+          "$id": "13",
+          "$values": [
+            {
+              "$id": "14",
+              "SectionID": "5495d25c-cc59-45a7-afb3-8a7f597f1908",
+              "SectionName": "section 1",
+              "Comments": {
+                "$id": "15",
+                "$values": []
+              },
+              "Points": {
+                "$id": "16",
+                "$values": [
+                  {
+                    "EnumType": 3,
+                    "PointId": "f6732890-d6fa-4b99-ad89-f758719bad95",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[]",
+                    "Tag": "Options"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "17",
+        "AttemptId": "04a7c24b-ae9d-4946-b28c-0018b7b4ce3f",
+        "Sections": {
+          "$id": "18",
+          "$values": [
+            {
+              "$id": "19",
+              "SectionID": "5495d25c-cc59-45a7-afb3-8a7f597f1908",
+              "SectionName": "section 1",
+              "Comments": {
+                "$id": "20",
+                "$values": []
+              },
+              "Points": {
+                "$id": "21",
+                "$values": [
+                  {
+                    "EnumType": 3,
+                    "PointId": "f6732890-d6fa-4b99-ad89-f758719bad95",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[]",
+                    "Tag": "Options"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "22",
+        "AttemptId": "5de85591-be07-4de3-828c-a5c2e7b93604",
+        "Sections": {
+          "$id": "23",
+          "$values": [
+            {
+              "$id": "24",
+              "SectionID": "5495d25c-cc59-45a7-afb3-8a7f597f1908",
+              "SectionName": "section 1",
+              "Comments": {
+                "$id": "25",
+                "$values": []
+              },
+              "Points": {
+                "$id": "26",
+                "$values": [
+                  {
+                    "EnumType": 3,
+                    "PointId": "f6732890-d6fa-4b99-ad89-f758719bad95",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[]",
+                    "Tag": "Options"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "27",
+        "AttemptId": "d0e12912-6135-4b03-aee0-1fbd6fa1625b",
+        "Sections": {
+          "$id": "28",
+          "$values": [
+            {
+              "$id": "29",
+              "SectionID": "5495d25c-cc59-45a7-afb3-8a7f597f1908",
+              "SectionName": "section 1",
+              "Comments": {
+                "$id": "30",
+                "$values": []
+              },
+              "Points": {
+                "$id": "31",
+                "$values": [
+                  {
+                    "EnumType": 3,
+                    "PointId": "f6732890-d6fa-4b99-ad89-f758719bad95",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[]",
+                    "Tag": "Options"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      }
+    ]
+  }
+}

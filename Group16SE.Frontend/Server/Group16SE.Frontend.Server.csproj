@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>Group16SE.Frontend.Server-C3EAEC7A-43C4-4E6D-BA54-7ECF0F8CBBCC</UserSecretsId>
