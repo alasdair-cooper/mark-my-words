@@ -16,17 +16,17 @@ namespace Group16SE.Frontend.Client.Shared
     public static class ServerCommunicator
     {
         private const string MediaType = "application/json";
-        private const string AssignmentRequestUri = "https://localhost:44387/api/assignment";
-        private const string ListRequestUri = "https://localhost:44387/api/list";
+        private const string AssignmentRequestUri = "api/assignment";
+        private const string ListRequestUri = "api/list";
 
         /// <summary>
         /// Serializes and sends an assignment to the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task AssignmentToServer(AssignmentModel assignment)
+        public static async Task AssignmentToServer(string baseUrl, AssignmentModel assignment)
         {
             HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, AssignmentRequestUri);
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, baseUrl + AssignmentRequestUri);
 
             JsonSerializerOptions options = new JsonSerializerOptions()
             {
@@ -48,10 +48,10 @@ namespace Group16SE.Frontend.Client.Shared
         /// Fetches and deserializes an assignment from the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task<AssignmentModel> AssignmentFromServer(string assignmentId)
+        public static async Task<AssignmentModel> AssignmentFromServer(string baseUrl, string assignmentId)
         {
             HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, AssignmentRequestUri);
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + AssignmentRequestUri);
 
             JsonSerializerOptions options = new JsonSerializerOptions()
             {
@@ -76,10 +76,11 @@ namespace Group16SE.Frontend.Client.Shared
         /// Fetches a list of all the available assignments from the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task<List<string>> AssignmentListFromServer()
+        public static async Task<List<string>> AssignmentListFromServer(string baseUrl)
         {
             HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, ListRequestUri);
+            Console.WriteLine(baseUrl + ListRequestUri);
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + ListRequestUri);
 
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
 

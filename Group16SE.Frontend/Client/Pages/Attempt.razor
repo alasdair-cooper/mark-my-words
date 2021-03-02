@@ -6,7 +6,9 @@
 @using System.IO
 @using System.Net.Http.Headers;
 
-@*@attribute [Authorize]*@
+@attribute [Authorize]
+
+@inject NavigationManager NavMan; 
 
 @if (assignmentModel != null)
 {
@@ -27,7 +29,7 @@
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Color="Color.Primary"
                            Size="Size.Large"
-                           OnClick="async () => await ServerCommunicator.AssignmentToServer(assignmentModel) ">
+                           OnClick="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel) ">
             </MudIconButton>
         </MudAppBar>
         <MudMainContent>
@@ -46,7 +48,7 @@
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
-                                     OnUpdateAttempt="async () => await ServerCommunicator.AssignmentToServer(assignmentModel)">
+                                     OnUpdateAttempt="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel)">
                             </Section>
                         </MudExpansionPanel>
                     }
@@ -92,7 +94,7 @@
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        assignmentModel = await ServerCommunicator.AssignmentFromServer(AssignmentId);
+        assignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId);
         AttemptModel = GetAttempt(AttemptID);
     }
 
@@ -103,7 +105,7 @@
     /// <returns></returns>
     public async Task AttemptToServer(AttemptModel attempt)
     {
-        await ServerCommunicator.AssignmentToServer(assignmentModel);
+        await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel);
     }
 
     /// <summary>

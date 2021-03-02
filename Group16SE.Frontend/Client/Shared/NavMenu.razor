@@ -2,10 +2,11 @@
 @using Pages
 
 @inject IDialogService Dialog;
+@inject NavigationManager NavMan;
 
 <MudNavMenu Class="mudblazor-navmenu">
-    @*<AuthorizeView>
-        <Authorized>*@
+    <AuthorizeView>
+        <Authorized>
             <MudButton StartIcon="@Icons.Material.Filled.Add"
                        IconColor="Color.Secondary"
                        Variant="Variant.Filled"
@@ -17,11 +18,11 @@
             {
                 <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
             }
-        @*</Authorized>
+        </Authorized>
         <NotAuthorized>
 
         </NotAuthorized>
-    </AuthorizeView>*@
+    </AuthorizeView>
 </MudNavMenu>
 
 @code {
@@ -29,6 +30,7 @@
 
     protected async override Task OnInitializedAsync()
     {
+        Console.WriteLine(NavMan.BaseUri);
         await RefreshAssignmentsList();
     }
 
@@ -44,7 +46,7 @@
         if (!result.Cancelled)
         {
             AssignmentModel assignmentModel = (AssignmentModel)result.Data;
-            await ServerCommunicator.AssignmentToServer(assignmentModel);
+            await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel);
         }
 
         await RefreshAssignmentsList();
@@ -52,6 +54,6 @@
 
     private async Task RefreshAssignmentsList()
     {
-        assignmentsIds = await ServerCommunicator.AssignmentListFromServer();
+        assignmentsIds = await ServerCommunicator.AssignmentListFromServer(NavMan.BaseUri);
     }
 }

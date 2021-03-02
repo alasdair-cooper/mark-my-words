@@ -39,6 +39,7 @@ namespace Group16SE.Frontend.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
+                
             }
             else
             {

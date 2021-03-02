@@ -21,4 +21,13 @@
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Python\JsonReader.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Python\PythonSampleSystemDiagnostic.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

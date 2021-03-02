@@ -7,7 +7,6 @@
                          Dense="true"
                          CoerceText="false"
                          SearchFunc="SortCommentsFunc"
-                         ResetValueOnEmptyText="true"
                          ToStringFunc="@(e => e.Content)"
                          @bind-Value="@InputModel">
             <ItemTemplate Context="e">
@@ -41,10 +40,10 @@
                         </MudItem>
 
                         <MudItem xs="2" md="1">
-                            <MudIconButton Icon="@Icons.Material.Filled.Clear"
+                            @*<MudIconButton Icon="@Icons.Material.Filled.Clear"
                                            Size="Size.Small"
                                            OnClick="() => InputModel = new CommentModel()">
-                            </MudIconButton>
+                            </MudIconButton>*@
                         </MudItem>
                     </MudGrid>
                 }
@@ -145,23 +144,19 @@
 
     private MudAutocomplete<CommentModel> autocomplete;
 
-    private CommentModel commentModel = new CommentModel();
+    private CommentModel inputModel = new CommentModel();
     public CommentModel InputModel
     {
         get
         {
-            return commentModel;
+            return inputModel;
         }
         set
         {
-            commentModel.Content = value.Content;
+            inputModel.Content = value.Content;
             if (!string.IsNullOrEmpty(value.Content))
             {
                 CommentFromInput();
-                // If it's from input, then you have to reset the value, but if it's from the bank then resetting
-                // the value removes the content from the comment in the bank.
-                // value.Content = "";
-                commentModel.Content = "";
             }
         }
     }
@@ -238,7 +233,7 @@
     /// <returns></returns>
     private async Task DeleteBankComment(CommentModel comment)
     {
-        // autocomplete.ToggleMenu();
+        await autocomplete.ToggleMenu();
 
         // Displays warning dialog.
         IDialogReference dialog = Dialog.Show<DeleteBankCommentDialog>("Delete comment");
@@ -298,10 +293,8 @@
     /// <returns></returns>
     private void CommentFromInput()
     {
-        Console.WriteLine("From input");
         // This is to prevent the user from entering the exact same comment twice and
-        // both being put in the bank. Also prevents an identical comment being added 
-        // when selecting a comment with the arrow keys and pressing enter.
+        // both being put in the bank.
         CommentModel bankComment = null;
         foreach (CommentModel comment in BankComments)
         {
@@ -324,7 +317,5 @@
                 SectionModel.NewCommentFromComment(bankComment);
             }
         }
-        InputModel.Content = "";
-
     }
 }

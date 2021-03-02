@@ -1,4 +1,4 @@
-﻿@page "/assignments"
+﻿@*@page "/assignments"
 
 @attribute [Authorize]
 
@@ -40,7 +40,7 @@
         if (!result.Cancelled)
         {
             AssignmentModel assignmentModel = (AssignmentModel)result.Data;
-            await ServerCommunicator.AssignmentToServer(assignmentModel);
+            await ServerCommunicator.AssignmentToServer(navma assignmentModel);
         }
 
         await RefreshAssignmentsList();
@@ -50,4 +50,4 @@
     {
         assignmentsIds = await ServerCommunicator.AssignmentListFromServer();
     }
-}
+}*@

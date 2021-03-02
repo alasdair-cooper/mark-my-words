@@ -6,7 +6,7 @@
 @using System.IO
 @using System.Net.Http.Headers;
 
-@*@attribute [Authorize]*@
+@attribute [Authorize]
 
 @inject NavigationManager NavMan
 <MudLayout>
@@ -58,6 +58,6 @@
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        AssignmentModel = await ServerCommunicator.AssignmentFromServer(AssignmentId);
+        AssignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId);
     }
 }
