@@ -11,34 +11,29 @@
                        Color="Color.Inherit"
                        Edge="Edge.Start"
                        OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
-            Go Mark Yourself
-        </MudText>
         <MudAppBarSpacer />
-
         <AuthorizeView>
             <Authorized>
                 Hello, @context.User.Identity.Name!
                 <MudTooltip Text="Account">
-                    <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit">
+                    <MudMenu Icon="@Icons.Material.Filled.AccountCircle" 
+                             Color="Color.Inherit">
                         <MudMenuItem OnClick="BeginLogout">Log out</MudMenuItem>
                     </MudMenu>
                 </MudTooltip>
             </Authorized>
             <NotAuthorized>
-                <MudButton Color="Color.Inherit" OnClick='() => NavMan.NavigateTo("authentication/login")'>Log in</MudButton>
+                <MudButton Color="Color.Inherit" 
+                           OnClick='() => NavMan.NavigateTo("authentication/login")'>
+                    Log in
+                </MudButton>
             </NotAuthorized>
         </AuthorizeView>
-        <MudTooltip Text="Toggle light/dark theme">
-            @*<MudIconButton Icon="@Icons.Material.Filled.Brightness4"
-                           Color="Color.Inherit"
-                           OnClick="@((e) => DarkMode())" />*@
-        </MudTooltip>
     </MudAppBar>
     <MudDrawer @bind-Open=_drawerOpen
-               Elevation="5"
-               Class="mudblazor-appbar-band">
+               Elevation="5">
         <MudDrawerHeader Class="mudblazor-brand" LinkToIndex="true">
+            <MudText Typo="Typo.h5">Go Mark Yourself</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
@@ -54,59 +49,11 @@
         NavMan.NavigateTo("authentication/logout");
     }
 
-    bool _drawerOpen = false;
+    bool _drawerOpen = true;
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
-
-    protected override void OnInitialized()
-    {
-        currentTheme = defaultTheme;
-        _drawerOpen = true;
-    }
-
-    void DarkMode()
-    {
-        if (currentTheme == defaultTheme)
-        {
-            currentTheme = darkTheme;
-        }
-        else
-        {
-            currentTheme = defaultTheme;
-        }
-    }
-
-    MudTheme currentTheme = new MudTheme();
-    MudTheme defaultTheme = new MudTheme()
-    {
-        Palette = new Palette()
-        {
-            Black = "#272c34"
-        }
-    };
-
-    MudTheme darkTheme = new MudTheme()
-    {
-        Palette = new Palette()
-        {
-            Black = "#27272f",
-            Background = "#32333d",
-            BackgroundGrey = "#27272f",
-            Surface = "#373740",
-            DrawerBackground = "#27272f",
-            DrawerText = "rgba(255,255,255, 0.50)",
-            AppbarBackground = "#27272f",
-            AppbarText = "rgba(255,255,255, 0.70)",
-            TextPrimary = "rgba(255,255,255, 0.70)",
-            TextSecondary = "rgba(255,255,255, 0.50)",
-            ActionDefault = "#adadb1",
-            ActionDisabled = "rgba(255,255,255, 0.26)",
-            ActionDisabledBackground = "rgba(255,255,255, 0.12)",
-            DrawerIcon = "rgba(255,255,255, 0.50)"
-        }
-    };
 }
 

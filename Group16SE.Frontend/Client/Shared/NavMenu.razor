@@ -7,17 +7,21 @@
 <MudNavMenu Class="mudblazor-navmenu">
     <AuthorizeView>
         <Authorized>
-            <MudButton StartIcon="@Icons.Material.Filled.Add"
-                       IconColor="Color.Secondary"
+            <MudButton StartIcon="@Icons.Material.Outlined.Add"
                        Variant="Variant.Filled"
                        Color="Color.Primary"
-                       OnClick="NewAssignment">
+                       OnClick="NewAssignment"
+                       Class="ma-4">
                 New Assignment
             </MudButton>
-            @foreach (string assignmentId in assignmentsIds)
-            {
-                <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
-            }
+            <MudNavGroup Icon="@Icons.Material.Filled.School" 
+                         Title="Assignments"
+                         Expanded="true">
+                @foreach (string assignmentId in assignmentsIds)
+                {
+                    <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
+                }
+            </MudNavGroup>
         </Authorized>
         <NotAuthorized>
 
@@ -38,7 +42,7 @@
     {
         DialogOptions options = new DialogOptions()
         {
-            MaxWidth = MaxWidth.Large
+            MaxWidth = MaxWidth.Medium
         };
         IDialogReference dialog = Dialog.Show<CreateNewAssignmentDialog>("Create Assignment", options);
         DialogResult result = await dialog.Result;

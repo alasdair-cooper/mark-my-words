@@ -25,7 +25,8 @@
                     <tbody>
                         @foreach (AttemptModel attempt in AssignmentModel.Attempts)
                         {
-                            <tr @onclick='() => NavMan.NavigateTo($"attempt/{AssignmentId}/{attempt.AttemptId}")'>
+                            <tr @onclick='() => NavMan.NavigateTo($"attempt/{AssignmentId}/{attempt.AttemptId}")'
+                                style="cursor: pointer">
                                 <td>@attempt.AttemptId</td>
                                 <td>@attempt.Completed</td>
                             </tr>

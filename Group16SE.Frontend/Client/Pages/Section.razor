@@ -100,13 +100,29 @@
                     </MudItem>
                 }
             }
-            <MudItem xs="12">
+        <MudItem xs="12">
+            <div>
                 @{
                     string suggestedMarkText = "Suggested mark: " + suggestedMark;
                     string maximumMarkText = "/" + maximumMark;
                 }
-                <MudTextField T="int" @bind-Value="SectionModel.GivenMark" HelperText="@suggestedMarkText" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="@maximumMarkText" @onfocus="UpdateAttempt" />
-            </MudItem>
+                <MudTextField T="int"
+                                @bind-Value="SectionModel.GivenMark"
+                                Variant="Variant.Outlined"
+                                Adornment="Adornment.End"
+                                AdornmentText="@maximumMarkText"
+                                @onfocus="StartPrediction"
+                                @onblur="EndPrediction">
+
+                </MudTextField>
+                <MudPopover @bind-Open="predictionVisible" 
+                            OffsetX="true" 
+                            Direction="Direction.Right"
+                            Style="width: 170px; position: relative; top: -56px; height: 56px;">
+                    <MudText Class="ma-4">@suggestedMarkText</MudText>
+                </MudPopover>
+            </div>
+        </MudItem>
         </MudGrid>
     </MudItem>
 </MudGrid>
@@ -144,6 +160,8 @@
 
     private MudAutocomplete<CommentModel> autocomplete;
 
+    private bool predictionVisible = false;
+
     private CommentModel inputModel = new CommentModel();
     public CommentModel InputModel
     {
@@ -179,6 +197,18 @@
     {
         SectionModel.Comments = comments;
         await SectionModelChanged.InvokeAsync(SectionModel);
+    }
+
+    private async Task StartPrediction()
+    {
+        predictionVisible = true;
+        UpdateAttempt();
+    }
+
+    private async Task EndPrediction()
+    {
+        predictionVisible = false;
+        UpdateAttempt();
     }
 
     private async Task UpdateAttempt()
