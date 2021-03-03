@@ -29,10 +29,14 @@
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Color="Color.Primary"
                            Size="Size.Large"
-                           OnClick="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel) ">
+                           OnClick="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan) ">
             </MudIconButton>
         </MudAppBar>
         <MudMainContent>
+            <MudOverlay @bind-Visible="AttemptModel.Completed" DarkBackground="true"></MudOverlay>
+            <MudOverlay @bind-Visible="componentLoading" DarkBackground="true" Absolute="true">
+                <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+            </MudOverlay>
             <MudContainer MaxWidth="MaxWidth.Medium">
                 @*<MudOverlay @bind-Visible="assignmentModel.Attempts[0].Completed" LightBackground="true" Absolute="true"></MudOverlay>*@
 
@@ -48,7 +52,7 @@
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
-                                     OnUpdateAttempt="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel)">
+                                     OnUpdateAttempt="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan)">
                             </Section>
                         </MudExpansionPanel>
                     }
@@ -88,14 +92,18 @@
 
     private AssignmentModel assignmentModel;
 
+    private bool componentLoading;
+
     /// <summary>
     /// Fetches the assignment from the server when the component is initialized.
     /// </summary>
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        assignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId);
+        componentLoading = true;
+        assignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId, NavMan);
         AttemptModel = GetAttempt(AttemptID);
+        componentLoading = false;
     }
 
     /// <summary>
@@ -105,7 +113,7 @@
     /// <returns></returns>
     public async Task AttemptToServer(AttemptModel attempt)
     {
-        await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel);
+        await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan);
     }
 
     /// <summary>

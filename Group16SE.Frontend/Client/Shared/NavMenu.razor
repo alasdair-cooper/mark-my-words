@@ -50,7 +50,7 @@
         if (!result.Cancelled)
         {
             AssignmentModel assignmentModel = (AssignmentModel)result.Data;
-            await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel);
+            await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan);
         }
 
         await RefreshAssignmentsList();
@@ -58,6 +58,6 @@
 
     private async Task RefreshAssignmentsList()
     {
-        assignmentsIds = await ServerCommunicator.AssignmentListFromServer(NavMan.BaseUri);
+        assignmentsIds = await ServerCommunicator.AssignmentListFromServer(NavMan.BaseUri, NavMan);
     }
 }

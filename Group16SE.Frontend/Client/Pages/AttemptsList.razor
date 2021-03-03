@@ -34,6 +34,26 @@
                     </tbody>
                 </MudSimpleTable>
             }
+            else
+            {
+                <MudSimpleTable>
+                    <thead>
+                        <tr>
+                            <th><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></th>
+                            <th><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < 10; i++)
+                        {
+                            <tr>
+                                <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
+                                <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            }
         </MudContainer>
 
     </MudMainContent>
@@ -53,12 +73,16 @@
 
     private HttpClient client = new HttpClient();
 
+    private bool componentLoading;
+
     /// <summary>
     /// Fetches the assignment from the server when the component is intialized.
     /// </summary>
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        AssignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId);
+        componentLoading = true;
+        AssignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId, NavMan);
+        componentLoading = false;
     }
 }

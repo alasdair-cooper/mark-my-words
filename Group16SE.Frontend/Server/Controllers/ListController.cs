@@ -39,7 +39,10 @@ namespace Group16SE.Frontend.Server.Controllers
             DirectoryInfo directoryInfo = new DirectoryInfo(folderPath);
             foreach (FileInfo file in directoryInfo.GetFiles())
             {
-                assignmentIds.Add(file.Name.Split('.')[0]);
+                if (file.Extension == ".gz")
+                {
+                    assignmentIds.Add(file.Name.Split('.')[0]);
+                }
             }
             return assignmentIds;
         }

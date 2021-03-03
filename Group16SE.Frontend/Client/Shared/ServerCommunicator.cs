@@ -6,10 +6,14 @@ using System.Text.Json.Serialization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.NetworkInformation;
 using Group16SE.Frontend.Shared;
+
+using Microsoft.AspNetCore.Components;
 
 namespace Group16SE.Frontend.Client.Shared
 {
@@ -23,75 +27,105 @@ namespace Group16SE.Frontend.Client.Shared
         /// Serializes and sends an assignment to the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task AssignmentToServer(string baseUrl, AssignmentModel assignment)
+        public static async Task AssignmentToServer(string baseUrl, AssignmentModel assignment, NavigationManager navMan)
         {
-            HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, baseUrl + AssignmentRequestUri);
-
-            JsonSerializerOptions options = new JsonSerializerOptions()
+            if (await IsOnline())
             {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                WriteIndented = true
-            };
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+                HttpClient client = new HttpClient();
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, baseUrl + AssignmentRequestUri);
 
-            requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, MediaType);
-            requestMessage.Headers.Add("AssignmentId", assignment.AssignmentId);
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+                JsonSerializerOptions options = new JsonSerializerOptions();
+                options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
 
-            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+                requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, MediaType);
+                requestMessage.Headers.Add("AssignmentId", assignment.AssignmentId);
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
 
-            responseMessage.EnsureSuccessStatusCode();
+                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+
+                responseMessage.EnsureSuccessStatusCode();
+            }
+            else
+            {
+                navMan.NavigateTo("/offline");
+            }
         }
 
         /// <summary>
         /// Fetches and deserializes an assignment from the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task<AssignmentModel> AssignmentFromServer(string baseUrl, string assignmentId)
+        public static async Task<AssignmentModel> AssignmentFromServer(string baseUrl, string assignmentId, NavigationManager navMan)
         {
-            HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + AssignmentRequestUri);
-
-            JsonSerializerOptions options = new JsonSerializerOptions()
+            if (await IsOnline())
             {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                WriteIndented = true
-            };
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+                HttpClient client = new HttpClient();
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + AssignmentRequestUri);
 
-            requestMessage.Headers.Add("AssignmentId", assignmentId);
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+                JsonSerializerOptions options = new JsonSerializerOptions();
+                options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
 
-            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+                requestMessage.Headers.Add("AssignmentId", assignmentId);
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
 
-            Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-            AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
+                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
 
-            responseMessage.EnsureSuccessStatusCode();
+                Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
+                AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
 
-            return assignmentModel;
+                responseMessage.EnsureSuccessStatusCode();
+
+                return assignmentModel;
+            }
+            else
+            {
+                navMan.NavigateTo("/offline");
+                return null;
+            }
         }
         /// <summary>
         /// Fetches a list of all the available assignments from the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task<List<string>> AssignmentListFromServer(string baseUrl)
+        public static async Task<List<string>> AssignmentListFromServer(string baseUrl, NavigationManager navMan)
         {
-            HttpClient client = new HttpClient();
-            Console.WriteLine(baseUrl + ListRequestUri);
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + ListRequestUri);
+            if (await IsOnline())
+            {
+                HttpClient client = new HttpClient();
+                Console.WriteLine(baseUrl + ListRequestUri);
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + ListRequestUri);
 
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
 
-            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
 
-            Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-            List<string> assignments = await JsonSerializer.DeserializeAsync<List<string>>(jsonStream);
+                Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
+                List<string> assignments = await JsonSerializer.DeserializeAsync<List<string>>(jsonStream);
 
-            responseMessage.EnsureSuccessStatusCode();
+                responseMessage.EnsureSuccessStatusCode();
 
-            return assignments;
+                return assignments;
+            }
+            else
+            {
+                navMan.NavigateTo("/offline");
+                return null;
+            }
+        }
+
+        public static async Task<bool> IsOnline()
+        {
+            try
+            {
+                //HttpClient client = new HttpClient();
+                //HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, "https://www.google.com/");
+                //await client.SendAsync(message);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
