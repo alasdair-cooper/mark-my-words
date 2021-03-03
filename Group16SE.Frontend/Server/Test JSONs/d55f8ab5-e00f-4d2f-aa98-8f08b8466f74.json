@@ -1,0 +1,338 @@
+{
+  "$id": "1",
+  "AssignmentId": "d55f8ab5-e00f-4d2f-aa98-8f08b8466f74",
+  "AssignmentName": "test",
+  "SectionCommentBanks": {
+    "$id": "2",
+    "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a": {
+      "$id": "3",
+      "$values": []
+    }
+  },
+  "SectionPointBanks": {
+    "$id": "4",
+    "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a": {
+      "$id": "5",
+      "$values": [
+        {
+          "EnumType": 1,
+          "PointId": "9e2b7c52-e7b5-498f-9119-60224a35e4e7",
+          "StringType": "Slider",
+          "Value": 0,
+          "Step": 1,
+          "Min": 1,
+          "Max": 10,
+          "Tag": "slider"
+        },
+        {
+          "EnumType": 2,
+          "PointId": "cf553105-823c-45a8-9287-25ecf0e965be",
+          "StringType": "Switch",
+          "Value": false,
+          "Tag": "switch"
+        },
+        {
+          "EnumType": 3,
+          "PointId": "d07e36ae-bc6a-48a9-89fe-b99e17766298",
+          "StringType": "Select",
+          "Value": "",
+          "Options": "[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]",
+          "Tag": "select"
+        }
+      ]
+    }
+  },
+  "Attempts": {
+    "$id": "6",
+    "$values": [
+      {
+        "$id": "7",
+        "AttemptId": "06d3f3b1-255d-4604-bc32-56dc148c6a4e",
+        "Sections": {
+          "$id": "8",
+          "$values": [
+            {
+              "$id": "9",
+              "SectionID": "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a",
+              "SectionName": "a section",
+              "Comments": {
+                "$id": "10",
+                "$values": [
+                  {
+                    "$id": "11",
+                    "EditMode": 2,
+                    "CommentId": "ad6d54b4-3160-4bea-9f87-98be2ad3f1c9",
+                    "Content": "a comment",
+                    "Uses": -1
+                  },
+                  {
+                    "$id": "12",
+                    "EditMode": 0,
+                    "CommentId": "03f83202-eadd-4a35-b03c-c38cb0ce9e19",
+                    "Content": "a new comment",
+                    "Uses": -1
+                  }
+                ]
+              },
+              "Points": {
+                "$id": "13",
+                "$values": [
+                  {
+                    "EnumType": 1,
+                    "PointId": "9e2b7c52-e7b5-498f-9119-60224a35e4e7",
+                    "StringType": "Slider",
+                    "Value": 0,
+                    "Step": 1,
+                    "Min": 1,
+                    "Max": 10,
+                    "Tag": "slider"
+                  },
+                  {
+                    "EnumType": 2,
+                    "PointId": "cf553105-823c-45a8-9287-25ecf0e965be",
+                    "StringType": "Switch",
+                    "Value": false,
+                    "Tag": "switch"
+                  },
+                  {
+                    "EnumType": 3,
+                    "PointId": "d07e36ae-bc6a-48a9-89fe-b99e17766298",
+                    "StringType": "Select",
+                    "Value": "b",
+                    "Options": "[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]",
+                    "Tag": "select"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "14",
+        "AttemptId": "1b9bb66a-6c77-4f63-9600-639c8799be44",
+        "Sections": {
+          "$id": "15",
+          "$values": [
+            {
+              "$id": "16",
+              "SectionID": "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a",
+              "SectionName": "a section",
+              "Comments": {
+                "$id": "17",
+                "$values": [
+                  {
+                    "$id": "18",
+                    "EditMode": 0,
+                    "CommentId": "03f83202-eadd-4a35-b03c-c38cb0ce9e19",
+                    "Content": "a new comment",
+                    "Uses": -1
+                  }
+                ]
+              },
+              "Points": {
+                "$id": "19",
+                "$values": [
+                  {
+                    "EnumType": 1,
+                    "PointId": "9e2b7c52-e7b5-498f-9119-60224a35e4e7",
+                    "StringType": "Slider",
+                    "Value": 4,
+                    "Step": 1,
+                    "Min": 1,
+                    "Max": 10,
+                    "Tag": "slider"
+                  },
+                  {
+                    "EnumType": 2,
+                    "PointId": "cf553105-823c-45a8-9287-25ecf0e965be",
+                    "StringType": "Switch",
+                    "Value": true,
+                    "Tag": "switch"
+                  },
+                  {
+                    "EnumType": 3,
+                    "PointId": "d07e36ae-bc6a-48a9-89fe-b99e17766298",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]",
+                    "Tag": "select"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": true
+      },
+      {
+        "$id": "20",
+        "AttemptId": "1227f4b0-3742-4051-b549-c623cc4d8a1d",
+        "Sections": {
+          "$id": "21",
+          "$values": [
+            {
+              "$id": "22",
+              "SectionID": "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a",
+              "SectionName": "a section",
+              "Comments": {
+                "$id": "23",
+                "$values": []
+              },
+              "Points": {
+                "$id": "24",
+                "$values": [
+                  {
+                    "EnumType": 1,
+                    "PointId": "9e2b7c52-e7b5-498f-9119-60224a35e4e7",
+                    "StringType": "Slider",
+                    "Value": 0,
+                    "Step": 1,
+                    "Min": 1,
+                    "Max": 10,
+                    "Tag": "slider"
+                  },
+                  {
+                    "EnumType": 2,
+                    "PointId": "cf553105-823c-45a8-9287-25ecf0e965be",
+                    "StringType": "Switch",
+                    "Value": false,
+                    "Tag": "switch"
+                  },
+                  {
+                    "EnumType": 3,
+                    "PointId": "d07e36ae-bc6a-48a9-89fe-b99e17766298",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]",
+                    "Tag": "select"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "25",
+        "AttemptId": "725c8717-db1f-4d7a-8f48-26b4ee780814",
+        "Sections": {
+          "$id": "26",
+          "$values": [
+            {
+              "$id": "27",
+              "SectionID": "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a",
+              "SectionName": "a section",
+              "Comments": {
+                "$id": "28",
+                "$values": []
+              },
+              "Points": {
+                "$id": "29",
+                "$values": [
+                  {
+                    "EnumType": 1,
+                    "PointId": "9e2b7c52-e7b5-498f-9119-60224a35e4e7",
+                    "StringType": "Slider",
+                    "Value": 0,
+                    "Step": 1,
+                    "Min": 1,
+                    "Max": 10,
+                    "Tag": "slider"
+                  },
+                  {
+                    "EnumType": 2,
+                    "PointId": "cf553105-823c-45a8-9287-25ecf0e965be",
+                    "StringType": "Switch",
+                    "Value": false,
+                    "Tag": "switch"
+                  },
+                  {
+                    "EnumType": 3,
+                    "PointId": "d07e36ae-bc6a-48a9-89fe-b99e17766298",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]",
+                    "Tag": "select"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      },
+      {
+        "$id": "30",
+        "AttemptId": "fb18fd6e-2a28-4b4e-bcb4-372ea00777df",
+        "Sections": {
+          "$id": "31",
+          "$values": [
+            {
+              "$id": "32",
+              "SectionID": "98cd71ea-9c15-4c6b-ab62-9d04d88cd40a",
+              "SectionName": "a section",
+              "Comments": {
+                "$id": "33",
+                "$values": []
+              },
+              "Points": {
+                "$id": "34",
+                "$values": [
+                  {
+                    "EnumType": 1,
+                    "PointId": "9e2b7c52-e7b5-498f-9119-60224a35e4e7",
+                    "StringType": "Slider",
+                    "Value": 0,
+                    "Step": 1,
+                    "Min": 1,
+                    "Max": 10,
+                    "Tag": "slider"
+                  },
+                  {
+                    "EnumType": 2,
+                    "PointId": "cf553105-823c-45a8-9287-25ecf0e965be",
+                    "StringType": "Switch",
+                    "Value": false,
+                    "Tag": "switch"
+                  },
+                  {
+                    "EnumType": 3,
+                    "PointId": "d07e36ae-bc6a-48a9-89fe-b99e17766298",
+                    "StringType": "Select",
+                    "Value": "",
+                    "Options": "[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]",
+                    "Tag": "select"
+                  }
+                ]
+              },
+              "GivenMark": 0,
+              "SuggestedMark": 0,
+              "MaxSuggestedMark": 0,
+              "MaximumMark": 0
+            }
+          ]
+        },
+        "Completed": false
+      }
+    ]
+  }
+}

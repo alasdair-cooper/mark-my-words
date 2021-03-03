@@ -37,31 +37,7 @@ namespace Group16SE.Frontend.Shared
         public int Uses { get; set; } = -1;
 
         // ID for the backend to use
-        private string originalCommentModelId = null;
-        private CommentModel _originalCommentModel = null;
-
-        /// <summary>
-        /// The comment where the comment came from (for comments in sections).
-        /// </summary>
-        public CommentModel OriginalCommentModel
-        {
-            get
-            {
-                return _originalCommentModel;
-            }
-            set
-            {
-                _originalCommentModel = value;
-                if (value != null)
-                {
-                    originalCommentModelId = value.CommentId;
-                }
-                else
-                {
-                    originalCommentModelId = null;
-                }
-            } 
-        }
+        public string OriginalCommentModelId = null;
 
         /// <summary>
         /// Empty constructor intended for the deserializer.
@@ -92,7 +68,7 @@ namespace Group16SE.Frontend.Shared
             EditMode = EditMode.None;
             CommentId = originalCommentModel.CommentId;
             Content = originalCommentModel.Content;
-            OriginalCommentModel = originalCommentModel;
+            OriginalCommentModelId = originalCommentModel.CommentId;
             Uses = -1;
         }
     }

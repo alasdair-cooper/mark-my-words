@@ -90,9 +90,10 @@ namespace Group16SE.Frontend.Shared
         /// Deletes a comment just from the current section.
         /// </summary>
         /// <param name="comment">Comment to be deleted.</param>
-        public void DeleteCommentInstance(CommentModel comment)
+        public void DeleteCommentInstance(CommentModel comment, List<CommentModel> commentBank)
         {
-            comment.OriginalCommentModel.Uses -= 1;
+            CommentModel OriginalCommentModel = commentBank.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
+            OriginalCommentModel.Uses -= 1;
             Comments.Remove(comment);
         }
 

@@ -1,37 +1,40 @@
 ﻿@using MudBlazor
 <MudGrid>
     <MudItem xs="10" md="11">
-        @if (CommentModel.EditMode == EditMode.Bank && CommentModel.OriginalCommentModel != null)
-        {
+        @{ 
+            CommentModel originalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == CommentModel.OriginalCommentModelId);
+            if (CommentModel.EditMode == EditMode.Bank && CommentModel.OriginalCommentModelId != null && originalCommentModel != null)
+            {
             <MudTextField T="string"
-                          @bind-Value="CommentModel.OriginalCommentModel.Content"
-                          @oninput="(e) => CommentModel.Content = (string) e.Value"
+                          @bind-Value="originalCommentModel.Content"
+                          @oninput="(e) => CommentModel.Content = (string)e.Value"
                           @onfocus="() => EditComment(EditMode.Bank)"
-                          @onblur="async(e) => await ReadComment()"
+                          @onblur="async (e) => await ReadComment()"
                           ReadOnly="ReadonlyComment"
                           Variant="Variant.Outlined"
                           Lines="2"
                           Label="@currentLabel">
             </MudTextField>
-        }
-        else
-        {
+            }
+            else
+            {
             <MudTextField T="string"
                           @bind-Value="CommentModel.Content"
-                          @oninput="(e) => CommentModel.Content = (string) e.Value"
+                          @oninput="(e) => CommentModel.Content = (string)e.Value"
                           @onfocus="() => EditComment(EditMode.Instance)"
-                          @onblur="async(e) => await ReadComment()"
+                          @onblur="async (e) => await ReadComment()"
                           ReadOnly="ReadonlyComment"
                           Variant="Variant.Outlined"
                           Lines="2"
                           Label="@currentLabel">
             </MudTextField>
+            }
         }
     </MudItem>
     <MudItem xs="2" md="1" Class="d-flex align-center justify-end">
         <MudMenu Icon="@Icons.Material.Filled.MoreVert" Class="ml-1">
             <MudMenuItem OnClick="() => EditComment(EditMode.Instance)">Edit this</MudMenuItem>
-                @if (CommentModel.OriginalCommentModel != null)
+                @if (CommentModel.OriginalCommentModelId != null && BankComments.Exists(comment => comment.CommentId == CommentModel.OriginalCommentModelId))
                 {
                     <MudMenuItem OnClick="() => EditComment(EditMode.Bank)">Edit bank</MudMenuItem>
                 }
@@ -45,11 +48,17 @@
     /// </summary>
     [Parameter]
     public CommentModel CommentModel { get; set; }
+
+    [Parameter]
+    public List<CommentModel> BankComments { get; set; }
     /// <summary>
     /// Callback for when data changes
     /// </summary>
     [Parameter]
     public EventCallback<CommentModel> CommentModelChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
     /// <summary>
     /// Callback for when a comment is edited
     /// </summary>

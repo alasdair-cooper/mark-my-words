@@ -56,6 +56,7 @@
             CommentModel temp = SectionModel.Comments.ElementAt(i);
             <MudItem xs="12">
                 <Comment @bind-CommentModel="temp"
+                         @bind-BankComments="BankComments"
                          OnCommentDeleted="DeleteComment"
                          OnCommentEdited="UpdateComment">
                 </Comment>
@@ -202,13 +203,13 @@
     private async Task StartPrediction()
     {
         predictionVisible = true;
-        UpdateAttempt();
+        await UpdateAttempt();
     }
 
     private async Task EndPrediction()
     {
         predictionVisible = false;
-        UpdateAttempt();
+        await UpdateAttempt();
     }
 
     private async Task UpdateAttempt()
@@ -247,10 +248,11 @@
     /// <returns></returns>
     private async Task DeleteComment(CommentModel comment)
     {
-        SectionModel.DeleteCommentInstance(comment);
-        if (comment.OriginalCommentModel.Uses <= 0)
+        SectionModel.DeleteCommentInstance(comment, BankComments);
+        CommentModel OriginalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
+        if (OriginalCommentModel.Uses <= 0)
         {
-            BankComments.Remove(comment.OriginalCommentModel);
+            BankComments.Remove(OriginalCommentModel);
         }
         await SectionModelChanged.InvokeAsync(SectionModel);
         await BankCommentsChanged.InvokeAsync(BankComments);
@@ -284,9 +286,10 @@
     /// <returns></returns>
     private async Task UpdateComment(CommentModel comment)
     {
-        if(comment.EditMode == EditMode.Bank)
+        CommentModel OriginalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
+        if (comment.EditMode == EditMode.Bank)
         {
-            comment.OriginalCommentModel.Content = comment.Content;
+            OriginalCommentModel.Content = comment.Content;
         }
         else if(comment.EditMode == EditMode.Instance)
         {
@@ -294,10 +297,10 @@
         }
         comment.EditMode = EditMode.None;
         // If it is not being used anywhere (across attempts).
-        if(comment.OriginalCommentModel.Uses <= 0)
+        if(OriginalCommentModel.Uses <= 0)
         {
             // Remove comment from the bank.
-            BankComments.Remove(comment.OriginalCommentModel);
+            BankComments.Remove(OriginalCommentModel);
         }
         await BankCommentsChanged.InvokeAsync(BankComments);
         await SectionModelChanged.InvokeAsync(SectionModel);
