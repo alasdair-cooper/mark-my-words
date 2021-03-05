@@ -11,6 +11,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+
 using System.IO;
 using System.IO.Compression;
 
@@ -30,52 +33,80 @@ namespace Group16SE.Frontend.Server.Controllers
             hostEnvironment = webHostEnvironment;
         }
 
-        // GET: api/<AssignmentController>
+        //GET: api/<AssignmentController>
         [HttpGet]
         public async Task<IActionResult> Get([FromHeader] string AssignmentId)
         {
-            string filePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json");
-            string compressedFilePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.gz");
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            string fileName = $"{AssignmentId}.gz";
 
-            using (FileStream originalFileStream = System.IO.File.OpenRead(compressedFilePath))
-            {
-                using (FileStream decompressedFileStream = System.IO.File.Create(filePath))
-                {
-                    using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
-                    {
-                        decompressionStream.CopyTo(decompressedFileStream);
-                    }
-                }
-            }
+            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+            BlobDownloadInfo download = await blobClient.DownloadAsync();
+            using Stream downloadStream = download.Content;
 
-            using FileStream readStream = System.IO.File.OpenRead(filePath);
-            await readStream.CopyToAsync(HttpContext.Response.Body);
+            using Stream bodyStream = HttpContext.Response.Body;
+            using GZipStream decompressionStream = new GZipStream(downloadStream, CompressionMode.Decompress);
+
+            await decompressionStream.CopyToAsync(bodyStream);
 
             return Ok();
         }
 
-        // POST api/<AssignmentController>
+        //POST api/<AssignmentController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromHeader] string AssignmentId)
+        public async Task<IActionResult> Post([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
         {
-            string filePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.json");
             string compressedFilePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.gz");
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            string fileName = $"{AssignmentId}.gz";
 
-            if (System.IO.File.Exists(filePath))
+            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+
+            Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
+
+            using (FileStream compressedFileStream = System.IO.File.Create(compressedFilePath))
             {
-                System.IO.File.Delete(filePath);
+                using GZipStream compressionStream = new GZipStream(compressedFileStream, CompressionMode.Compress);
+
+                using Stream bodyStream = HttpContext.Request.Body;
+                await bodyStream.CopyToAsync(compressionStream);
             }
-            using (FileStream writeStream = System.IO.File.OpenWrite(filePath))
+            using (FileStream fileStream = System.IO.File.OpenRead(compressedFilePath))
             {
-                await HttpContext.Request.Body.CopyToAsync(writeStream);
+                await blobClient.UploadAsync(fileStream, overwrite: true);
+                await blobClient.SetMetadataAsync(assignmentInfo);
             }
-            using FileStream originalFileStream = System.IO.File.OpenRead(filePath);
-            using FileStream compressedFileStream = System.IO.File.Create(compressedFilePath);
-            using GZipStream compressionStream = new GZipStream(compressedFileStream, CompressionMode.Compress);
-            originalFileStream.CopyTo(compressionStream);
-            
+
             return Ok();
         }
+
+       
+
+        //public async Task<IActionResult> Post([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
+        //{
+        //    string compressedFilePath = Path.Combine(hostEnvironment.ContentRootPath, $"Test JSONs/{AssignmentId}.gz");
+        //    string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+        //    string fileName = $"{AssignmentId}.gz";
+
+        //    BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+
+        //    Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
+
+        //    Stream input = HttpContext.Request.Body;
+        //    using (MemoryStream compressStream = new MemoryStream())
+        //    {
+        //        using (GZipStream compressor = new GZipStream(compressStream, CompressionMode.Compress))
+        //        {
+        //            await input.CopyToAsync(compressor);
+
+        //            compressStream.Position = 0;
+
+        //            await blobClient.UploadAsync(compressStream);
+        //            await blobClient.SetMetadataAsync(assignmentInfo);
+        //        }
+        //    }
+        //    return Ok();
+        //}
 
         // DELETE api/<AssignmentController>
         [HttpDelete]

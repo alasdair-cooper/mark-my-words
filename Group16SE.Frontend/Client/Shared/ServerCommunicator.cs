@@ -21,6 +21,7 @@ namespace Group16SE.Frontend.Client.Shared
     {
         private const string MediaType = "application/json";
         private const string AssignmentRequestUri = "api/assignment";
+        private const string AttemptRequestUri = "api/attempt";
         private const string ListRequestUri = "api/list";
 
         /// <summary>
@@ -39,6 +40,34 @@ namespace Group16SE.Frontend.Client.Shared
 
                 requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, MediaType);
                 requestMessage.Headers.Add("AssignmentId", assignment.AssignmentId);
+                // Serializes the properties of the assignment into a dictionary, but only the properties that are not generic
+                requestMessage.Headers.Add("AssignmentInfo", JsonSerializer.Serialize<Dictionary<string, string>>(assignment.GetAssignmentInfo()));
+                Console.WriteLine(requestMessage.Headers.GetValues("AssignmentInfo").First());
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+
+                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+
+                responseMessage.EnsureSuccessStatusCode();
+            }
+            else
+            {
+                navMan.NavigateTo("/offline");
+            }
+        }
+
+        public static async Task AttemptToServer(string baseUrl, string assignmentId, AttemptModel attempt, NavigationManager navMan)
+        {
+            if (await IsOnline())
+            {
+                HttpClient client = new HttpClient();
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, baseUrl + AttemptRequestUri);
+
+                JsonSerializerOptions options = new JsonSerializerOptions();
+                options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+
+                requestMessage.Content = new StringContent(JsonSerializer.Serialize<AttemptModel>(attempt, options), Encoding.UTF8, MediaType);
+                requestMessage.Headers.Add("AssignmentId", assignmentId);
+
                 requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
 
                 HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);

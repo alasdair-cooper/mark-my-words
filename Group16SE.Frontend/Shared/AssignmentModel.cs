@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Linq;
+
+using System.Reflection;
 
 namespace Group16SE.Frontend.Shared
 {
@@ -52,6 +55,15 @@ namespace Group16SE.Frontend.Shared
                 SectionPointBanks.Add(sectionModel.SectionID, sectionModel.Points);
                 SectionCommentBanks.Add(sectionModel.SectionID, new List<CommentModel>());
             }
+        }
+
+        public Dictionary<string, string> GetAssignmentInfo()
+        {
+            List<PropertyInfo> propertyInfo = new List<PropertyInfo>(this.GetType().GetProperties());
+            return propertyInfo
+                .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType) && (propertyInfo.GetValue(this) as string != null))
+                .ToDictionary(propertyInfo => propertyInfo.Name, propertyInfo => propertyInfo.GetValue(this)
+                .ToString());
         }
     }
 }

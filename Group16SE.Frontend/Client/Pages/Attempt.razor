@@ -27,9 +27,8 @@
                        @bind-Checked="AttemptModel.Completed">
             </MudSwitch>
             <MudIconButton Icon="@Icons.Material.Filled.Save"
-                           Color="Color.Primary"
                            Size="Size.Large"
-                           OnClick="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan) ">
+                           OnClick="async () => await ServerCommunicator.AttemptToServer(NavMan.BaseUri, assignmentModel.AssignmentId, AttemptModel, NavMan) ">
             </MudIconButton>
         </MudAppBar>
         <MudMainContent>

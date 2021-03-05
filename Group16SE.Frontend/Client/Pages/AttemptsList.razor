@@ -73,16 +73,12 @@
 
     private HttpClient client = new HttpClient();
 
-    private bool componentLoading;
-
     /// <summary>
     /// Fetches the assignment from the server when the component is intialized.
     /// </summary>
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        componentLoading = true;
         AssignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId, NavMan);
-        componentLoading = false;
     }
 }
