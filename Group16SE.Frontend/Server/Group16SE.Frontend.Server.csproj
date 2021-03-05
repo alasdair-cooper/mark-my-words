@@ -4,6 +4,22 @@
     <UserSecretsId>Group16SE.Frontend.Server-C3EAEC7A-43C4-4E6D-BA54-7ECF0F8CBBCC</UserSecretsId>
     <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Python38\**" />
+    <Content Remove="Python38\**" />
+    <EmbeddedResource Remove="Python38\**" />
+    <None Remove="Python38\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\Bisque.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\Blue.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\Gray.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\SGIGray.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\TixGray.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\TK.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\TkWin.cs" />
+    <Compile Remove="Python39\tcl\tix8.4.3\pref\WmDefault.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.9.0-beta.1" />
@@ -24,10 +40,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Python\data_preparation.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Python\JsonReader.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Python\model_training.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Python\PythonSampleSystemDiagnostic.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Python\store.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

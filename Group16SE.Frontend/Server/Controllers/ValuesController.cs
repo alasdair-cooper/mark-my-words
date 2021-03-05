@@ -25,7 +25,7 @@ namespace Group16SE.Frontend.Server.Controllers
         [HttpGet]
         public string Get()
         {
-            string pythonExecutablePath = Path.Combine(hostEnvironment.ContentRootPath, "python364x64/python.exe");
+            string pythonExecutablePath = Path.Combine(hostEnvironment.ContentRootPath, "python39/python.exe");
             string pythonCodeFilePath = Path.Combine(hostEnvironment.ContentRootPath, "Python/JsonReader.py");
             string jsonAssignmentPath = Path.Combine(hostEnvironment.ContentRootPath, "current_assignment.json");
 
@@ -49,7 +49,7 @@ namespace Group16SE.Frontend.Server.Controllers
             using StreamReader reader = process.StandardOutput;
             string stderr = process.StandardError.ReadToEnd();
             string result = reader.ReadToEnd();
-            return ($"{result}");
+            return ($"result:\n{result}\n\nerror:\n{stderr}");
         }
     }
 }
