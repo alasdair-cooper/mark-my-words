@@ -42,7 +42,6 @@ namespace Group16SE.Frontend.Client.Shared
                 requestMessage.Headers.Add("AssignmentId", assignment.AssignmentId);
                 // Serializes the properties of the assignment into a dictionary, but only the properties that are not generic
                 requestMessage.Headers.Add("AssignmentInfo", JsonSerializer.Serialize<Dictionary<string, string>>(assignment.GetAssignmentInfo()));
-                Console.WriteLine(requestMessage.Headers.GetValues("AssignmentInfo").First());
                 requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
 
                 HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
@@ -116,12 +115,11 @@ namespace Group16SE.Frontend.Client.Shared
         /// Fetches a list of all the available assignments from the server.
         /// </summary>
         /// <returns></returns>
-        public static async Task<List<string>> AssignmentListFromServer(string baseUrl, NavigationManager navMan)
+        public static async Task<List<Dictionary<string, string>>> AssignmentListFromServer(string baseUrl, NavigationManager navMan)
         {
             if (await IsOnline())
             {
                 HttpClient client = new HttpClient();
-                Console.WriteLine(baseUrl + ListRequestUri);
                 HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + ListRequestUri);
 
                 requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
@@ -129,7 +127,7 @@ namespace Group16SE.Frontend.Client.Shared
                 HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
 
                 Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-                List<string> assignments = await JsonSerializer.DeserializeAsync<List<string>>(jsonStream);
+                List<Dictionary<string, string>> assignments = await JsonSerializer.DeserializeAsync<List<Dictionary<string, string>>>(jsonStream);
 
                 responseMessage.EnsureSuccessStatusCode();
 

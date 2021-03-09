@@ -313,7 +313,6 @@
     /// <returns></returns>
     private async Task CommentFromBank(CommentModel comment)
     {
-        Console.WriteLine("From bank");
         SectionModel.NewCommentFromComment(comment);
         await SectionModelChanged.InvokeAsync(SectionModel);
         await BankCommentsChanged.InvokeAsync(BankComments);

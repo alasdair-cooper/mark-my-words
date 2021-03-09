@@ -65,8 +65,6 @@ namespace Group16SE.Frontend.Shared
 
             newBankComment.Uses = 1;
 
-            Console.WriteLine(newBankComment.Uses);
-
             Comments.Add(newSectionComment);
             commentBank.Add(newBankComment);
         }
@@ -80,8 +78,6 @@ namespace Group16SE.Frontend.Shared
             CommentModel newSectionComment = new CommentModel(bankComment);
 
             bankComment.Uses += 1;
-
-            Console.WriteLine(bankComment.Uses);
 
             Comments.Add(newSectionComment);
         }

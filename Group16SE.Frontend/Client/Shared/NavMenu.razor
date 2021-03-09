@@ -1,5 +1,7 @@
-﻿@using MudBlazor 
+﻿@using MudBlazor
 @using Pages
+@using System.Text.Json
+@using System.Text.Json.Serialization
 
 @inject IDialogService Dialog;
 @inject NavigationManager NavMan;
@@ -14,12 +16,14 @@
                        Class="ma-4">
                 New Assignment
             </MudButton>
-            <MudNavGroup Icon="@Icons.Material.Filled.School" 
+            <MudNavGroup Icon="@Icons.Material.Filled.School"
                          Title="Assignments"
                          Expanded="true">
-                @foreach (string assignmentId in assignmentsIds)
+                @foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
                 {
-                    <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentId.Substring(0, 7)</MudNavLink>
+                    string assignmentId = assignmentInfo["AssignmentId"];
+                    string assignmentName = assignmentInfo["AssignmentName"];
+                    <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentName</MudNavLink>
                 }
             </MudNavGroup>
         </Authorized>
@@ -30,11 +34,10 @@
 </MudNavMenu>
 
 @code {
-    public List<string> assignmentsIds { get; set; } = new List<string>();
+    public List<Dictionary<string, string>> assignmentsInfo { get; set; } = new List<Dictionary<string, string>>();
 
     protected async override Task OnInitializedAsync()
     {
-        Console.WriteLine(NavMan.BaseUri);
         await RefreshAssignmentsList();
     }
 
@@ -58,6 +61,6 @@
 
     private async Task RefreshAssignmentsList()
     {
-        assignmentsIds = await ServerCommunicator.AssignmentListFromServer(NavMan.BaseUri, NavMan);
+        assignmentsInfo = await ServerCommunicator.AssignmentListFromServer(NavMan.BaseUri, NavMan);
     }
 }
