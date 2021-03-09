@@ -1,6 +1,7 @@
 import pandas as pd
-from data_preparation import createDataFrames, getAssighment
+from data_preparation import *
 import numpy as np
+import sys
 
 example_dict = {'c_1': [1, 1, 0, 0, 0, 1, 0], 'c_2': [1, 0, 0, 1, 1, 1, 1], 'c_3': [0, 0, 0, 1, 0, 1, 1],
               'c_4': [1, 1, 1, 1, 0, 1, 0], 'c_5': [1, 0, 0, 1, 1, 0, 0], 'marks': [5, 7, 1, 9, 3, 8, 1]}
@@ -42,7 +43,7 @@ def trainModel(model, train_x, train_y):
     return model.fit(train_x, train_y)
 
 def queryModel(model, query_data_frame):
-    return model.predict(query_data_frame).max
+    return model.predict(query_data_frame)[0]
 
 
 
@@ -64,15 +65,18 @@ def spplitSectionLabeling(dfs):
     return newdf
 
 
-def createModlesForSections(dfs, tree_num):
+def createModlesForSections(dfs, tree_num, specificSection = False):
     newdf= {}
     for key in dfs:
         features = dfs[key]["features"]
         labels = dfs[key]["labels"]
     
         model = createRFmodel(features, labels, tree_num)
-        
-        newdf[key] = model
+
+        if specificSection == False:
+            newdf[key] = model
+        elif key == specificSection:
+            newdf[key] = model
         
     return newdf
 
@@ -91,21 +95,52 @@ def measureError(test_features, test_labels, model):
     return MAE, RMSE
 
 
-def main():
-    #preparing dataframes
-    dfs = createDataFrames(test_assighnment)
-    #gets rid of sections in attepts that ahve not been marked as compleated
+
+def cmdLineMain():
+    args = sys.argv
+    AssignmentPath, SectionId, AttemptId = args[1], args[2], args[3]
+    
+
+    #for testing purposese, comment out below V
+    #os.chdir("..")
+    #AttemptId = "6017ffbc-d61c-46da-a8c5-21ef6d5a3f21"
+    #SectionId = "68fb5c46-4746-4b66-b0d2-6f11f950f915"
+    #AssignmentPath = "local_storage_interaction/assighnment.json"
+    ##comment out above^
+
+
+    with open(AssignmentPath) as f:
+        content  = json.load(f)
+
+    # preparing dataframes
+    dfs = createDataFrames(content)
+    q_df = createDataFrames(content,  atttemptID = AttemptId)
+
+    # gets rid of sections in attepts that ahve not been marked as compleated
     filtered_dfs = dropNonCompleatedsections(dfs)
-    #splits the feature and label parts
+
+    # splits the feature and label parts
     split_dfs = spplitSectionLabeling(filtered_dfs)
-    
-    
-    #create models for each section
+    q_split_df = spplitSectionLabeling(q_df)["68fb5c46-4746-4b66-b0d2-6f11f950f915"]['features'].drop(["finished"], axis=1)
+
+
+
+
+
+    # create models for each section
     tree_num = 30
-    models = createModlesForSections(split_dfs, tree_num=tree_num)
+    model = createModlesForSections(split_dfs, tree_num=tree_num, specificSection=SectionId)
+
+    q_answer = queryModel(model[SectionId], q_split_df)
+
+
+    acc = measureError(split_dfs[SectionId]["features"], split_dfs[SectionId]["labels"], model[SectionId])
+
+    return q_answer, acc
+
 
 if __name__ == '__main__':
-    main()
+    print(cmdLineMain())
 #testing with other data sets
 #digits = load_digits()
 #print(dir(digits))

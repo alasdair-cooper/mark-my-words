@@ -1,7 +1,6 @@
 import pandas
 import logging
 import os
-import bson
 import json
 
 
@@ -16,6 +15,16 @@ class fileMangagement:
         base_id = "local_storage_interaction"
         save_path = os.path.join(base_id, "data", CHAPTER_ID, name)
 
+        try:
+            with open(save_path) as json_file:
+                data = json.load(json_file)
+            return data
+
+        except:
+            return {"file":"not found"}
+
+
+    def openJSONDirect(self, save_path):
         try:
             with open(save_path) as json_file:
                 data = json.load(json_file)

@@ -341,3 +341,4 @@ healthchecksdb
 Group16SE.Frontend/Client/wwwroot/appsettings.json
 Group16SE.Frontend/Server/appsettings.Development.json
 Group16SE.Frontend/Server/appsettings.json
+Group16SE.Frontend/Server/Properties/launchSettings.json
