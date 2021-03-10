@@ -28,7 +28,7 @@
             </MudSwitch>
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Size="Size.Large"
-                           OnClick="async () => await ServerCommunicator.AttemptToServer(NavMan.BaseUri, assignmentModel.AssignmentId, AttemptModel, NavMan) ">
+                           OnClick="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel.AttemptId) ">
             </MudIconButton>
         </MudAppBar>
         <MudMainContent>
@@ -51,7 +51,7 @@
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
-                                     OnUpdateAttempt="async () => await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan)">
+                                     OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel)">
                             </Section>
                         </MudExpansionPanel>
                     }
@@ -100,19 +100,9 @@
     protected override async Task OnInitializedAsync()
     {
         componentLoading = true;
-        assignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId, NavMan);
+        assignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId);
         AttemptModel = GetAttempt(AttemptID);
         componentLoading = false;
-    }
-
-    /// <summary>
-    /// Sends the assignment to the server.
-    /// </summary>
-    /// <param name="attempt"></param>
-    /// <returns></returns>
-    public async Task AttemptToServer(AttemptModel attempt)
-    {
-        await ServerCommunicator.AssignmentToServer(NavMan.BaseUri, assignmentModel, NavMan);
     }
 
     /// <summary>

@@ -79,6 +79,6 @@
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        AssignmentModel = await ServerCommunicator.AssignmentFromServer(NavMan.BaseUri, AssignmentId, NavMan);
+        AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId);
     }
 }

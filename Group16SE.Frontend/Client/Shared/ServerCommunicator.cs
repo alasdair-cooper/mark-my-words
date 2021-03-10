@@ -24,135 +24,201 @@ namespace Group16SE.Frontend.Client.Shared
         private const string AttemptRequestUri = "api/attempt";
         private const string ListRequestUri = "api/list";
 
-        /// <summary>
-        /// Serializes and sends an assignment to the server.
-        /// </summary>
-        /// <returns></returns>
-        public static async Task AssignmentToServer(string baseUrl, AssignmentModel assignment, NavigationManager navMan)
+        private enum HttpMethodEnum
         {
-            if (await IsOnline())
-            {
-                HttpClient client = new HttpClient();
-                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, baseUrl + AssignmentRequestUri);
-
-                JsonSerializerOptions options = new JsonSerializerOptions();
-                options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-                requestMessage.Content = new StringContent(JsonSerializer.Serialize<AssignmentModel>(assignment, options), Encoding.UTF8, MediaType);
-                requestMessage.Headers.Add("AssignmentId", assignment.AssignmentId);
-                // Serializes the properties of the assignment into a dictionary, but only the properties that are not generic
-                requestMessage.Headers.Add("AssignmentInfo", JsonSerializer.Serialize<Dictionary<string, string>>(assignment.GetAssignmentInfo()));
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
-
-                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-                responseMessage.EnsureSuccessStatusCode();
-            }
-            else
-            {
-                navMan.NavigateTo("/offline");
-            }
-        }
-
-        public static async Task AttemptToServer(string baseUrl, string assignmentId, AttemptModel attempt, NavigationManager navMan)
-        {
-            if (await IsOnline())
-            {
-                HttpClient client = new HttpClient();
-                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, baseUrl + AttemptRequestUri);
-
-                JsonSerializerOptions options = new JsonSerializerOptions();
-                options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-                requestMessage.Content = new StringContent(JsonSerializer.Serialize<AttemptModel>(attempt, options), Encoding.UTF8, MediaType);
-                requestMessage.Headers.Add("AssignmentId", assignmentId);
-
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
-
-                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-                responseMessage.EnsureSuccessStatusCode();
-            }
-            else
-            {
-                navMan.NavigateTo("/offline");
-            }
+            Post,
+            Put
         }
 
         /// <summary>
-        /// Fetches and deserializes an assignment from the server.
+        /// Creates a new assignment via HTTP POST to api/assignment.
         /// </summary>
+        /// <param name="navMan"></param>
+        /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<AssignmentModel> AssignmentFromServer(string baseUrl, string assignmentId, NavigationManager navMan)
+        public static async Task<bool> NewAssignment(NavigationManager navMan, AssignmentModel assignment)
         {
-            if (await IsOnline())
-            {
-                HttpClient client = new HttpClient();
-                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + AssignmentRequestUri);
+            string destinationUri = $"{navMan.BaseUri}api/assignment";
 
-                JsonSerializerOptions options = new JsonSerializerOptions();
-                options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
 
-                requestMessage.Headers.Add("AssignmentId", assignmentId);
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+            Dictionary<string, string> headers = new Dictionary<string, string>() 
+            { 
+                { "AssignmentId", assignment.AssignmentId } ,
+                {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) }
+            };
 
-                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-                Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-                AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
-
-                responseMessage.EnsureSuccessStatusCode();
-
-                return assignmentModel;
-            }
-            else
-            {
-                navMan.NavigateTo("/offline");
-                return null;
-            }
+            return await Upload(assignment, destinationUri, headers, options, HttpMethodEnum.Post);
         }
+
         /// <summary>
-        /// Fetches a list of all the available assignments from the server.
+        /// Updates a single assignment via HTTP PUT to api/assignment.
         /// </summary>
+        /// <param name="navMan"></param>
+        /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<List<Dictionary<string, string>>> AssignmentListFromServer(string baseUrl, NavigationManager navMan)
+        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, string finalUpdateAttemptId = null)
         {
-            if (await IsOnline())
+            string destinationUri = $"{navMan.BaseUri}api/assignment";
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+
+            Dictionary<string, string> headers;
+            if (finalUpdateAttemptId == null)
             {
-                HttpClient client = new HttpClient();
-                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, baseUrl + ListRequestUri);
-
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
-
-                HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-                Stream jsonStream = await responseMessage.Content.ReadAsStreamAsync();
-                List<Dictionary<string, string>> assignments = await JsonSerializer.DeserializeAsync<List<Dictionary<string, string>>>(jsonStream);
-
-                responseMessage.EnsureSuccessStatusCode();
-
-                return assignments;
+                headers = new Dictionary<string, string>()
+                {
+                    { "AssignmentId", assignment.AssignmentId },
+                    {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) },
+                    { "FinalUpdate", "false" }
+                };
             }
             else
             {
-                navMan.NavigateTo("/offline");
-                return null;
+                headers = new Dictionary<string, string>()
+                {
+                    { "AssignmentId", assignment.AssignmentId },
+                    {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) },
+                    { "FinalUpdate", "true" },
+                    { "AttemptId", finalUpdateAttemptId }
+                };
             }
+            return await Upload(assignment, destinationUri, headers, options, HttpMethodEnum.Put);
+            
         }
 
-        public static async Task<bool> IsOnline()
+        /// <summary>
+        /// Makes a request to api/assignment for a list of all assignments in storage.
+        /// </summary>
+        /// <param name="navMan"></param>
+        /// <returns></returns>
+        public static async Task<List<Dictionary<string, string>>> ListAssignments(NavigationManager navMan)
         {
-            try
+            string destinationUri = $"{navMan.BaseUri}api/assignment";
+
+            Stream jsonStream = await Download(destinationUri);
+            List<Dictionary<string, string>> assignments = await JsonSerializer.DeserializeAsync<List<Dictionary<string, string>>>(jsonStream);
+
+            return assignments;
+        }
+
+        /// <summary>
+        /// Fetches a single assignment via HTTP GET from api/assignment/{assignmentId}.
+        /// </summary>
+        /// <param name="navMan"></param>
+        /// <param name="assignmentId"></param>
+        /// <returns></returns>
+        public static async Task<AssignmentModel> FetchAssignment(NavigationManager navMan, string assignmentId)
+        {
+            string destinationUri = $"{navMan.BaseUri}api/assignment/{assignmentId}";
+            Console.WriteLine($"Sending request to {destinationUri}.");
+
+            Dictionary<string, string> headers = new Dictionary<string, string>() 
+            { 
+                { "AssignmentId", assignmentId } 
+            };
+
+            Stream jsonStream = await Download(destinationUri, headers);
+
+            StreamReader reader = new StreamReader(jsonStream);
+            Console.WriteLine(reader.ReadToEnd());
+            jsonStream.Position = 0;
+
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+
+            AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
+
+            return assignmentModel;
+
+        }
+
+        /// <summary>
+        /// Fetches the range of suggested marks via HTTP GET from api/mark.
+        /// </summary>
+        /// <param name="navMan"></param>
+        /// <param name="assignmentId"></param>
+        /// <param name="attemptId"></param>
+        /// <param name="sectionId"></param>
+        /// <returns></returns>
+        public static async Task<Tuple<int, int>> FetchMarkRange(NavigationManager navMan, AssignmentModel assignment, string attemptId, string sectionId)
+        {
+            string destinationUri = $"{navMan.BaseUri}api/mark";
+
+            Dictionary<string, string> headers = new Dictionary<string, string>() 
+            { 
+                { "AssignmentId", assignment.AssignmentId }, 
+                { "AttemptId", attemptId }, 
+                { "SectionId", sectionId } 
+            };
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+
+            HttpClient client = new HttpClient();
+
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, destinationUri)
             {
-                //HttpClient client = new HttpClient();
-                //HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, "https://www.google.com/");
-                //await client.SendAsync(message);
-                return true;
-            }
-            catch
+                Content = new StringContent(JsonSerializer.Serialize(assignment, options), Encoding.UTF8, MediaType)
+            };
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+            foreach (KeyValuePair<string, string> header in headers)
             {
-                return false;
+                requestMessage.Headers.Add(header.Key, header.Value);
             }
+
+            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+            Stream responseBody = await responseMessage.Content.ReadAsStreamAsync();
+            Tuple<int, int> markRange  = await JsonSerializer.DeserializeAsync<Tuple<int, int>>(responseBody);
+
+            return markRange;
+
+        }
+
+        private static async Task<Stream> Download(string uri, Dictionary<string, string> headers = default)
+        {
+            HttpClient client = new HttpClient();
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+            if (headers != null)
+            {
+                foreach (KeyValuePair<string, string> header in headers)
+                {
+                    requestMessage.Headers.Add(header.Key, header.Value);
+                }
+            }
+
+            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+
+            return await responseMessage.Content.ReadAsStreamAsync();
+        }
+
+        private static async Task<bool> Upload(object payload, string uri, Dictionary<string, string> headers = default, JsonSerializerOptions serializerOptions = default, HttpMethodEnum method = HttpMethodEnum.Post)
+        {
+            HttpClient client = new HttpClient();
+            HttpMethod httpMethod = method switch
+            {
+                HttpMethodEnum.Put => HttpMethod.Put,
+                _ => HttpMethod.Post,
+            };
+
+            HttpRequestMessage requestMessage = new HttpRequestMessage(httpMethod, uri)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(payload, serializerOptions), Encoding.UTF8, MediaType)
+            };
+
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
+            foreach (KeyValuePair<string, string> header in headers)
+            {
+                requestMessage.Headers.Add(header.Key, header.Value);
+            }
+
+            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
+            return responseMessage.IsSuccessStatusCode;
         }
     }
 }
