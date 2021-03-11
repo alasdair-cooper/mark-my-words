@@ -339,6 +339,7 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 MarkMyWords/Client/wwwroot/appsettings.json
+MarkMyWords/Client/wwwroot/appsettings.Development.json
 MarkMyWords/Server/appsettings.Development.json
 MarkMyWords/Server/appsettings.json
 MarkMyWords/Server/Properties/launchSettings.json

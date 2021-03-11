@@ -27,7 +27,7 @@ namespace MarkMyWords.Server.Controllers
         [HttpPost]
         public async Task<IDictionary<string, float>> Post([FromHeader] string AssignmentId, [FromHeader] string AttemptId, [FromHeader] string SectionId)
         {
-            string absolutePath = Path.Combine(hostEnvironment.ContentRootPath, $"{AssignmentId}.json");
+            string absolutePath = Path.Combine(hostEnvironment.ContentRootPath, $"{Guid.NewGuid().ToString()}.json");
 
             using (FileStream fileStream = System.IO.File.Create(absolutePath))
             {
