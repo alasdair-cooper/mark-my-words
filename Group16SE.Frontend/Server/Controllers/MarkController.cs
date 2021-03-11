@@ -5,6 +5,11 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
 using System;
+using System.Collections.Generic;
+
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Group16SE.Frontend.Server.Controllers
 {
@@ -19,8 +24,8 @@ namespace Group16SE.Frontend.Server.Controllers
             hostEnvironment = webHostEnvironment;
         }
 
-        [HttpGet]
-        public async Task<string> Get([FromHeader] string AssignmentId, [FromHeader] string AttemptId, [FromHeader] string SectionId)
+        [HttpPost]
+        public async Task<IDictionary<string, float>> Post([FromHeader] string AssignmentId, [FromHeader] string AttemptId, [FromHeader] string SectionId)
         {
             string absolutePath = Path.Combine(hostEnvironment.ContentRootPath, $"{AssignmentId}.json");
 
@@ -56,9 +61,17 @@ namespace Group16SE.Frontend.Server.Controllers
             string result = reader.ReadToEnd();
 
             System.IO.File.Delete(absolutePath);
+
+            //if (!string.IsNullOrWhiteSpace(stderr.Trim()))
+            //{
+            //    throw new Exception(stderr);
+            //}
+
             Console.WriteLine(stderr);
 
-            return result;
+            Dictionary<string, float> markRange = JsonSerializer.Deserialize<Dictionary<string, float>>(result);
+
+            return markRange;
         }
     }
 }

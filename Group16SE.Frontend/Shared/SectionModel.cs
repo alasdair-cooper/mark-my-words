@@ -39,6 +39,10 @@ namespace Group16SE.Frontend.Shared
         /// <summary>
         /// Maximum mark suggested by the system.
         /// </summary>
+        public int MinSuggestedMark { get; set; }
+        /// <summary>
+        /// Maximum mark suggested by the system.
+        /// </summary>
         public int MaxSuggestedMark { get; set; }
         /// <summary>
         /// Maximum mark allowed for the section.

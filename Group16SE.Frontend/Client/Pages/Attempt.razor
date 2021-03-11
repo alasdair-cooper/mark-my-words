@@ -13,7 +13,6 @@
 @if (assignmentModel != null)
 {
     <MudLayout>
-
         <MudAppBar Elevation="0"
                    Color="Color.Primary"
                    Fixed="false">
@@ -28,7 +27,7 @@
             </MudSwitch>
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Size="Size.Large"
-                           OnClick="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel.AttemptId) ">
+                           OnClick="UpdateAssignment">
             </MudIconButton>
         </MudAppBar>
         <MudMainContent>
@@ -51,7 +50,9 @@
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
-                                     OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel)">
+                                     OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel)"
+                                     AttemptModel="AttemptModel"
+                                     AssignmentModel="assignmentModel">
                             </Section>
                         </MudExpansionPanel>
                     }
@@ -113,5 +114,10 @@
     public AttemptModel GetAttempt(string attemptId)
     {
         return assignmentModel.Attempts.Where(attempt => attempt.AttemptId == attemptId).First();
+    }
+
+    public async Task UpdateAssignment()
+    {
+        await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel.AttemptId);
     }
 }

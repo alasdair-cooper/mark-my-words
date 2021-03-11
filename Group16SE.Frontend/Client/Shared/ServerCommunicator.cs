@@ -113,7 +113,6 @@ namespace Group16SE.Frontend.Client.Shared
         public static async Task<AssignmentModel> FetchAssignment(NavigationManager navMan, string assignmentId)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment/{assignmentId}";
-            Console.WriteLine($"Sending request to {destinationUri}.");
 
             Dictionary<string, string> headers = new Dictionary<string, string>() 
             { 
@@ -121,11 +120,6 @@ namespace Group16SE.Frontend.Client.Shared
             };
 
             Stream jsonStream = await Download(destinationUri, headers);
-
-            StreamReader reader = new StreamReader(jsonStream);
-            Console.WriteLine(reader.ReadToEnd());
-            jsonStream.Position = 0;
-
 
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
@@ -137,14 +131,14 @@ namespace Group16SE.Frontend.Client.Shared
         }
 
         /// <summary>
-        /// Fetches the range of suggested marks via HTTP GET from api/mark.
+        /// Fetches the range of suggested marks via HTTP POST from api/mark.
         /// </summary>
         /// <param name="navMan"></param>
         /// <param name="assignmentId"></param>
         /// <param name="attemptId"></param>
         /// <param name="sectionId"></param>
         /// <returns></returns>
-        public static async Task<Tuple<int, int>> FetchMarkRange(NavigationManager navMan, AssignmentModel assignment, string attemptId, string sectionId)
+        public static async Task<Dictionary<string, float>> FetchMarkRange(NavigationManager navMan, AssignmentModel assignment, string attemptId, string sectionId)
         {
             string destinationUri = $"{navMan.BaseUri}api/mark";
 
@@ -160,6 +154,9 @@ namespace Group16SE.Frontend.Client.Shared
 
             HttpClient client = new HttpClient();
 
+            Console.WriteLine(JsonSerializer.Serialize(headers));
+            Console.WriteLine(JsonSerializer.Serialize(assignment, options));
+
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, destinationUri)
             {
                 Content = new StringContent(JsonSerializer.Serialize(assignment, options), Encoding.UTF8, MediaType)
@@ -172,10 +169,9 @@ namespace Group16SE.Frontend.Client.Shared
 
             HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
             Stream responseBody = await responseMessage.Content.ReadAsStreamAsync();
-            Tuple<int, int> markRange  = await JsonSerializer.DeserializeAsync<Tuple<int, int>>(responseBody);
+            Dictionary<string, float> markRange  = await JsonSerializer.DeserializeAsync<Dictionary<string, float>>(responseBody);
 
             return markRange;
-
         }
 
         private static async Task<Stream> Download(string uri, Dictionary<string, string> headers = default)

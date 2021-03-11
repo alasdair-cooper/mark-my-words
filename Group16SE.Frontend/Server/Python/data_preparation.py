@@ -1,5 +1,4 @@
 from store import *
-
 import pandas as pd
 
 DATABASE = 'test_main'
@@ -40,17 +39,17 @@ class dataFrormatting:
         comment_bank = rawJson["SectionCommentBanks"]
         point_bank = rawJson["SectionPointBanks"]
 
-        section_names = list(comment_bank)[1:]
-        point_names = list(comment_bank)[1:]
+        section_names = list(comment_bank)
+        point_names = list(comment_bank)
 
         for sec_name in section_names:
             vector_dict = {}
             feature_vector_place = 0
-            for comment in rawJson["SectionCommentBanks"][sec_name]["$values"]:
+            for comment in rawJson["SectionCommentBanks"][sec_name]:
                 vector_dict[comment["CommentId"]] = feature_vector_place
                 feature_vector_place += 1
 
-            for point in rawJson["SectionPointBanks"][sec_name]["$values"]:
+            for point in rawJson["SectionPointBanks"][sec_name]:
                 vector_dict[point["PointId"]] = feature_vector_place
                 feature_vector_place += 1
 
@@ -62,19 +61,19 @@ class dataFrormatting:
     def attempts2Vectors(self, assighnment, specific = None):
 
         section_dicts = self.createDictOfMarkings()
-        section_names = list(assighnment["SectionCommentBanks"])[1:]
+        section_names = list(assighnment["SectionCommentBanks"])
 
         attempt_vecs = []
 
-        for attempt in assighnment["Attempts"]["$values"]:
+        for attempt in assighnment["Attempts"]:
             if attempt["AttemptId"] == specific or specific == None:
                 sec_vectors = []
                 section_num = 0
-                for section in attempt["Sections"]["$values"]:
+                for section in attempt["Sections"]:
 
                     section_vec = [0 for i in range(len(section_dicts[section_names[section_num]]))]
 
-                    for comment in section["Comments"]["$values"]:
+                    for comment in section["Comments"]:
                         comment_id = str(comment["CommentId"])
                         section_vec[section_dicts[section["SectionID"]][comment_id]] = 1
 
