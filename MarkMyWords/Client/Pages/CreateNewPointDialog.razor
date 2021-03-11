@@ -78,20 +78,20 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    MudDialogInstance MudDialog { get; set; }
+        [CascadingParameter]
+        MudDialogInstance MudDialog { get; set; }
 
-    /// <summary>
-    /// The point model being edited in this dialog.
-    /// </summary>
-    [Parameter]
-    public PointModel pointModel { get; set; } = new PointModel();
+        /// <summary>
+        /// The point model being edited in this dialog.
+        /// </summary>
+        [Parameter]
+        public PointModel pointModel { get; set; } = new PointModel();
 
-    /// <summary>
-    /// Returns the point model.
-    /// </summary>
-    void Submit() => MudDialog.Close(DialogResult.Ok(pointModel));
-    void Cancel() => MudDialog.Cancel();
+        /// <summary>
+        /// Returns the point model.
+        /// </summary>
+        void Submit() => MudDialog.Close(DialogResult.Ok(pointModel));
+        void Cancel() => MudDialog.Cancel();
 
     private FluentValueValidator<int> maxValidator;
     private FluentValueValidator<int> stepValidator;
@@ -122,6 +122,11 @@
         {
             maxValidator = new FluentValueValidator<int>(x => x.GreaterThan(sliderPointModel.Min).WithMessage("Must be greater than the minimum!"));
             stepValidator = new FluentValueValidator<int>(x => x.Must(value => (sliderPointModel.Max - sliderPointModel.Min) % value == 0).WithMessage("Must be a multiple of the maximum - minimum!"));
+        }
+
+        if (pointModel is SelectPointModel selectPointModel) 
+        {
+            optionsString = string.Join(';', selectPointModel.Options);
         }
     }
 
