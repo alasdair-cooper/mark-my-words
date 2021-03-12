@@ -74,10 +74,10 @@
     private HttpClient client = new HttpClient();
 
     /// <summary>
-    /// Fetches the assignment from the server when the component is intialized.
+    /// Fetches the assignment from the server when the parameters are set.
     /// </summary>
     /// <returns></returns>
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId);
     }
