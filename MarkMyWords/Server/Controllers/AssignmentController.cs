@@ -58,17 +58,9 @@ namespace MarkMyWords.Server.Controllers
         [HttpGet("{assignmentId}")]
         public async Task<IActionResult> Get(string assignmentId)
         {
-            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
             string fileName = $"{assignmentId}.gz";
 
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
-            BlobDownloadInfo download = await blobClient.DownloadAsync();
-            using Stream downloadStream = download.Content;
-
-            using Stream bodyStream = HttpContext.Response.Body;
-            using GZipStream decompressionStream = new GZipStream(downloadStream, CompressionMode.Decompress);
-
-            await decompressionStream.CopyToAsync(HttpContext.Response.Body);
+            await DownloadFromStorage(fileName, HttpContext.Response.Body);
 
             return Ok();
         }
@@ -76,25 +68,11 @@ namespace MarkMyWords.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
         {
-            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
             string fileName = $"{AssignmentId}.gz";
-
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
 
             Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
 
-            using MemoryStream memoryStream = new MemoryStream();
-            using (Stream bodyStream = HttpContext.Request.Body)
-            {
-                using (GZipStream compressionStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
-                {
-                    await bodyStream.CopyToAsync(compressionStream);
-                }
-            }
-            memoryStream.Position = 0;
-
-            await blobClient.UploadAsync(memoryStream, overwrite: true);
-            await blobClient.SetMetadataAsync(assignmentInfo);
+            await UploadToStorage(fileName, HttpContext.Request.Body, assignmentInfo);
 
             return Ok();
         }
@@ -102,29 +80,56 @@ namespace MarkMyWords.Server.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
         {
-            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
             string fileName = $"{AssignmentId}.gz";
-
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
 
             Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
 
-            using MemoryStream memoryStream = new MemoryStream() ;
-            using (Stream bodyStream = HttpContext.Request.Body)
-            {
-                using (GZipStream compressionStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
-                {
-                    await bodyStream.CopyToAsync(compressionStream);
-                }
-            }
-            memoryStream.Position = 0;
-
-            await blobClient.UploadAsync(memoryStream, overwrite: true);
-            await blobClient.SetMetadataAsync(assignmentInfo);
+            await UploadToStorage(fileName, HttpContext.Request.Body, assignmentInfo);
 
             return Ok();
         }
 
-        
+        private static async Task DownloadFromStorage(string fileName, Stream streamToWriteTo)
+        {
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+
+            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+            BlobDownloadInfo download = await blobClient.DownloadAsync();
+            using Stream downloadStream = download.Content;
+
+            await Decompress(downloadStream, streamToWriteTo);
+        }
+
+        private static async Task UploadToStorage(string fileName, Stream content, Dictionary<string, string> metadata = null)
+        {
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+
+            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+
+            using Stream compressedStream = await Compress(content);
+
+            await blobClient.UploadAsync(compressedStream, overwrite: true);
+            if (metadata != null)
+            {
+                await blobClient.SetMetadataAsync(metadata);
+            }
+        }
+
+        private static async Task<Stream> Compress(Stream streamToCompress)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            using (GZipStream compressionStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
+            {
+                await streamToCompress.CopyToAsync(compressionStream);
+            }
+            memoryStream.Position = 0;
+            return memoryStream;
+        }
+
+        private static async Task Decompress(Stream streamToDecompress, Stream streamToWriteTo)
+        {
+            GZipStream decompressionStream = new GZipStream(streamToDecompress, CompressionMode.Decompress, true);
+            await decompressionStream.CopyToAsync(streamToWriteTo);
+        }
     }
 }

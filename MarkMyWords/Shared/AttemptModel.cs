@@ -19,6 +19,8 @@ namespace MarkMyWords.Shared
         /// </summary>
         public bool Completed { get; set; } = false;
 
+        public bool Locked { get; set; } = false;
+
         /// <summary>
         /// Empty constructor intended for the deserializer.
         /// </summary>
