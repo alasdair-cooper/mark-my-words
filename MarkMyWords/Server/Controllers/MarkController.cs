@@ -62,10 +62,10 @@ namespace MarkMyWords.Server.Controllers
 
             System.IO.File.Delete(absolutePath);
 
-            //if (!string.IsNullOrWhiteSpace(stderr.Trim()))
-            //{
-            //    throw new Exception(stderr);
-            //}
+            if (!string.IsNullOrWhiteSpace(stderr.Trim()))
+            {
+                throw new Exception(stderr);
+            }
 
             Console.WriteLine(stderr);
 

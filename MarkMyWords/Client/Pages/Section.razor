@@ -117,11 +117,16 @@
                                 @onblur="EndPrediction">
 
                 </MudTextField>
-                <MudPopover @bind-Open="predictionVisible" 
-                            OffsetX="true" 
+                <MudPopover @bind-Open="predictionVisible"
+                            OffsetX="true"
                             Direction="Direction.Right"
                             Style="width: 170px; position: relative; top: -56px; height: 56px;">
-                    <MudText Class="ma-4">Min:@SectionModel.MinSuggestedMark Max:@SectionModel.MaxSuggestedMark</MudText>
+                    <MudText Class="ma-4">
+                        Suggested:@SectionModel.MinSuggestedMark - @SectionModel.MaxSuggestedMark
+                    </MudText>
+                    <MudOverlay Visible="predictionLoading" LightBackground="true" Absolute="true">
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+                    </MudOverlay>
                 </MudPopover>
             </div>
         </MudItem>
@@ -167,6 +172,7 @@
     private MudAutocomplete<CommentModel> autocomplete;
 
     private bool predictionVisible = false;
+    private bool predictionLoading = true;
 
     private CommentModel inputModel = new CommentModel();
     public CommentModel InputModel
@@ -207,11 +213,13 @@
 
     private async Task StartPrediction()
     {
+        predictionVisible = true;
+        predictionLoading = true;
         await UpdateAttempt();
         Dictionary<string, float> markRange = await ServerCommunicator.FetchMarkRange(NavMan, AssignmentModel, AttemptModel.AttemptId, SectionModel.SectionID);
         SectionModel.MaxSuggestedMark = (int) markRange["max"];
         SectionModel.MinSuggestedMark = (int) markRange["min"];
-        predictionVisible = true;
+        predictionLoading = false;
     }
 
     private async Task EndPrediction()
