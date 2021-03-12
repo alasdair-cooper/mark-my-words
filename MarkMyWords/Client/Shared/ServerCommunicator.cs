@@ -58,7 +58,7 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, string finalUpdateAttemptId = null)
+        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
@@ -66,26 +66,13 @@ namespace MarkMyWords.Client.Shared
             options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
 
             Dictionary<string, string> headers;
-            if (finalUpdateAttemptId == null)
+            headers = new Dictionary<string, string>()
             {
-                headers = new Dictionary<string, string>()
-                {
-                    { "AssignmentId", assignment.AssignmentId },
-                    {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) },
-                    { "FinalUpdate", "false" }
-                };
-            }
-            else
-            {
-                headers = new Dictionary<string, string>()
-                {
-                    { "AssignmentId", assignment.AssignmentId },
-                    {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) },
-                    { "FinalUpdate", "true" },
-                    { "AttemptId", finalUpdateAttemptId }
-                };
-            }
-            return await Upload(assignment, destinationUri, headers, options, HttpMethodEnum.Put);
+                { "AssignmentId", assignment.AssignmentId },
+                {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) }
+            };
+          
+            return await Upload(attempt, destinationUri, headers, options, HttpMethodEnum.Put);
             
         }
 
@@ -193,7 +180,12 @@ namespace MarkMyWords.Client.Shared
             return await responseMessage.Content.ReadAsStreamAsync();
         }
 
-        private static async Task<bool> Upload(object payload, string uri, Dictionary<string, string> headers = default, JsonSerializerOptions serializerOptions = default, HttpMethodEnum method = HttpMethodEnum.Post)
+        private static async Task<bool> Upload(
+            object payload, 
+            string uri, 
+            Dictionary<string, string> headers = default, 
+            JsonSerializerOptions serializerOptions = default, 
+            HttpMethodEnum method = HttpMethodEnum.Post)
         {
             HttpClient client = new HttpClient();
             HttpMethod httpMethod = method switch

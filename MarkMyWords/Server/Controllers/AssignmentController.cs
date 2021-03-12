@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using System.Text.Json;
@@ -81,11 +82,27 @@ namespace MarkMyWords.Server.Controllers
         public async Task<IActionResult> Put([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
         {
             string fileName = $"{AssignmentId}.gz";
-
             Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
 
-            await UploadToStorage(fileName, HttpContext.Request.Body, assignmentInfo);
+            MemoryStream stream = new MemoryStream();
+            await DownloadFromStorage(fileName, stream);
+            stream.Position = 0;
 
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
+            AttemptModel attempt = await JsonSerializer.DeserializeAsync<AttemptModel>(HttpContext.Request.Body, options);
+            Console.WriteLine(JsonSerializer.Serialize(assignment));
+            Console.WriteLine(JsonSerializer.Serialize(attempt));
+            int oldAttemptIndex = assignment.Attempts.FindIndex(oldAttempt => oldAttempt.AttemptId == attempt.AttemptId);
+            assignment.Attempts.RemoveAt(oldAttemptIndex);
+            assignment.Attempts.Insert(oldAttemptIndex, attempt);
+
+            MemoryStream memoryStream = new MemoryStream();
+            await JsonSerializer.SerializeAsync(memoryStream, assignment, options);
+            memoryStream.Position = 0;
+            await UploadToStorage(fileName, memoryStream, assignmentInfo);
+           
             return Ok();
         }
 

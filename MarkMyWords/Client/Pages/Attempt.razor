@@ -23,7 +23,8 @@
             <MudSwitch Class="ml-auto"
                        Color="Color.Secondary"
                        Label="Attempt marked"
-                       @bind-Checked="AttemptModel.Completed">
+                       @bind-Checked="AttemptModel.Completed"
+                       @onclick="UpdateAssignment">
             </MudSwitch>
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Size="Size.Large"
@@ -36,8 +37,6 @@
                 <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
             </MudOverlay>
             <MudContainer MaxWidth="MaxWidth.Medium">
-                @*<MudOverlay @bind-Visible="assignmentModel.Attempts[0].Completed" LightBackground="true" Absolute="true"></MudOverlay>*@
-
                 <MudExpansionPanels MultiExpansion="true"
                                     Elevation="2">
                     @for (int i = 0; i < AttemptModel.Sections.Count; i++)
@@ -50,7 +49,7 @@
                                            IsExpanded="true">
                             <Section @bind-SectionModel="temp"
                                      @bind-BankComments="assignmentModel.SectionCommentBanks[temp.SectionID]"
-                                     OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel)"
+                                     OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel)"
                                      AttemptModel="AttemptModel"
                                      AssignmentModel="assignmentModel">
                             </Section>
@@ -118,6 +117,6 @@
 
     public async Task UpdateAssignment()
     {
-        await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel.AttemptId);
+        await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel);
     }
 }
