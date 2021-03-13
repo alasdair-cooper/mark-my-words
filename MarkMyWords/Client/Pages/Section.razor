@@ -1,4 +1,6 @@
-﻿@inject IDialogService Dialog
+﻿@using FluentValidation
+
+@inject IDialogService Dialog
 @inject NavigationManager NavMan
 
 <MudGrid Spacing="4">
@@ -109,13 +111,14 @@
                     string maximumMarkText = "/" + maximumMark;
                 }
                 <MudTextField T="int"
-                                @bind-Value="SectionModel.GivenMark"
-                                Variant="Variant.Outlined"
-                                Adornment="Adornment.End"
-                                AdornmentText="@maximumMarkText"
-                                @onfocus="StartPrediction"
-                                @onblur="EndPrediction">
-
+                              @bind-Value="GivenMark"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.End"
+                              AdornmentText="@maximumMarkText"
+                              @onfocus="StartPrediction"
+                              @onblur="EndPrediction"
+                              Validation="maxValidator"
+                              Immediate="true">
                 </MudTextField>
                 <MudPopover @bind-Open="predictionVisible"
                             OffsetX="true"
@@ -125,7 +128,7 @@
                         Suggested:@SectionModel.MinSuggestedMark - @SectionModel.MaxSuggestedMark
                     </MudText>
                     <MudOverlay Visible="predictionLoading" LightBackground="true" Absolute="true">
-                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"></MudProgressCircular>
                     </MudOverlay>
                 </MudPopover>
             </div>
@@ -164,6 +167,8 @@
     [Parameter]
     public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
 
+    private FluentValueValidator<int> maxValidator;
+
     private List<CommentModel> searchComments = new List<CommentModel>();
 
     private int suggestedMark = 6;
@@ -191,6 +196,22 @@
         }
     }
 
+    private int givenMark = 0;
+    public int GivenMark
+    {
+        get
+        {
+            return givenMark;
+        }
+        set
+        {
+            if(value >= 0 && value <= SectionModel.MaximumMark)
+            {
+                givenMark = value;
+            }
+        }
+    }
+
     /// <summary>
     /// Triggers the callback to update bank comments in the parent component.
     /// </summary>
@@ -199,6 +220,11 @@
     public async Task OnBankCommentsChanged(List<CommentModel> comments)
     {
         await BankCommentsChanged.InvokeAsync(comments);
+    }
+
+    protected override void OnParametersSet()
+    {
+        GivenMark = SectionModel.GivenMark;
     }
 
     /// <summary>
@@ -364,5 +390,26 @@
                 SectionModel.NewCommentFromComment(bankComment);
             }
         }
+    }
+
+
+    public class FluentValueValidator<T> : AbstractValidator<T>
+    {
+        public FluentValueValidator(Action<IRuleBuilderInitial<T, T>> rule)
+        {
+            rule(RuleFor(x => x));
+        }
+
+        private IEnumerable<string> ValidateValue(T arg)
+        {
+            FluentValidation.Results.ValidationResult result = Validate(arg);
+            if (result.IsValid)
+            {
+                return new string[0];
+            }
+            return result.Errors.Select(e => e.ErrorMessage);
+        }
+
+        public Func<T, IEnumerable<string>> Validation => ValidateValue;
     }
 }

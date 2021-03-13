@@ -20,9 +20,6 @@ namespace MarkMyWords.Client.Shared
     public static class ServerCommunicator
     {
         private const string MediaType = "application/json";
-        private const string AssignmentRequestUri = "api/assignment";
-        private const string AttemptRequestUri = "api/attempt";
-        private const string ListRequestUri = "api/list";
 
         private enum HttpMethodEnum
         {
