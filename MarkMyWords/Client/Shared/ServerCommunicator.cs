@@ -27,7 +27,8 @@ namespace MarkMyWords.Client.Shared
         private enum HttpMethodEnum
         {
             Post,
-            Put
+            Put,
+            Patch
         }
 
         /// <summary>
@@ -74,6 +75,24 @@ namespace MarkMyWords.Client.Shared
           
             return await Upload(attempt, destinationUri, headers, options, HttpMethodEnum.Put);
             
+        }
+
+        public static async Task<bool> UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment)
+        {
+            string destinationUri = $"{navMan.BaseUri}api/assignment";
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+
+            Dictionary<string, string> headers;
+            headers = new Dictionary<string, string>()
+            {
+                { "AssignmentId", assignment.AssignmentId },
+                {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) }
+            };
+
+            return await Upload(assignment, destinationUri, headers, options, HttpMethodEnum.Patch);
+
         }
 
         /// <summary>
@@ -191,6 +210,7 @@ namespace MarkMyWords.Client.Shared
             HttpMethod httpMethod = method switch
             {
                 HttpMethodEnum.Put => HttpMethod.Put,
+                HttpMethodEnum.Patch => HttpMethod.Patch,
                 _ => HttpMethod.Post,
             };
 

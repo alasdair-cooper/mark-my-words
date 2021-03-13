@@ -17,14 +17,14 @@
                    Color="Color.Primary"
                    Fixed="false">
             <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
-                Attempt ttnt59
+                Attempt @AttemptModel.AttemptId
             </MudText>
             <MudAppBarSpacer />
-            <MudSwitch Class="ml-auto"
+            <MudSwitch T="bool"
+                       Class="ml-auto"
                        Color="Color.Secondary"
                        Label="Attempt marked"
-                       @bind-Checked="AttemptModel.Completed"
-                       @onclick="UpdateAssignment">
+                       @onclick="ToggleCompleteUpdateAssignment">
             </MudSwitch>
             <MudIconButton Icon="@Icons.Material.Filled.Save"
                            Size="Size.Large"
@@ -118,5 +118,12 @@
     public async Task UpdateAssignment()
     {
         await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel);
+    }
+
+    public async Task ToggleCompleteUpdateAssignment()
+    {
+        AttemptModel.Completed = !AttemptModel.Completed;
+        await ServerCommunicator.UpdateAssignment(NavMan, assignmentModel, AttemptModel);
+
     }
 }

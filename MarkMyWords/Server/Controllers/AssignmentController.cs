@@ -13,6 +13,8 @@ using System.Text.Json.Serialization;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
+using System.Reflection;
+
 using System.IO;
 using System.IO.Compression;
 
@@ -92,8 +94,6 @@ namespace MarkMyWords.Server.Controllers
             options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
             AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
             AttemptModel attempt = await JsonSerializer.DeserializeAsync<AttemptModel>(HttpContext.Request.Body, options);
-            Console.WriteLine(JsonSerializer.Serialize(assignment));
-            Console.WriteLine(JsonSerializer.Serialize(attempt));
             int oldAttemptIndex = assignment.Attempts.FindIndex(oldAttempt => oldAttempt.AttemptId == attempt.AttemptId);
             assignment.Attempts.RemoveAt(oldAttemptIndex);
             assignment.Attempts.Insert(oldAttemptIndex, attempt);
@@ -103,6 +103,33 @@ namespace MarkMyWords.Server.Controllers
             memoryStream.Position = 0;
             await UploadToStorage(fileName, memoryStream, assignmentInfo);
            
+            return Ok();
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> Patch([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
+        {
+            string fileName = $"{AssignmentId}.gz";
+            Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
+
+            MemoryStream stream = new MemoryStream();
+            await DownloadFromStorage(fileName, stream);
+            stream.Position = 0;
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            AssignmentModel oldAssignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
+            AssignmentModel currentAssignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(HttpContext.Request.Body, options);
+
+            currentAssignment.Attempts = oldAssignment.Attempts;
+            currentAssignment.SectionCommentBanks = oldAssignment.SectionCommentBanks;
+            currentAssignment.SectionPointBanks = oldAssignment.SectionPointBanks;
+
+            MemoryStream memoryStream = new MemoryStream();
+            await JsonSerializer.SerializeAsync(memoryStream, currentAssignment, options);
+            memoryStream.Position = 0;
+            await UploadToStorage(fileName, memoryStream, assignmentInfo);
+
             return Ok();
         }
 

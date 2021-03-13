@@ -17,13 +17,29 @@
                 New Assignment
             </MudButton>
             <MudNavGroup Icon="@Icons.Material.Filled.School"
-                         Title="Assignments"
+                         Title="Uncompleted Assignments"
                          Expanded="true">
-                @foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
+                @foreach (Dictionary<string, string> assignmentInfo in uncompletedAssignmentsInfo)
                 {
-                    string assignmentId = assignmentInfo["AssignmentId"];
-                    string assignmentName = assignmentInfo["AssignmentName"];
-                    <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentName</MudNavLink>
+                    string assignmentId = "";
+                    string assignmentName = "";
+                    if (assignmentInfo.TryGetValue("AssignmentId", out assignmentId) && assignmentInfo.TryGetValue("AssignmentName", out assignmentName))
+                    {
+                        <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentName</MudNavLink>
+                    }
+                }
+            </MudNavGroup>
+            <MudNavGroup Icon="@Icons.Material.Filled.School"
+                         Title="Completed Assignments"
+                         Expanded="false">
+                @foreach (Dictionary<string, string> assignmentInfo in completedAssignmentsInfo)
+                {
+                    string assignmentId = "";
+                    string assignmentName = "";
+                    if (assignmentInfo.TryGetValue("AssignmentId", out assignmentId) && assignmentInfo.TryGetValue("AssignmentName", out assignmentName))
+                    {
+                        <MudNavLink Href="@($"/attempts/{assignmentId}")">@assignmentName</MudNavLink>
+                    }
                 }
             </MudNavGroup>
         </Authorized>
@@ -35,10 +51,24 @@
 
 @code {
     public List<Dictionary<string, string>> assignmentsInfo { get; set; } = new List<Dictionary<string, string>>();
+    public List<Dictionary<string, string>> uncompletedAssignmentsInfo { get; set; } = new List<Dictionary<string, string>>();
+    public List<Dictionary<string, string>> completedAssignmentsInfo { get; set; } = new List<Dictionary<string, string>>();
 
     protected async override Task OnInitializedAsync()
     {
-        await RefreshAssignmentsList();
+        List<Dictionary<string, string>> assignmentsInfo = await RefreshAssignmentsList();
+        foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
+        {
+            string completed = "";
+            if (assignmentInfo.TryGetValue("Completed", out completed) && completed == "False")
+            {
+                uncompletedAssignmentsInfo.Add(assignmentInfo);
+            }
+            else
+            {
+                completedAssignmentsInfo.Add(assignmentInfo);
+            }
+        }
     }
 
     private async Task NewAssignment()
@@ -56,11 +86,23 @@
             await ServerCommunicator.NewAssignment(NavMan, assignmentModel);
         }
 
-        await RefreshAssignmentsList();
+        List<Dictionary<string, string>> assignmentsInfo = await RefreshAssignmentsList();
+        foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
+        {
+            string completed = "";
+            if (assignmentInfo.TryGetValue("Completed", out completed) && completed == "True")
+            {
+                uncompletedAssignmentsInfo.Add(assignmentInfo);
+            }
+            else
+            {
+                completedAssignmentsInfo.Add(assignmentInfo);
+            }
+        }
     }
 
-    private async Task RefreshAssignmentsList()
+    private async Task<List<Dictionary<string, string>>> RefreshAssignmentsList()
     {
-        assignmentsInfo = await ServerCommunicator.ListAssignments(NavMan);
+        return await ServerCommunicator.ListAssignments(NavMan);
     }
 }

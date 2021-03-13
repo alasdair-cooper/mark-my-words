@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Linq;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using System.Reflection;
 
 namespace MarkMyWords.Shared
@@ -13,14 +16,19 @@ namespace MarkMyWords.Shared
         /// Unique ID.
         /// </summary>
         public string AssignmentId { get; set; } = Guid.NewGuid().ToString();
+
         /// <summary>
         /// Name of the assignment.
         /// </summary>
         public string AssignmentName { get; set; } = "";
+
+        public bool Completed { get; set; } = false;
+
         /// <summary>
         /// Banks of previously used comments.
         /// </summary>
         public Dictionary<string, List<CommentModel>> SectionCommentBanks { get; set; } = new Dictionary<string, List<CommentModel>>();
+
         /// <summary>
         /// Banks of all the points in each section.
         /// </summary>
@@ -35,6 +43,7 @@ namespace MarkMyWords.Shared
         /// Empty constructor intended for the deserializer.
         /// </summary>
         public AssignmentModel() { }
+
         /// <summary>
         /// Creates a new assignment with a specified name, number of attempts and sections.
         /// </summary>
@@ -60,8 +69,12 @@ namespace MarkMyWords.Shared
         public Dictionary<string, string> GetAssignmentInfo()
         {
             List<PropertyInfo> propertyInfo = new List<PropertyInfo>(this.GetType().GetProperties());
+            Console.WriteLine(JsonSerializer.Serialize(propertyInfo
+                .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType))
+                .ToDictionary(propertyInfo => propertyInfo.Name, propertyInfo => propertyInfo.GetValue(this)
+                .ToString())));
             return propertyInfo
-                .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType) && (propertyInfo.GetValue(this) as string != null))
+                .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType))
                 .ToDictionary(propertyInfo => propertyInfo.Name, propertyInfo => propertyInfo.GetValue(this)
                 .ToString());
         }

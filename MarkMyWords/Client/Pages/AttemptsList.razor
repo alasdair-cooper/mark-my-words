@@ -9,7 +9,25 @@
 @attribute [Authorize]
 
 @inject NavigationManager NavMan
+
 <MudLayout>
+    <MudAppBar Elevation="0"
+               Color="Color.Primary"
+               Fixed="false">
+        @if (AssignmentModel != null)
+        {
+            <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+                Assignment @AssignmentModel.AssignmentName
+            </MudText>
+            <MudAppBarSpacer />
+            <MudSwitch T="bool"
+                       Class="ml-auto"
+                       Color="Color.Secondary"
+                       Label="Completed"
+                       @onclick="UpdateAssignment">
+            </MudSwitch>
+        }
+    </MudAppBar>
     <MudMainContent>
 
         <MudContainer MaxWidth="MaxWidth.Medium">
@@ -79,6 +97,13 @@
     /// <returns></returns>
     protected override async Task OnParametersSetAsync()
     {
+        AssignmentModel = null;
         AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId);
+    }
+
+    private async Task UpdateAssignment()
+    {
+        AssignmentModel.Completed = !AssignmentModel.Completed;
+        await ServerCommunicator.UpdateAssignmentProperties(NavMan, AssignmentModel);
     }
 }
