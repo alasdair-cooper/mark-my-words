@@ -89,12 +89,12 @@
         }
 
         List<Dictionary<string, string>> assignmentsInfo = await RefreshAssignmentsList();
-        uncompletedAssignmentsInfo= new List<Dictionary<string, string>>();
-        completedAssignmentsInfo  = new List<Dictionary<string, string>>();
+        uncompletedAssignmentsInfo = new List<Dictionary<string, string>>();
+        completedAssignmentsInfo = new List<Dictionary<string, string>>();
         foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
         {
             string completed = "";
-            if (assignmentInfo.TryGetValue("Completed", out completed) && completed == "True")
+            if (assignmentInfo.TryGetValue("Completed", out completed) && completed == "False")
             {
                 uncompletedAssignmentsInfo.Add(assignmentInfo);
             }
