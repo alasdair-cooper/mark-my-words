@@ -57,6 +57,8 @@
     protected async override Task OnInitializedAsync()
     {
         List<Dictionary<string, string>> assignmentsInfo = await RefreshAssignmentsList();
+        uncompletedAssignmentsInfo = new List<Dictionary<string, string>>();
+        completedAssignmentsInfo = new List<Dictionary<string, string>>();
         foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
         {
             string completed = "";
@@ -87,6 +89,8 @@
         }
 
         List<Dictionary<string, string>> assignmentsInfo = await RefreshAssignmentsList();
+        uncompletedAssignmentsInfo= new List<Dictionary<string, string>>();
+        completedAssignmentsInfo  = new List<Dictionary<string, string>>();
         foreach (Dictionary<string, string> assignmentInfo in assignmentsInfo)
         {
             string completed = "";

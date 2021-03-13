@@ -59,7 +59,7 @@ namespace MarkMyWords.Server.Controllers
         }
 
         [HttpGet("{assignmentId}")]
-        public async Task<IActionResult> Get(string assignmentId)
+        public async Task<IActionResult> Get(string assignmentId, [FromHeader] string attemptNameKey = null)
         {
             string fileName = $"{assignmentId}.gz";
 
@@ -90,8 +90,8 @@ namespace MarkMyWords.Server.Controllers
             await DownloadFromStorage(fileName, stream);
             stream.Position = 0;
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            JsonSerializerOptions options = Utils.DefaultOptions();
+
             AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
             AttemptModel attempt = await JsonSerializer.DeserializeAsync<AttemptModel>(HttpContext.Request.Body, options);
             int oldAttemptIndex = assignment.Attempts.FindIndex(oldAttempt => oldAttempt.AttemptId == attempt.AttemptId);
@@ -116,8 +116,8 @@ namespace MarkMyWords.Server.Controllers
             await DownloadFromStorage(fileName, stream);
             stream.Position = 0;
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            JsonSerializerOptions options = Utils.DefaultOptions();
+
             AssignmentModel oldAssignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
             AssignmentModel currentAssignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(HttpContext.Request.Body, options);
 

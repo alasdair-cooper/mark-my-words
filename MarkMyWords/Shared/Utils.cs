@@ -22,10 +22,16 @@ namespace MarkMyWords.Shared
         /// <returns>The cloned object.</returns>
         public static T DeepClone<T>(this T obj)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            JsonSerializerOptions options = DefaultOptions();
             string jsonString = JsonSerializer.Serialize(obj, options);
             return (T)JsonSerializer.Deserialize<T>(jsonString, options);
+        }
+
+        public static JsonSerializerOptions DefaultOptions()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            return options;
         }
     }
 }
