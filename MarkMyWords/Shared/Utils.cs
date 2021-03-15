@@ -29,7 +29,10 @@ namespace MarkMyWords.Shared
 
         public static JsonSerializerOptions DefaultOptions()
         {
-            JsonSerializerOptions options = new JsonSerializerOptions();
+            JsonSerializerOptions options = new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            };
             options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
             return options;
         }

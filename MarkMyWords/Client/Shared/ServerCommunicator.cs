@@ -9,6 +9,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using MarkMyWords.Shared;
@@ -34,20 +35,13 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<bool> NewAssignment(NavigationManager navMan, AssignmentModel assignment)
+        public static async Task NewAssignment(NavigationManager navMan, AssignmentModel assignment)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            HttpClient client = new HttpClient();
 
-            Dictionary<string, string> headers = new Dictionary<string, string>() 
-            { 
-                { "AssignmentId", assignment.AssignmentId } ,
-                {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) }
-            };
-
-            return await Upload(assignment, destinationUri, headers, options, HttpMethodEnum.Post);
+            await client.PostAsJsonAsync(destinationUri, assignment, Utils.DefaultOptions());
         }
 
         /// <summary>
@@ -56,40 +50,22 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt)
+        public static async Task UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt)
         {
-            string destinationUri = $"{navMan.BaseUri}api/assignment";
+            string destinationUri = $"{navMan.BaseUri}api/assignment/{attempt.AttemptId}";
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
+            JsonSerializerOptions options = Utils.DefaultOptions();
 
-            Dictionary<string, string> headers;
-            headers = new Dictionary<string, string>()
-            {
-                { "AssignmentId", assignment.AssignmentId },
-                {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) }
-            };
-          
-            return await Upload(attempt, destinationUri, headers, options, HttpMethodEnum.Put);
-            
+            HttpClient client = new HttpClient();
+
+            await client.PutAsJsonAsync(destinationUri, assignment, options);
         }
 
-        public static async Task<bool> UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment)
+        public static async Task UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-            Dictionary<string, string> headers;
-            headers = new Dictionary<string, string>()
-            {
-                { "AssignmentId", assignment.AssignmentId },
-                {"AssignmentInfo", JsonSerializer.Serialize(assignment.GetAssignmentInfo()) }
-            };
-
-            return await Upload(assignment, destinationUri, headers, options, HttpMethodEnum.Patch);
-
+            await Upload(assignment, destinationUri, Utils.DefaultOptions(), method: HttpMethodEnum.Patch);
         }
 
         /// <summary>
@@ -101,8 +77,9 @@ namespace MarkMyWords.Client.Shared
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
-            Stream jsonStream = await Download(destinationUri);
-            List<Dictionary<string, string>> assignments = await JsonSerializer.DeserializeAsync<List<Dictionary<string, string>>>(jsonStream);
+            HttpClient client = new HttpClient();
+
+            List<Dictionary<string, string>> assignments = await client.GetFromJsonAsync<List<Dictionary<string, string>>>(destinationUri, Utils.DefaultOptions());
 
             return assignments;
         }
@@ -117,20 +94,11 @@ namespace MarkMyWords.Client.Shared
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment/{assignmentId}";
 
-            Dictionary<string, string> headers = new Dictionary<string, string>() 
-            { 
-                { "AssignmentId", assignmentId } 
-            };
+            HttpClient client = new HttpClient();
 
-            Stream jsonStream = await Download(destinationUri, headers);
-
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
-            AssignmentModel assignmentModel = await JsonSerializer.DeserializeAsync<AssignmentModel>(jsonStream, options);
+            AssignmentModel assignmentModel = await client.GetFromJsonAsync<AssignmentModel>(destinationUri, Utils.DefaultOptions());
 
             return assignmentModel;
-
         }
 
         /// <summary>
@@ -145,34 +113,14 @@ namespace MarkMyWords.Client.Shared
         {
             string destinationUri = $"{navMan.BaseUri}api/mark";
 
-            Dictionary<string, string> headers = new Dictionary<string, string>() 
-            { 
-                { "AssignmentId", assignment.AssignmentId }, 
-                { "AttemptId", attemptId }, 
-                { "SectionId", sectionId } 
-            };
-
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new PointModelConverterWithTypeDiscriminator());
-
             HttpClient client = new HttpClient();
 
-            Console.WriteLine(JsonSerializer.Serialize(headers));
-            Console.WriteLine(JsonSerializer.Serialize(assignment, options));
+            client.DefaultRequestHeaders.Add("AssignmentId", assignment.AssignmentId);
+            client.DefaultRequestHeaders.Add("AttemptId", attemptId);
+            client.DefaultRequestHeaders.Add("SectionId", sectionId);
 
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, destinationUri)
-            {
-                Content = new StringContent(JsonSerializer.Serialize(assignment, options), Encoding.UTF8, MediaType)
-            };
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
-            foreach (KeyValuePair<string, string> header in headers)
-            {
-                requestMessage.Headers.Add(header.Key, header.Value);
-            }
-
-            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-            Stream responseBody = await responseMessage.Content.ReadAsStreamAsync();
-            Dictionary<string, float> markRange  = await JsonSerializer.DeserializeAsync<Dictionary<string, float>>(responseBody);
+            HttpResponseMessage response  = await client.PostAsJsonAsync(destinationUri, assignment, Utils.DefaultOptions());
+            Dictionary<string, float> markRange = await JsonSerializer.DeserializeAsync<Dictionary<string, float>>(await response.Content.ReadAsStreamAsync(), Utils.DefaultOptions());
 
             return markRange;
         }
@@ -199,7 +147,6 @@ namespace MarkMyWords.Client.Shared
         private static async Task<bool> Upload(
             object payload, 
             string uri, 
-            Dictionary<string, string> headers = default, 
             JsonSerializerOptions serializerOptions = default, 
             HttpMethodEnum method = HttpMethodEnum.Post)
         {
@@ -215,12 +162,6 @@ namespace MarkMyWords.Client.Shared
             {
                 Content = new StringContent(JsonSerializer.Serialize(payload, serializerOptions), Encoding.UTF8, MediaType)
             };
-
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
-            foreach (KeyValuePair<string, string> header in headers)
-            {
-                requestMessage.Headers.Add(header.Key, header.Value);
-            }
 
             HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
             return responseMessage.IsSuccessStatusCode;

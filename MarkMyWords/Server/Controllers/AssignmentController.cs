@@ -27,12 +27,6 @@ namespace MarkMyWords.Server.Controllers
     [ApiController]
     public class AssignmentController : ControllerBase
     {
-        private readonly IWebHostEnvironment hostEnvironment;
-
-        public AssignmentController(IWebHostEnvironment webHostEnvironment)
-        {
-            hostEnvironment = webHostEnvironment;
-        }
 
         [HttpGet]
         public async Task<IEnumerable<IDictionary<string, string>>> Get()
@@ -59,81 +53,54 @@ namespace MarkMyWords.Server.Controllers
         }
 
         [HttpGet("{assignmentId}")]
-        public async Task<IActionResult> Get(string assignmentId, [FromHeader] string attemptNameKey = null)
+        public async Task<AssignmentModel> Get(string assignmentId, [FromHeader] string attemptNameKey = null)
         {
             string fileName = $"{assignmentId}.gz";
 
-            await DownloadFromStorage(fileName, HttpContext.Response.Body);
+            AssignmentModel assignment = await DownloadFromStorage(fileName);
 
-            return Ok();
+            return assignment;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
+        public async Task Post([FromBody] AssignmentModel assignment)
         {
-            string fileName = $"{AssignmentId}.gz";
+            string fileName = $"{assignment.AssignmentId}.gz";
 
-            Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
-
-            await UploadToStorage(fileName, HttpContext.Request.Body, assignmentInfo);
-
-            return Ok();
+            await UploadToStorage(fileName, assignment);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Put([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
+        [HttpPut("{attemptId}")]
+        public async Task Put([FromBody] AssignmentModel assignment, string attemptId)
         {
-            string fileName = $"{AssignmentId}.gz";
-            Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
+            string fileName = $"{assignment.AssignmentId}.gz";
 
-            MemoryStream stream = new MemoryStream();
-            await DownloadFromStorage(fileName, stream);
-            stream.Position = 0;
+            AssignmentModel assignmentFromServer = await DownloadFromStorage(fileName);
 
-            JsonSerializerOptions options = Utils.DefaultOptions();
+            int oldAttemptIndex = assignmentFromServer.Attempts.FindIndex(oldAttempt => oldAttempt.AttemptId == attemptId);
+            assignmentFromServer.Attempts.RemoveAt(oldAttemptIndex);
+            assignmentFromServer.Attempts.Insert(oldAttemptIndex, assignment.Attempts.Find(attempt => attempt.AttemptId == attemptId));
 
-            AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
-            AttemptModel attempt = await JsonSerializer.DeserializeAsync<AttemptModel>(HttpContext.Request.Body, options);
-            int oldAttemptIndex = assignment.Attempts.FindIndex(oldAttempt => oldAttempt.AttemptId == attempt.AttemptId);
-            assignment.Attempts.RemoveAt(oldAttemptIndex);
-            assignment.Attempts.Insert(oldAttemptIndex, attempt);
-
-            MemoryStream memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(memoryStream, assignment, options);
-            memoryStream.Position = 0;
-            await UploadToStorage(fileName, memoryStream, assignmentInfo);
-           
-            return Ok();
+            await UploadToStorage(fileName, assignmentFromServer);
         }
 
         [HttpPatch]
-        public async Task<IActionResult> Patch([FromHeader] string AssignmentId, [FromHeader] string AssignmentInfo)
+        public async Task Patch([FromBody] AssignmentModel assignment)
         {
-            string fileName = $"{AssignmentId}.gz";
-            Dictionary<string, string> assignmentInfo = JsonSerializer.Deserialize<Dictionary<string, string>>(AssignmentInfo);
+            string fileName = $"{assignment.AssignmentId}.gz";
 
             MemoryStream stream = new MemoryStream();
-            await DownloadFromStorage(fileName, stream);
+            AssignmentModel assignmentFromServer = await DownloadFromStorage(fileName);
             stream.Position = 0;
 
-            JsonSerializerOptions options = Utils.DefaultOptions();
+            assignment.Attempts = assignmentFromServer.Attempts;
+            assignment.SectionCommentBanks = assignmentFromServer.SectionCommentBanks;
+            assignment.SectionPointBanks = assignmentFromServer.SectionPointBanks;
 
-            AssignmentModel oldAssignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(stream, options);
-            AssignmentModel currentAssignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(HttpContext.Request.Body, options);
-
-            currentAssignment.Attempts = oldAssignment.Attempts;
-            currentAssignment.SectionCommentBanks = oldAssignment.SectionCommentBanks;
-            currentAssignment.SectionPointBanks = oldAssignment.SectionPointBanks;
-
-            MemoryStream memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(memoryStream, currentAssignment, options);
-            memoryStream.Position = 0;
-            await UploadToStorage(fileName, memoryStream, assignmentInfo);
-
-            return Ok();
+            await UploadToStorage(fileName, assignment);
         }
 
-        private static async Task DownloadFromStorage(string fileName, Stream streamToWriteTo)
+        private static async Task<AssignmentModel> DownloadFromStorage(string fileName)
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
 
@@ -141,39 +108,44 @@ namespace MarkMyWords.Server.Controllers
             BlobDownloadInfo download = await blobClient.DownloadAsync();
             using Stream downloadStream = download.Content;
 
-            await Decompress(downloadStream, streamToWriteTo);
+            Stream decompressedStream = await Decompress(downloadStream);
+
+            AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(decompressedStream, Utils.DefaultOptions());
+            return assignment;
         }
 
-        private static async Task UploadToStorage(string fileName, Stream content, Dictionary<string, string> metadata = null)
+        private static async Task UploadToStorage(string fileName, AssignmentModel assignment)
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
 
             BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
 
-            using Stream compressedStream = await Compress(content);
-
+            MemoryStream stream = new MemoryStream();
+            await JsonSerializer.SerializeAsync(stream, assignment, Utils.DefaultOptions());
+            stream.Position = 0;
+            Stream compressedStream = await Compress(stream);
+            compressedStream.Position = 0;
             await blobClient.UploadAsync(compressedStream, overwrite: true);
-            if (metadata != null)
-            {
-                await blobClient.SetMetadataAsync(metadata);
-            }
+            await blobClient.SetMetadataAsync(assignment.GetAssignmentInfo());
         }
 
         private static async Task<Stream> Compress(Stream streamToCompress)
         {
             MemoryStream memoryStream = new MemoryStream();
-            using (GZipStream compressionStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
-            {
-                await streamToCompress.CopyToAsync(compressionStream);
-            }
-            memoryStream.Position = 0;
+            using GZipStream compressionStream = new GZipStream(memoryStream, CompressionMode.Compress, true);
+            await streamToCompress.CopyToAsync(compressionStream);
             return memoryStream;
         }
 
-        private static async Task Decompress(Stream streamToDecompress, Stream streamToWriteTo)
+        private static async Task<Stream> Decompress(Stream streamToDecompress)
         {
-            GZipStream decompressionStream = new GZipStream(streamToDecompress, CompressionMode.Decompress, true);
-            await decompressionStream.CopyToAsync(streamToWriteTo);
+            MemoryStream stream = new MemoryStream();
+
+            using GZipStream decompressionStream = new GZipStream(streamToDecompress, CompressionMode.Decompress, true);
+            await decompressionStream.CopyToAsync(stream);
+
+            stream.Position = 0;
+            return stream;
         }
     }
 }

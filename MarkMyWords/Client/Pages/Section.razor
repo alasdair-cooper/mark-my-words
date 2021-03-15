@@ -95,7 +95,8 @@
                 {
                     <MudItem xs="12">
                         <MudSelect T="string"
-                                   @bind-Value="selectPointModel.Value">
+                                   @bind-Value="selectPointModel.Value"
+                                   Label="@selectPointModel.Tag">
                             @foreach(string option in selectPointModel.Options)
                             {
                                 <MudSelectItem Value="option"></MudSelectItem>
@@ -138,34 +139,34 @@
 </MudGrid>
 
 @code {
-    /// <summary>
-    /// Contains data relating to a single section within an attempt.
-    /// </summary>
-    [Parameter]
-    public SectionModel SectionModel { get; set; }
-    [Parameter]
-    public AttemptModel AttemptModel { get; set; }
-    [Parameter]
-    public AssignmentModel AssignmentModel { get; set; }
-    /// <summary>
-    /// Contains all the comments in a comment bank for a section.
-    /// </summary>
-    [Parameter]
-    public List<CommentModel> BankComments { get; set; }
+        /// <summary>
+        /// Contains data relating to a single section within an attempt.
+        /// </summary>
+        [Parameter]
+        public SectionModel SectionModel { get; set; }
+        [Parameter]
+        public AttemptModel AttemptModel { get; set; }
+        [Parameter]
+        public AssignmentModel AssignmentModel { get; set; }
+        /// <summary>
+        /// Contains all the comments in a comment bank for a section.
+        /// </summary>
+        [Parameter]
+        public List<CommentModel> BankComments { get; set; }
 
-    /// <summary>
-    /// Callback for when section data is modified..
-    /// </summary>
-    [Parameter]
-    public EventCallback<SectionModel> SectionModelChanged { get; set; }
-    /// <summary>
-    /// Callback for when bank data is modified.
-    /// </summary>
-    [Parameter]
-    public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
+        /// <summary>
+        /// Callback for when section data is modified..
+        /// </summary>
+        [Parameter]
+        public EventCallback<SectionModel> SectionModelChanged { get; set; }
+        /// <summary>
+        /// Callback for when bank data is modified.
+        /// </summary>
+        [Parameter]
+        public EventCallback<List<CommentModel>> BankCommentsChanged { get; set; }
 
-    [Parameter]
-    public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
+        [Parameter]
+        public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
 
     private FluentValueValidator<int> maxValidator;
 
@@ -289,14 +290,19 @@
     /// <returns></returns>
     private async Task DeleteComment(CommentModel comment)
     {
-        SectionModel.DeleteCommentInstance(comment, BankComments);
-        CommentModel OriginalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
-        if (OriginalCommentModel.Uses <= 0)
+        SectionModel.DeleteCommentInstance(comment.CommentId, BankComments);
+        if (BankComments.Exists(bankComment => bankComment.CommentId == comment.OriginalCommentModelId))
         {
-            BankComments.Remove(OriginalCommentModel);
+
+            CommentModel OriginalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
+            if (OriginalCommentModel.Uses <= 0)
+            {
+                BankComments.Remove(OriginalCommentModel);
+            }
         }
         await SectionModelChanged.InvokeAsync(SectionModel);
         await BankCommentsChanged.InvokeAsync(BankComments);
+        StateHasChanged();
     }
 
     /// <summary>
@@ -318,6 +324,7 @@
             BankComments.Remove(comment);
             await BankCommentsChanged.InvokeAsync(BankComments);
         }
+        StateHasChanged();
     }
 
     /// <summary>
@@ -327,21 +334,24 @@
     /// <returns></returns>
     private async Task UpdateComment(CommentModel comment)
     {
-        CommentModel OriginalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
-        if (comment.EditMode == EditMode.Bank)
+        if (BankComments.Exists(bankComment => bankComment.CommentId == comment.OriginalCommentModelId))
         {
-            OriginalCommentModel.Content = comment.Content;
-        }
-        else if(comment.EditMode == EditMode.Instance)
-        {
-            // Warn user that major edits should be new comments
-        }
-        comment.EditMode = EditMode.None;
-        // If it is not being used anywhere (across attempts).
-        if(OriginalCommentModel.Uses <= 0)
-        {
-            // Remove comment from the bank.
-            BankComments.Remove(OriginalCommentModel);
+            CommentModel OriginalCommentModel = BankComments.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
+            if (comment.EditMode == EditMode.Bank)
+            {
+                OriginalCommentModel.Content = comment.Content;
+            }
+            else if (comment.EditMode == EditMode.Instance)
+            {
+                // Warn user that major edits should be new comments
+            }
+            comment.EditMode = EditMode.None;
+            // If it is not being used anywhere (across attempts).
+            if (OriginalCommentModel.Uses <= 0)
+            {
+                // Remove comment from the bank.
+                BankComments.Remove(OriginalCommentModel);
+            }
         }
         await BankCommentsChanged.InvokeAsync(BankComments);
         await SectionModelChanged.InvokeAsync(SectionModel);

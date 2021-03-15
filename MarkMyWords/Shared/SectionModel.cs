@@ -90,11 +90,12 @@ namespace MarkMyWords.Shared
         /// Deletes a comment just from the current section.
         /// </summary>
         /// <param name="comment">Comment to be deleted.</param>
-        public void DeleteCommentInstance(CommentModel comment, List<CommentModel> commentBank)
+        public void DeleteCommentInstance(string commentId, List<CommentModel> commentBank)
         {
+            CommentModel comment = Comments.Find(commentModel => commentModel.CommentId == commentId);
+            Comments.Remove(comment);
             CommentModel OriginalCommentModel = commentBank.Find(bankComment => bankComment.CommentId == comment.OriginalCommentModelId);
             OriginalCommentModel.Uses -= 1;
-            Comments.Remove(comment);
         }
 
         /// <summary>

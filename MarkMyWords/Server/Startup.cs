@@ -11,6 +11,8 @@ using Microsoft.Identity.Web;
 using System.Linq;
 using System.Threading.Tasks;
 
+using MarkMyWords.Shared;
+
 namespace MarkMyWords.Server
 {
     public class Startup
@@ -29,7 +31,7 @@ namespace MarkMyWords.Server
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new PointModelConverterWithTypeDiscriminator()));
             services.AddRazorPages();
         }
 
