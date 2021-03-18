@@ -1,14 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
+
 using System.Linq;
+
 using System.Text;
-using System.Threading.Tasks;
 
 using System.Security.Cryptography;
+
 using System.IO;
 
-namespace MarkMyWords.Shared
+namespace MarkMyWords.Server
 {
+    /// <summary>
+    /// This is a class taken straight from a Stack Overflow post 
+    /// at https://stackoverflow.com/questions/10168240/encrypting-decrypting-a-string-in-c-sharp.
+    /// This was done due to time constraints as although I am familiar with the general process 
+    /// of encrypting and decrypting, I do not have knowledge of the correct way too implement it 
+    /// in C#
+    /// </summary>
     public static class StringCipher
     {
         // This constant is used to determine the keysize of the encryption algorithm in bits.

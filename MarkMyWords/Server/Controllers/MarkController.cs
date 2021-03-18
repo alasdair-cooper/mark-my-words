@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.IO;
 using System;
+
+using System.Diagnostics;
+
+using System.Threading.Tasks;
+
+using System.IO;
+
 using System.Collections.Generic;
+
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using MarkMyWords.Shared;
 
