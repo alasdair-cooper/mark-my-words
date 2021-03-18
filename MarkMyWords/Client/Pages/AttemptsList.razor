@@ -9,6 +9,7 @@
 @attribute [Authorize]
 
 @inject NavigationManager NavMan
+@inject IDialogService Dialog
 
 <MudLayout>
     <MudAppBar Elevation="0"
@@ -44,7 +45,7 @@
                     <tbody>
                         @foreach (AttemptModel attempt in AssignmentModel.Attempts)
                         {
-                            <tr @onclick='() => NavMan.NavigateTo($"attempt/{AssignmentId}/{attempt.AttemptId}")'
+                            <tr @onclick="async () => await ViewAttempt(attempt.AttemptId)"
                                 style="cursor: pointer">
                                 <td>@attempt.AttemptId</td>
                                 <td>@attempt.Completed</td>
@@ -99,12 +100,36 @@
     protected override async Task OnParametersSetAsync()
     {
         AssignmentModel = null;
-        AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId);
+        IDialogReference dialog = Dialog.Show<PasswordDialog>("Enter password");
+        DialogResult result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId, result.Data.ToString());
+        }
+        else
+        {
+            NavMan.NavigateTo("/");
+        }
     }
 
     private async Task UpdateAssignment()
     {
         AssignmentModel.Completed = !AssignmentModel.Completed;
         await ServerCommunicator.UpdateAssignmentProperties(NavMan, AssignmentModel);
+    }
+
+    private async Task ViewAttempt(string attemptId)
+    {
+        DialogOptions options = new DialogOptions()
+        {
+            MaxWidth = MaxWidth.Medium
+        };
+        DialogParameters parameters = new DialogParameters()
+        {
+            ["AttemptId"] = attemptId,
+            ["AssignmentModel"] = AssignmentModel
+        };
+        IDialogReference dialog = Dialog.Show<AttemptDialog>("Mark Attempt", parameters, options);
+        DialogResult result = await dialog.Result;
     }
 }

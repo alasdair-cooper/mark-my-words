@@ -1,0 +1,128 @@
+﻿@using System.Text
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.IO
+@using System.Net.Http.Headers;
+
+@attribute [Authorize]
+
+@inject NavigationManager NavMan;
+
+<MudDialog>
+    <DialogContent>
+        @if (AssignmentModel != null)
+        {
+            <MudLayout>
+                <MudAppBar Elevation="0"
+                           Color="Color.Primary"
+                           Fixed="false">
+                    <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+                        Attempt @AttemptModel.AttemptId
+                    </MudText>
+                    <MudAppBarSpacer />
+                    <MudSwitch T="bool"
+                               Class="ml-auto"
+                               Color="Color.Secondary"
+                               Label="Attempt marked"
+                               Checked="AttemptModel.Completed"
+                               @onclick="ToggleCompleteUpdateAssignment">
+                    </MudSwitch>
+                </MudAppBar>
+                <MudMainContent>
+                    <MudOverlay @bind-Visible="AttemptModel.Completed" DarkBackground="true" Absolute="true"></MudOverlay>
+                    <MudContainer MaxWidth="MaxWidth.Medium">
+                        <MudExpansionPanels MultiExpansion="true"
+                                            Elevation="2">
+                            @for (int i = 0; i < AttemptModel.Sections.Count; i++)
+                            {
+                                int local = i;
+
+                                SectionModel temp = AttemptModel.Sections.ElementAt(i);
+
+                                <MudExpansionPanel Text="@temp.SectionName"
+                                                   IsExpanded="true">
+                                    <Section @bind-SectionModel="temp"
+                                             @bind-BankComments="AssignmentModel.SectionCommentBanks[temp.SectionID]"
+                                             OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel)"
+                                             AttemptModel="AttemptModel"
+                                             AssignmentModel="AssignmentModel">
+                                    </Section>
+                                </MudExpansionPanel>
+                            }
+                        </MudExpansionPanels>
+
+                    </MudContainer>
+                </MudMainContent>
+            </MudLayout>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Submit">Submit Changes</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private async void Submit()
+    {
+        await UpdateAssignment();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    void Cancel() => MudDialog.Cancel();
+
+    /// <summary>
+    /// The unique ID of the current attempt.
+    /// </summary>
+    [Parameter]
+    public string AttemptID { get; set; }
+
+    /// <summary>
+    /// The current attempt.
+    /// </summary>
+    [Parameter]
+    public AttemptModel AttemptModel { get; set; }
+
+    [Parameter]
+    public AssignmentModel AssignmentModel { get; set; }
+
+    /// <summary>
+    /// Callback for when the attempt is modified.
+    /// </summary>
+    [Parameter]
+    public EventCallback<AttemptModel> AttemptModelChanged { get; set; }
+
+    private HttpClient client = new HttpClient();
+
+    /// <summary>
+    /// Fetches the assignment from the server when the component's parameters are initialized.
+    /// </summary>
+    /// <returns></returns>
+    protected override void OnParametersSet()
+    {
+        AttemptModel = GetAttempt(AttemptID);
+    }
+
+    /// <summary>
+    /// Gets a single attempt from the server.
+    /// </summary>
+    /// <param name="attemptId">The ID of the attempt to be fetched.</param>
+    /// <returns></returns>
+    public AttemptModel GetAttempt(string attemptId)
+    {
+        return AssignmentModel.Attempts.Find(attempt => attempt.AttemptId == attemptId);
+    }
+
+    public async Task UpdateAssignment()
+    {
+        await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel);
+    }
+
+    public async Task ToggleCompleteUpdateAssignment()
+    {
+        AttemptModel.Completed = !AttemptModel.Completed;
+        await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel);
+
+    }
+}

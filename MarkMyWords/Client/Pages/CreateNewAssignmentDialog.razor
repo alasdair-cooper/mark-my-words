@@ -1,4 +1,7 @@
 ﻿@using System.Windows.Input
+@using System
+@using System.Text
+@using System.Security.Cryptography
 @using FluentValidation
 
 @inject IDialogService Dialog
@@ -16,6 +19,12 @@
                               Label="Number of Attempts"
                               Class="ma-4"
                               @bind-Value="attemptCount">
+                </MudTextField>
+                <MudTextField T="string"
+                              InputType="InputType.Password"
+                              Label="Password"
+                              Class="ma-4"
+                              @bind-Value="assignmentPassword">
                 </MudTextField>
                 <MudButton StartIcon="@Icons.Material.Filled.Add"
                            OnClick="NewSection"
@@ -139,6 +148,8 @@
 
     private string assignmentName;
 
+    private string assignmentPassword;
+
     private int attemptCount;
 
     /// <summary>
@@ -151,7 +162,11 @@
     /// </summary>
     private void Submit()
     {
-        AssignmentModel assignmentModel = new AssignmentModel(assignmentName, attemptCount, sections);
+        AssignmentModel assignmentModel = new AssignmentModel(attemptCount, sections)
+        {
+            AssignmentName = assignmentName
+        };
+        assignmentModel.SetPassword(assignmentPassword);
 
         MudDialog.Close(DialogResult.Ok(assignmentModel));
     }

@@ -20,14 +20,7 @@ namespace MarkMyWords.Shared
         public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
 
         public List<PointModel> Points { get; set; } = new List<PointModel>();
-        /// <summary>
-        /// Sliders in the section.
-        /// </summary>
-        //public List<SliderPointModel> SliderPoints { get; set; }
-        /// <summary>
-        /// Switches in the section.
-        /// </summary>
-        //public List<SwitchPointModel> SwitchPoints { get; set; }
+
         /// <summary>
         /// Mark specified by the user.
         /// </summary>

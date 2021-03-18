@@ -53,26 +53,67 @@ namespace MarkMyWords.Server.Controllers
         }
 
         [HttpGet("{assignmentId}")]
-        public async Task<AssignmentModel> Get(string assignmentId, [FromHeader] string attemptNameKey = null)
+        public async Task<ActionResult<AssignmentModel>> Get(string assignmentId, [FromHeader] string password = null)
         {
             string fileName = $"{assignmentId}.gz";
 
             AssignmentModel assignment = await DownloadFromStorage(fileName);
 
-            return assignment;
+            Console.WriteLine(password);
+            Console.WriteLine(assignment.PasswordMatch(password));
+
+            if (password != null)
+            {
+                if (assignment.PasswordMatch(password))
+                {
+                    assignment = Decrypt(assignment, password);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
+            return Ok(assignment);
         }
 
         [HttpPost]
-        public async Task Post([FromBody] AssignmentModel assignment)
+        public async Task<ActionResult> Post([FromBody] AssignmentModel assignment, [FromHeader] string password = null)
         {
+            if (password != null)
+            {
+                if (assignment.PasswordMatch(password))
+                {
+                    Encrypt(assignment, password);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
             string fileName = $"{assignment.AssignmentId}.gz";
 
             await UploadToStorage(fileName, assignment);
+
+            return Ok();
         }
 
         [HttpPut("{attemptId}")]
-        public async Task Put([FromBody] AssignmentModel assignment, string attemptId)
+        public async Task<ActionResult> Put([FromBody] AssignmentModel assignment, string attemptId, [FromHeader] string password = null)
         {
+            if(password != null)
+            {
+                if(assignment.PasswordMatch(password))
+                {
+                    Encrypt(assignment, password);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
             string fileName = $"{assignment.AssignmentId}.gz";
 
             AssignmentModel assignmentFromServer = await DownloadFromStorage(fileName);
@@ -82,6 +123,8 @@ namespace MarkMyWords.Server.Controllers
             assignmentFromServer.Attempts.Insert(oldAttemptIndex, assignment.Attempts.Find(attempt => attempt.AttemptId == attemptId));
 
             await UploadToStorage(fileName, assignmentFromServer);
+
+            return Ok();
         }
 
         [HttpPatch]
@@ -111,6 +154,7 @@ namespace MarkMyWords.Server.Controllers
             Stream decompressedStream = await Decompress(downloadStream);
 
             AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(decompressedStream, Utils.DefaultOptions());
+
             return assignment;
         }
 
@@ -146,6 +190,34 @@ namespace MarkMyWords.Server.Controllers
 
             stream.Position = 0;
             return stream;
+        }
+
+        private static AssignmentModel Encrypt(AssignmentModel assignment, string password)
+        {
+            foreach(AttemptModel attempt in assignment.Attempts)
+            {
+                if (!string.IsNullOrWhiteSpace(attempt.AttemptName))
+                {
+                    attempt.AttemptName = StringCipher.Encrypt(attempt.AttemptName, password);
+                }
+            }
+
+            assignment.DataEncrypted = true;
+            return assignment;
+        }
+
+        private static AssignmentModel Decrypt(AssignmentModel assignment, string password)
+        {
+            foreach (AttemptModel attempt in assignment.Attempts)
+            {
+                if (!string.IsNullOrWhiteSpace(attempt.AttemptName))
+                {
+                    attempt.AttemptName = StringCipher.Decrypt(attempt.AttemptName, password);
+                }
+            }
+
+            assignment.DataEncrypted = false;
+            return assignment;
         }
     }
 }

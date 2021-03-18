@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.IO;
 using System;
 using System.Collections.Generic;
-
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using MarkMyWords.Shared;
 
 namespace MarkMyWords.Server.Controllers
 {
@@ -25,15 +25,11 @@ namespace MarkMyWords.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IDictionary<string, float>> Post([FromHeader] string AssignmentId, [FromHeader] string AttemptId, [FromHeader] string SectionId)
+        public async Task<IDictionary<string, float>> Post([FromHeader] string AttemptId, [FromHeader] string SectionId, [FromBody] AssignmentModel assignment)
         {
             string absolutePath = Path.Combine(hostEnvironment.ContentRootPath, $"{Guid.NewGuid().ToString()}.json");
 
-            using (FileStream fileStream = System.IO.File.Create(absolutePath))
-            {
-                using Stream bodyStream = HttpContext.Request.Body;
-                await bodyStream.CopyToAsync(fileStream);
-            }
+            await System.IO.File.WriteAllTextAsync(absolutePath, JsonSerializer.Serialize(assignment, Utils.DefaultOptions()));
 
             string pythonExecutablePath = Path.Combine(hostEnvironment.ContentRootPath, "python39/python.exe");
             string pythonCodeFilePath = Path.Combine(hostEnvironment.ContentRootPath, "Python/model_training.py");
@@ -66,7 +62,7 @@ namespace MarkMyWords.Server.Controllers
             {
                 throw new Exception(stderr);
             }
-
+            Console.WriteLine(result);
             Console.WriteLine(stderr);
 
             Dictionary<string, float> markRange = JsonSerializer.Deserialize<Dictionary<string, float>>(result);

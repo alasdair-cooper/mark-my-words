@@ -35,13 +35,19 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task NewAssignment(NavigationManager navMan, AssignmentModel assignment)
+        public static async Task<bool> NewAssignment(NavigationManager navMan, AssignmentModel assignment, string password = null)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
             HttpClient client = new HttpClient();
+            if (password != null)
+            {
+                client.DefaultRequestHeaders.Add("password", password);
+            }
 
-            await client.PostAsJsonAsync(destinationUri, assignment, Utils.DefaultOptions());
+            HttpResponseMessage response = await client.PostAsJsonAsync(destinationUri, assignment, Utils.DefaultOptions());
+
+            return response.IsSuccessStatusCode;
         }
 
         /// <summary>
@@ -50,22 +56,30 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt)
+        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt, string password = null)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment/{attempt.AttemptId}";
 
             JsonSerializerOptions options = Utils.DefaultOptions();
 
             HttpClient client = new HttpClient();
+            if (password != null) 
+            {
+                client.DefaultRequestHeaders.Add("password", password);
+            }
 
-            await client.PutAsJsonAsync(destinationUri, assignment, options);
+            HttpResponseMessage response = await client.PutAsJsonAsync(destinationUri, assignment, options);
+
+            return response.IsSuccessStatusCode;
         }
 
-        public static async Task UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment)
+        public static async Task<bool> UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
-            await Upload(assignment, destinationUri, Utils.DefaultOptions(), method: HttpMethodEnum.Patch);
+            HttpResponseMessage response = await Upload(assignment, destinationUri, Utils.DefaultOptions(), method: HttpMethodEnum.Patch);
+
+            return response.IsSuccessStatusCode;
         }
 
         /// <summary>
@@ -90,15 +104,25 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignmentId"></param>
         /// <returns></returns>
-        public static async Task<AssignmentModel> FetchAssignment(NavigationManager navMan, string assignmentId)
+        public static async Task<AssignmentModel> FetchAssignment(NavigationManager navMan, string assignmentId, string password = null)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment/{assignmentId}";
 
             HttpClient client = new HttpClient();
+            if(password != null)
+            {
+                client.DefaultRequestHeaders.Add("password", password);
+            }
 
-            AssignmentModel assignmentModel = await client.GetFromJsonAsync<AssignmentModel>(destinationUri, Utils.DefaultOptions());
-
-            return assignmentModel;
+            try
+            {
+                AssignmentModel assignmentModel = await client.GetFromJsonAsync<AssignmentModel>(destinationUri, Utils.DefaultOptions());
+                return assignmentModel;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -144,7 +168,7 @@ namespace MarkMyWords.Client.Shared
             return await responseMessage.Content.ReadAsStreamAsync();
         }
 
-        private static async Task<bool> Upload(
+        private static async Task<HttpResponseMessage> Upload(
             object payload, 
             string uri, 
             JsonSerializerOptions serializerOptions = default, 
@@ -164,7 +188,7 @@ namespace MarkMyWords.Client.Shared
             };
 
             HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-            return responseMessage.IsSuccessStatusCode;
+            return responseMessage;
         }
     }
 }

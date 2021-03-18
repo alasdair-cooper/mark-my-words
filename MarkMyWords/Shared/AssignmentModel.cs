@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Linq;
 
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using System.Security.Cryptography;
 
 using System.Reflection;
 
@@ -22,7 +25,11 @@ namespace MarkMyWords.Shared
         /// </summary>
         public string AssignmentName { get; set; } = "";
 
+        public string PasswordHash { get; set; } = "";
+
         public bool Completed { get; set; } = false;
+
+        public bool DataEncrypted { get; set; } = false;
 
         /// <summary>
         /// Banks of previously used comments.
@@ -50,10 +57,8 @@ namespace MarkMyWords.Shared
         /// <param name="assignmentName">The name of the assignment.</param>
         /// <param name="attemptCount">The number of attempts to be created in the assignment.</param>
         /// <param name="sections">The sections containing the points to be in each attempt</param>
-        public AssignmentModel(string assignmentName, int attemptCount, List<SectionModel> sections)
+        public AssignmentModel(int attemptCount, List<SectionModel> sections)
         {
-            AssignmentName = assignmentName;
-
             for (int i = 0; i < attemptCount; i++)
             {
                 Attempts.Add(new AttemptModel(new List<SectionModel>(sections)));
@@ -77,6 +82,22 @@ namespace MarkMyWords.Shared
                 .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType))
                 .ToDictionary(propertyInfo => propertyInfo.Name, propertyInfo => propertyInfo.GetValue(this)
                 .ToString());
+        }
+
+        public bool PasswordMatch(string password)
+        {
+            using SHA256 sha256 = SHA256.Create();
+            byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            string hashedPassword = BitConverter.ToString(hashedBytes);
+            Console.WriteLine($"Hashed password: {hashedPassword}\nPassword: {PasswordHash}");
+            return hashedPassword == PasswordHash;
+        }
+
+        public void SetPassword(string password)
+        {
+            using SHA256 sha256 = SHA256.Create();
+            byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            PasswordHash = BitConverter.ToString(hashedBytes);
         }
     }
 }

@@ -10,6 +10,8 @@ namespace MarkMyWords.Shared
         /// Unique ID.
         /// </summary>
         public string AttemptId { get; set; } = Guid.NewGuid().ToString();
+
+        public string AttemptName { get; set; } = "";
         /// <summary>
         /// Sections to display and mark.
         /// </summary>
