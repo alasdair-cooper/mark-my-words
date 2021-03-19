@@ -125,6 +125,22 @@ namespace MarkMyWords.Client.Shared
             }
         }
 
+        public static async Task<bool> UpdateLock(NavigationManager navMan, string assignmentId, string attemptId, bool locked)
+        {
+            string destinationUri = $"{navMan.BaseUri}api/lock";
+
+            JsonSerializerOptions options = Utils.DefaultOptions();
+
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("assignmentId", assignmentId);
+            client.DefaultRequestHeaders.Add("attemptId", attemptId);
+            client.DefaultRequestHeaders.Add("locked", locked.ToString());
+
+            HttpResponseMessage response = await client.PostAsJsonAsync(destinationUri, "", options);
+
+            return response.IsSuccessStatusCode;
+        }
+
         /// <summary>
         /// Fetches the range of suggested marks via HTTP POST from api/mark.
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿@using System.Windows.Input
 @using System
+@using System.IO
 @using System.Text
 @using System.Security.Cryptography
 @using FluentValidation
@@ -15,10 +16,19 @@
                               Class="ma-4"
                               @bind-Value="assignmentName">
                 </MudTextField>
+                <BlazorInputFile.InputFile id="inputFile" OnChange="ReadInNames" hidden multiple accept=".txt"></BlazorInputFile.InputFile>
+                <MudButton HtmlTag="label"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           for="inputFile">
+                    Upload attempt names                                                
+                </MudButton>
                 <MudTextField T="int"
                               Label="Number of Attempts"
                               Class="ma-4"
-                              @bind-Value="attemptCount">
+                              @bind-Value="attemptCount"
+                              Disabled="attemptCountDisabled"
+                              Immediate="true">
                 </MudTextField>
                 <MudTextField T="string"
                               InputType="InputType.Password"
@@ -138,7 +148,8 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
 
     private List<SectionModel> sections = new List<SectionModel>();
 
@@ -146,11 +157,14 @@
 
     private FluentValueValidator<int> greaterThanZeroValidator = new FluentValueValidator<int>(x => x.GreaterThan(0).WithMessage("Must be greater than zero!"));
 
-    private string assignmentName;
+    private string assignmentName = "";
 
-    private string assignmentPassword;
+    private string assignmentPassword = "";
 
-    private int attemptCount;
+    private Queue<string> assignmentAttemptNameList = new Queue<string>();
+
+    private bool attemptCountDisabled = false;
+    private int attemptCount = 0;
 
     /// <summary>
     /// Converter for the PointType enum.
@@ -167,8 +181,15 @@
             AssignmentName = assignmentName
         };
         assignmentModel.SetPassword(assignmentPassword);
+        if (assignmentAttemptNameList.Count == assignmentModel.Attempts.Count)
+        {
+            foreach (AttemptModel attempt in assignmentModel.Attempts)
+            {
+                attempt.AttemptName = assignmentAttemptNameList.Dequeue();
+            }
+        }
 
-        MudDialog.Close(DialogResult.Ok(assignmentModel));
+        MudDialog.Close(DialogResult.Ok(new Tuple<string, AssignmentModel>(assignmentPassword, assignmentModel)));
     }
 
     /// <summary>
@@ -211,6 +232,7 @@
     {
         if (pointModel.Type != PointType.Default)
         {
+            int pointModelIndex = sectionModel.Points.IndexOf(pointModel);
             sectionModel.Points.Remove(pointModel);
 
             pointModel = UpdatePoint(pointModel);
@@ -230,11 +252,11 @@
 
             if (!result.Cancelled)
             {
-                sectionModel.Points.Add((PointModel)result.Data);
+                sectionModel.Points.Insert(pointModelIndex, (PointModel)result.Data);
             }
             else
             {
-                sectionModel.Points.Add(pointModel);
+                sectionModel.Points.Insert(pointModelIndex, pointModel);
             }
         }
     }
@@ -275,6 +297,7 @@
     private void DeleteSection(SectionModel sectionModel)
     {
         sections.Remove(sectionModel);
+        StateHasChanged();
     }
 
     /// <summary>
@@ -284,6 +307,25 @@
     {
         SectionModel newSection = new SectionModel();
         sections.Add(newSection);
+        StateHasChanged();
+    }
+
+    private async void ReadInNames(IFileListEntry[] files)
+    {
+        if (files.Length <= 0)
+        {
+            attemptCountDisabled = false;
+        }
+        else
+        {
+            IFileListEntry file = files.FirstOrDefault();
+            using StreamReader reader = new StreamReader(file.Data);
+            string text = await reader.ReadToEndAsync();
+
+            assignmentAttemptNameList = new Queue<string>(text.Split(';'));
+            attemptCount = assignmentAttemptNameList.Count();
+            attemptCountDisabled = true;
+        }
         StateHasChanged();
     }
 

@@ -74,10 +74,6 @@ namespace MarkMyWords.Shared
         public Dictionary<string, string> GetAssignmentInfo()
         {
             List<PropertyInfo> propertyInfo = new List<PropertyInfo>(this.GetType().GetProperties());
-            Console.WriteLine(JsonSerializer.Serialize(propertyInfo
-                .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType))
-                .ToDictionary(propertyInfo => propertyInfo.Name, propertyInfo => propertyInfo.GetValue(this)
-                .ToString())));
             return propertyInfo
                 .Where(propertyInfo => !(propertyInfo.PropertyType.IsGenericType))
                 .ToDictionary(propertyInfo => propertyInfo.Name, propertyInfo => propertyInfo.GetValue(this)
@@ -88,8 +84,7 @@ namespace MarkMyWords.Shared
         {
             using SHA256 sha256 = SHA256.Create();
             byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            string hashedPassword = BitConverter.ToString(hashedBytes);
-            Console.WriteLine($"Hashed password: {hashedPassword}\nPassword: {PasswordHash}");
+            string hashedPassword = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             return hashedPassword == PasswordHash;
         }
 
@@ -97,7 +92,7 @@ namespace MarkMyWords.Shared
         {
             using SHA256 sha256 = SHA256.Create();
             byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            PasswordHash = BitConverter.ToString(hashedBytes);
+            PasswordHash = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
         }
     }
 }

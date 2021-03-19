@@ -84,8 +84,10 @@
 
         if (!result.Cancelled)
         {
-            AssignmentModel assignmentModel = (AssignmentModel)result.Data;
-            await ServerCommunicator.NewAssignment(NavMan, assignmentModel);
+            Tuple<string, AssignmentModel> tuple = (Tuple<string, AssignmentModel>)result.Data;
+            AssignmentModel assignmentModel = tuple.Item2;
+            Console.WriteLine(JsonSerializer.Serialize(assignmentModel));
+            await ServerCommunicator.NewAssignment(NavMan, assignmentModel, tuple.Item1);
         }
 
         List<Dictionary<string, string>> assignmentsInfo = await RefreshAssignmentsList();

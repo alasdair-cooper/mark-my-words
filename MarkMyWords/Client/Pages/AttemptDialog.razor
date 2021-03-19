@@ -18,9 +18,17 @@
                 <MudAppBar Elevation="0"
                            Color="Color.Primary"
                            Fixed="false">
-                    <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
-                        Attempt @AttemptModel.AttemptId
-                    </MudText>
+                    @if (AttemptModel.AttemptName != "")
+                    {
+                        <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+                            Attempt @AttemptModel.AttemptName
+                        </MudText>}
+                    else
+                    {
+                        <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">
+                            Attempt @AttemptModel.AttemptId
+                        </MudText>
+                    }
                     <MudAppBarSpacer />
                     <MudSwitch T="bool"
                                Class="ml-auto"

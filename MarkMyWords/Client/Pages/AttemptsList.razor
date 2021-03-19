@@ -1,6 +1,7 @@
 ﻿@page "/attempts/{AssignmentId}"
 
 @using System.Text
+@using System.Text.Encodings
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.IO
@@ -10,6 +11,7 @@
 
 @inject NavigationManager NavMan
 @inject IDialogService Dialog
+@inject IJSRuntime js
 
 <MudLayout>
     <MudAppBar Elevation="0"
@@ -28,6 +30,10 @@
                        Checked="AssignmentModel.Completed"
                        @onclick="UpdateAssignment">
             </MudSwitch>
+            <MudIconButton Icon="@Icons.Filled.FileDownload"
+                           Color="Color.Secondary"
+                           OnClick="DownloadFile">
+            </MudIconButton>
         }
     </MudAppBar>
     <MudMainContent>
@@ -38,8 +44,10 @@
                 <MudSimpleTable Hover="true">
                     <thead>
                         <tr>
+                            <th>Name</th>
                             <th>ID</th>
                             <th>Completed</th>
+                            <th>Locked</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,8 +55,21 @@
                         {
                             <tr @onclick="async () => await ViewAttempt(attempt.AttemptId)"
                                 style="cursor: pointer">
+                                <td>@attempt.AttemptName</td>
                                 <td>@attempt.AttemptId</td>
                                 <td>@attempt.Completed</td>
+                                @if (attempt.Locked)
+                                {
+                                    <td>
+                                        <MudIcon Icon="@Icons.Filled.Lock" Color="Color.Secondary"></MudIcon>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <MudIcon Icon="@Icons.Filled.LockOpen" Color="Color.Primary"></MudIcon>
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>
@@ -61,15 +82,17 @@
                         <tr>
                             <th><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></th>
                             <th><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></th>
+                            <th><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></th>
                         </tr>
                     </thead>
                     <tbody>
                         @for (int i = 0; i < 10; i++)
                         {
-                            <tr>
-                                <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
-                                <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
-                            </tr>
+                        <tr>
+                            <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
+                            <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
+                            <td><MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton></td>
+                        </tr>
                         }
                     </tbody>
                 </MudSimpleTable>
@@ -112,6 +135,23 @@
         }
     }
 
+    private async void DownloadFile()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append($"Name,ID,Mark\n");
+        foreach(AttemptModel attempt in AssignmentModel.Attempts)
+        {
+            int totalMark = 0;
+            foreach(SectionModel section in attempt.Sections)
+            {
+                totalMark += section.GivenMark;
+            }
+            builder.Append($"{attempt.AttemptName},{attempt.AttemptId},{totalMark}\n");
+        }
+        Byte[] bytes = Encoding.UTF8.GetBytes(builder.ToString());
+        await js.InvokeAsync<object>("saveAsFile", $"{AssignmentModel.AssignmentName} Marks.csv", Convert.ToBase64String(bytes));
+    }
+
     private async Task UpdateAssignment()
     {
         AssignmentModel.Completed = !AssignmentModel.Completed;
@@ -129,7 +169,13 @@
             ["AttemptId"] = attemptId,
             ["AssignmentModel"] = AssignmentModel
         };
+
+        await ServerCommunicator.UpdateLock(NavMan, AssignmentId, attemptId, true);
+
         IDialogReference dialog = Dialog.Show<AttemptDialog>("Mark Attempt", parameters, options);
+
         DialogResult result = await dialog.Result;
+
+        await ServerCommunicator.UpdateLock(NavMan, AssignmentId, attemptId, false);
     }
 }

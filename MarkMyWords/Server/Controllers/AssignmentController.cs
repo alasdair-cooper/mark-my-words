@@ -53,16 +53,13 @@ namespace MarkMyWords.Server.Controllers
         {
             string fileName = $"{assignmentId}.gz";
 
-            AssignmentModel assignment = await DownloadFromStorage(fileName);
-
-            Console.WriteLine(password);
-            Console.WriteLine(assignment.PasswordMatch(password));
+            AssignmentModel assignment = await Storage.DownloadFromStorage(fileName);
 
             if (password != null)
             {
                 if (assignment.PasswordMatch(password))
                 {
-                    assignment = Decrypt(assignment, password);
+                    assignment = Storage.Decrypt(assignment, password);
                 }
                 else
                 {
@@ -80,7 +77,7 @@ namespace MarkMyWords.Server.Controllers
             {
                 if (assignment.PasswordMatch(password))
                 {
-                    Encrypt(assignment, password);
+                     Storage.Encrypt(assignment, password);
                 }
                 else
                 {
@@ -90,7 +87,7 @@ namespace MarkMyWords.Server.Controllers
 
             string fileName = $"{assignment.AssignmentId}.gz";
 
-            await UploadToStorage(fileName, assignment);
+            await Storage.UploadToStorage(fileName, assignment);
 
             return Ok();
         }
@@ -102,7 +99,7 @@ namespace MarkMyWords.Server.Controllers
             {
                 if(assignment.PasswordMatch(password))
                 {
-                    Encrypt(assignment, password);
+                    Storage.Encrypt(assignment, password);
                 }
                 else
                 {
@@ -112,13 +109,13 @@ namespace MarkMyWords.Server.Controllers
 
             string fileName = $"{assignment.AssignmentId}.gz";
 
-            AssignmentModel assignmentFromServer = await DownloadFromStorage(fileName);
+            AssignmentModel assignmentFromServer = await Storage.DownloadFromStorage(fileName);
 
             int oldAttemptIndex = assignmentFromServer.Attempts.FindIndex(oldAttempt => oldAttempt.AttemptId == attemptId);
             assignmentFromServer.Attempts.RemoveAt(oldAttemptIndex);
             assignmentFromServer.Attempts.Insert(oldAttemptIndex, assignment.Attempts.Find(attempt => attempt.AttemptId == attemptId));
 
-            await UploadToStorage(fileName, assignmentFromServer);
+            await Storage.UploadToStorage(fileName, assignmentFromServer);
 
             return Ok();
         }
@@ -129,91 +126,14 @@ namespace MarkMyWords.Server.Controllers
             string fileName = $"{assignment.AssignmentId}.gz";
 
             MemoryStream stream = new MemoryStream();
-            AssignmentModel assignmentFromServer = await DownloadFromStorage(fileName);
+            AssignmentModel assignmentFromServer = await Storage.DownloadFromStorage(fileName);
             stream.Position = 0;
 
             assignment.Attempts = assignmentFromServer.Attempts;
             assignment.SectionCommentBanks = assignmentFromServer.SectionCommentBanks;
             assignment.SectionPointBanks = assignmentFromServer.SectionPointBanks;
 
-            await UploadToStorage(fileName, assignment);
-        }
-
-        private static async Task<AssignmentModel> DownloadFromStorage(string fileName)
-        {
-            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
-
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
-            BlobDownloadInfo download = await blobClient.DownloadAsync();
-            using Stream downloadStream = download.Content;
-
-            Stream decompressedStream = await Decompress(downloadStream);
-
-            AssignmentModel assignment = await JsonSerializer.DeserializeAsync<AssignmentModel>(decompressedStream, Utils.DefaultOptions());
-
-            return assignment;
-        }
-
-        private static async Task UploadToStorage(string fileName, AssignmentModel assignment)
-        {
-            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
-
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
-
-            MemoryStream stream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(stream, assignment, Utils.DefaultOptions());
-            stream.Position = 0;
-            Stream compressedStream = await Compress(stream);
-            compressedStream.Position = 0;
-            await blobClient.UploadAsync(compressedStream, overwrite: true);
-            await blobClient.SetMetadataAsync(assignment.GetAssignmentInfo());
-        }
-
-        private static async Task<Stream> Compress(Stream streamToCompress)
-        {
-            MemoryStream memoryStream = new MemoryStream();
-            using GZipStream compressionStream = new GZipStream(memoryStream, CompressionMode.Compress, true);
-            await streamToCompress.CopyToAsync(compressionStream);
-            return memoryStream;
-        }
-
-        private static async Task<Stream> Decompress(Stream streamToDecompress)
-        {
-            MemoryStream stream = new MemoryStream();
-
-            using GZipStream decompressionStream = new GZipStream(streamToDecompress, CompressionMode.Decompress, true);
-            await decompressionStream.CopyToAsync(stream);
-
-            stream.Position = 0;
-            return stream;
-        }
-
-        private static AssignmentModel Encrypt(AssignmentModel assignment, string password)
-        {
-            foreach(AttemptModel attempt in assignment.Attempts)
-            {
-                if (!string.IsNullOrWhiteSpace(attempt.AttemptName))
-                {
-                    attempt.AttemptName = StringCipher.Encrypt(attempt.AttemptName, password);
-                }
-            }
-
-            assignment.DataEncrypted = true;
-            return assignment;
-        }
-
-        private static AssignmentModel Decrypt(AssignmentModel assignment, string password)
-        {
-            foreach (AttemptModel attempt in assignment.Attempts)
-            {
-                if (!string.IsNullOrWhiteSpace(attempt.AttemptName))
-                {
-                    attempt.AttemptName = StringCipher.Decrypt(attempt.AttemptName, password);
-                }
-            }
-
-            assignment.DataEncrypted = false;
-            return assignment;
+            await Storage.UploadToStorage(fileName, assignment);
         }
     }
 }

@@ -21,7 +21,24 @@ namespace MarkMyWords.Shared
         /// </summary>
         public bool Completed { get; set; } = false;
 
-        public bool Locked { get; set; } = false;
+        private bool locked = false;
+        public bool Locked
+        {
+            get
+            {
+                return locked;
+            }
+            set
+            {
+                if(value)
+                {
+                    TimeLastLocked = DateTime.Now;
+                }
+                locked = value;
+            }
+        }
+
+        public DateTime TimeLastLocked { get; set; } = new DateTime();
 
         /// <summary>
         /// Empty constructor intended for the deserializer.
@@ -47,6 +64,14 @@ namespace MarkMyWords.Shared
             Sections = Utils.DeepClone<List<SectionModel>>(sections);
 
             Completed = false;
+        }
+
+        public void ReevaluateLock()
+        {
+            if (TimeLastLocked.AddHours(1) > DateTime.Now)
+            {
+                Locked = false;
+            }
         }
     }
 }
