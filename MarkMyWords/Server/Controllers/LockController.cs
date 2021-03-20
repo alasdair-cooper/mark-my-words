@@ -29,6 +29,8 @@ namespace MarkMyWords.Server.Controllers
 
             await Storage.UploadToStorage(fileName, assignment);
 
+            Console.WriteLine($"Attempt locked: {assignment.Attempts.ElementAt(attemptIndex).Locked}");
+
             return Ok();
         }
     }

@@ -53,7 +53,7 @@
                                                    IsExpanded="true">
                                     <Section @bind-SectionModel="temp"
                                              @bind-BankComments="AssignmentModel.SectionCommentBanks[temp.SectionID]"
-                                             OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel)"
+                                             OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel, Password)"
                                              AttemptModel="AttemptModel"
                                              AssignmentModel="AssignmentModel">
                                     </Section>
@@ -103,6 +103,9 @@
     [Parameter]
     public EventCallback<AttemptModel> AttemptModelChanged { get; set; }
 
+    [Parameter]
+    public string Password { get; set; }
+
     private HttpClient client = new HttpClient();
 
     /// <summary>
@@ -126,13 +129,13 @@
 
     public async Task UpdateAssignment()
     {
-        await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel);
+        await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel, Password);
     }
 
     public async Task ToggleCompleteUpdateAssignment()
     {
         AttemptModel.Completed = !AttemptModel.Completed;
-        await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel);
+        await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel, Password);
 
     }
 }

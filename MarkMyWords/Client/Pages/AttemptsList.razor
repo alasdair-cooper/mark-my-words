@@ -12,6 +12,7 @@
 @inject NavigationManager NavMan
 @inject IDialogService Dialog
 @inject IJSRuntime js
+@inject ISnackbar Snackbar
 
 <MudLayout>
     <MudAppBar Elevation="0"
@@ -53,24 +54,26 @@
                     <tbody>
                         @foreach (AttemptModel attempt in AssignmentModel.Attempts)
                         {
-                            <tr @onclick="async () => await ViewAttempt(attempt.AttemptId)"
-                                style="cursor: pointer">
-                                <td>@attempt.AttemptName</td>
-                                <td>@attempt.AttemptId</td>
-                                <td>@attempt.Completed</td>
-                                @if (attempt.Locked)
-                                {
-                                    <td>
-                                        <MudIcon Icon="@Icons.Filled.Lock" Color="Color.Secondary"></MudIcon>
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td>
-                                        <MudIcon Icon="@Icons.Filled.LockOpen" Color="Color.Primary"></MudIcon>
-                                    </td>
-                                }
-                            </tr>
+                            if (attempt.Locked)
+                            {
+                                <tr @onclick="LockedAlert"
+                                    style="cursor: pointer">
+                                    <td>@attempt.AttemptName</td>
+                                    <td>@attempt.AttemptId</td>
+                                    <td>@attempt.Completed</td>
+                                    <td><MudIcon Icon="@Icons.Filled.Lock" Color="Color.Secondary"></MudIcon></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr @onclick="async () => await ViewAttempt(attempt.AttemptId)"
+                                    style="cursor: pointer">
+                                    <td>@attempt.AttemptName</td>
+                                    <td>@attempt.AttemptId</td>
+                                    <td>@attempt.Completed</td>
+                                    <td><MudIcon Icon="@Icons.Filled.LockOpen" Color="Color.Primary"></MudIcon></td>     
+                                </tr>
+                            }
                         }
                     </tbody>
                 </MudSimpleTable>
@@ -116,6 +119,8 @@
 
     private HttpClient client = new HttpClient();
 
+    private string password;
+
     /// <summary>
     /// Fetches the assignment from the server when the parameters are set.
     /// </summary>
@@ -127,12 +132,18 @@
         DialogResult result = await dialog.Result;
         if (!result.Cancelled)
         {
-            AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId, result.Data.ToString());
+            password = result.Data.ToString();
+            await FetchAssignment();
         }
         else
         {
             NavMan.NavigateTo("/");
         }
+    }
+
+    private async Task FetchAssignment()
+    {
+        AssignmentModel = await ServerCommunicator.FetchAssignment(NavMan, AssignmentId, password);
     }
 
     private async void DownloadFile()
@@ -160,6 +171,7 @@
 
     private async Task ViewAttempt(string attemptId)
     {
+        AssignmentModel.Attempts.Find(attempt => attempt.AttemptId == attemptId).Locked = true;
         DialogOptions options = new DialogOptions()
         {
             MaxWidth = MaxWidth.Medium
@@ -167,7 +179,8 @@
         DialogParameters parameters = new DialogParameters()
         {
             ["AttemptId"] = attemptId,
-            ["AssignmentModel"] = AssignmentModel
+            ["AssignmentModel"] = AssignmentModel,
+            ["Password"] = password
         };
 
         await ServerCommunicator.UpdateLock(NavMan, AssignmentId, attemptId, true);
@@ -176,6 +189,19 @@
 
         DialogResult result = await dialog.Result;
 
+        AssignmentModel.Attempts.Find(attempt => attempt.AttemptId == attemptId).Locked = false;
+        AssignmentModel = null;
+
         await ServerCommunicator.UpdateLock(NavMan, AssignmentId, attemptId, false);
+
+        await FetchAssignment();
+    }
+
+    private void LockedAlert()
+    {
+        Snackbar.Clear();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+        Snackbar.Add("Someone else is using this attempt!", Severity.Error);
     }
 }

@@ -68,7 +68,7 @@ namespace MarkMyWords.Shared
 
         public void ReevaluateLock()
         {
-            if (TimeLastLocked.AddHours(1) > DateTime.Now)
+            if (TimeLastLocked.AddHours(1) < DateTime.Now)
             {
                 Locked = false;
             }

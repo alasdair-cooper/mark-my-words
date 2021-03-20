@@ -35,7 +35,7 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<bool> NewAssignment(NavigationManager navMan, AssignmentModel assignment, string password = null)
+        public static async Task<bool> NewAssignment(NavigationManager navMan, AssignmentModel assignment, string password)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
@@ -56,7 +56,7 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignment"></param>
         /// <returns></returns>
-        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt, string password = null)
+        public static async Task<bool> UpdateAssignment(NavigationManager navMan, AssignmentModel assignment, AttemptModel attempt, string password)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment/{attempt.AttemptId}";
 
@@ -104,7 +104,7 @@ namespace MarkMyWords.Client.Shared
         /// <param name="navMan"></param>
         /// <param name="assignmentId"></param>
         /// <returns></returns>
-        public static async Task<AssignmentModel> FetchAssignment(NavigationManager navMan, string assignmentId, string password = null)
+        public static async Task<AssignmentModel> FetchAssignment(NavigationManager navMan, string assignmentId, string password)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment/{assignmentId}";
 
