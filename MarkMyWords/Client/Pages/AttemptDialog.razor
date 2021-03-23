@@ -40,27 +40,28 @@
                 </MudAppBar>
                 <MudMainContent>
                     <MudOverlay @bind-Visible="AttemptModel.Completed" DarkBackground="true" Absolute="true"></MudOverlay>
-                    <MudContainer MaxWidth="MaxWidth.Medium">
-                        <MudExpansionPanels MultiExpansion="true"
-                                            Elevation="2">
-                            @for (int i = 0; i < AttemptModel.Sections.Count; i++)
-                            {
-                                int local = i;
+                    <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column">
+                        <div Style="max-height: 600px; overflow-y: scroll">
+                            <MudExpansionPanels MultiExpansion="true"
+                                                Elevation="10">
+                                @for (int i = 0; i < AttemptModel.Sections.Count; i++)
+                                {
+                                    int local = i;
 
-                                SectionModel temp = AttemptModel.Sections.ElementAt(i);
+                                    SectionModel temp = AttemptModel.Sections.ElementAt(i);
 
-                                <MudExpansionPanel Text="@temp.SectionName"
-                                                   IsExpanded="true">
-                                    <Section @bind-SectionModel="temp"
-                                             @bind-BankComments="AssignmentModel.SectionCommentBanks[temp.SectionID]"
-                                             OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel, Password)"
-                                             AttemptModel="AttemptModel"
-                                             AssignmentModel="AssignmentModel">
-                                    </Section>
-                                </MudExpansionPanel>
-                            }
-                        </MudExpansionPanels>
-
+                                    <MudExpansionPanel Text="@temp.SectionName"
+                                                       IsExpanded="true">
+                                        <Section @bind-SectionModel="temp"
+                                                 @bind-BankComments="AssignmentModel.SectionCommentBanks[temp.SectionID]"
+                                                 OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel, Password)"
+                                                 AttemptModel="AttemptModel"
+                                                 AssignmentModel="AssignmentModel">
+                                        </Section>
+                                    </MudExpansionPanel>
+                                }
+                            </MudExpansionPanels>
+                        </div>
                     </MudContainer>
                 </MudMainContent>
             </MudLayout>
