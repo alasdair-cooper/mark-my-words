@@ -167,6 +167,7 @@
     {
         AssignmentModel.Completed = !AssignmentModel.Completed;
         await ServerCommunicator.UpdateAssignmentProperties(NavMan, AssignmentModel);
+        NavMan.NavigateTo("/", true);
     }
 
     private async Task ViewAttempt(string attemptId)
