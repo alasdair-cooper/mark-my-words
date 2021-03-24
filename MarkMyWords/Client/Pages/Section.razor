@@ -166,6 +166,9 @@
     [Parameter]
     public EventCallback<SectionModel> OnUpdateAttempt { get; set; }
 
+    [Parameter]
+    public string Password { get; set; }
+
     private List<CommentModel> searchComments = new List<CommentModel>();
 
     private int suggestedMark = 6;
@@ -218,7 +221,7 @@
         predictionVisible = true;
         predictionLoading = true;
         await UpdateAttempt();
-        Dictionary<string, float> markRange = await ServerCommunicator.FetchMarkRange(NavMan, AssignmentModel, AttemptModel.AttemptId, SectionModel.SectionID);
+        Dictionary<string, float> markRange = await ServerCommunicator.FetchMarkRange(NavMan, AssignmentModel, AttemptModel.AttemptId, SectionModel.SectionID, Password);
         SectionModel.MaxSuggestedMark = (int) markRange["max"];
         SectionModel.MinSuggestedMark = (int) markRange["min"];
         predictionLoading = false;

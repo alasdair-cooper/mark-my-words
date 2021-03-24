@@ -128,17 +128,29 @@
     protected override async Task OnParametersSetAsync()
     {
         AssignmentModel = null;
-        IDialogReference dialog = Dialog.Show<PasswordDialog>("Enter password");
-        DialogResult result = await dialog.Result;
-        if (!result.Cancelled)
+        DialogResult result;
+        do
         {
-            password = result.Data.ToString();
-            await FetchAssignment();
-        }
-        else
-        {
-            NavMan.NavigateTo("/");
-        }
+            IDialogReference dialog = Dialog.Show<PasswordDialog>("Enter password");
+            result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                password = result.Data.ToString();
+                await FetchAssignment();
+                if (AssignmentModel == null)
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+                    Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+                    Snackbar.Configuration.VisibleStateDuration = 5000;
+                    Snackbar.Add("Incorrect password!", Severity.Error);
+                }
+            }
+            else
+            {
+                NavMan.NavigateTo("/");
+            }
+        } while (!result.Cancelled);
     }
 
     private async Task FetchAssignment()
@@ -166,7 +178,7 @@
     private async Task UpdateAssignment()
     {
         AssignmentModel.Completed = !AssignmentModel.Completed;
-        await ServerCommunicator.UpdateAssignmentProperties(NavMan, AssignmentModel);
+        await ServerCommunicator.UpdateAssignmentProperties(NavMan, AssignmentModel, password);
         NavMan.NavigateTo("/", true);
     }
 

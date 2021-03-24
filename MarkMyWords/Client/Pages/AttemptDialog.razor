@@ -57,7 +57,8 @@
                                                  @bind-BankComments="AssignmentModel.SectionCommentBanks[temp.SectionID]"
                                                  OnUpdateAttempt="async () => await ServerCommunicator.UpdateAssignment(NavMan, AssignmentModel, AttemptModel, Password)"
                                                  AttemptModel="AttemptModel"
-                                                 AssignmentModel="AssignmentModel">
+                                                 AssignmentModel="AssignmentModel"
+                                                 Password="Password">
                                         </Section>
                                     </MudExpansionPanel>
                                 }

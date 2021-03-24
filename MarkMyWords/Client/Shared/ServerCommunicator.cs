@@ -73,11 +73,23 @@ namespace MarkMyWords.Client.Shared
             return response.IsSuccessStatusCode;
         }
 
-        public static async Task<bool> UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment)
+        public static async Task<bool> UpdateAssignmentProperties(NavigationManager navMan, AssignmentModel assignment, string password)
         {
             string destinationUri = $"{navMan.BaseUri}api/assignment";
 
-            HttpResponseMessage response = await Upload(assignment, destinationUri, Utils.DefaultOptions(), method: HttpMethodEnum.Patch);
+            HttpClient client = new HttpClient();
+            if (password != null)
+            {
+                client.DefaultRequestHeaders.Add("password", password);
+            }
+            HttpMethod httpMethod = HttpMethod.Post;
+
+            HttpRequestMessage requestMessage = new HttpRequestMessage(httpMethod, destinationUri)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(assignment, Utils.DefaultOptions()), Encoding.UTF8, MediaType)
+            };
+
+            HttpResponseMessage response = await client.SendAsync(requestMessage);
 
             return response.IsSuccessStatusCode;
         }
@@ -149,11 +161,15 @@ namespace MarkMyWords.Client.Shared
         /// <param name="attemptId"></param>
         /// <param name="sectionId"></param>
         /// <returns></returns>
-        public static async Task<Dictionary<string, float>> FetchMarkRange(NavigationManager navMan, AssignmentModel assignment, string attemptId, string sectionId)
+        public static async Task<Dictionary<string, float>> FetchMarkRange(NavigationManager navMan, AssignmentModel assignment, string attemptId, string sectionId, string password)
         {
             string destinationUri = $"{navMan.BaseUri}api/mark";
 
             HttpClient client = new HttpClient();
+            if (password != null)
+            {
+                client.DefaultRequestHeaders.Add("password", password);
+            }
 
             client.DefaultRequestHeaders.Add("AssignmentId", assignment.AssignmentId);
             client.DefaultRequestHeaders.Add("AttemptId", attemptId);
@@ -163,48 +179,6 @@ namespace MarkMyWords.Client.Shared
             Dictionary<string, float> markRange = await JsonSerializer.DeserializeAsync<Dictionary<string, float>>(await response.Content.ReadAsStreamAsync(), Utils.DefaultOptions());
 
             return markRange;
-        }
-
-        private static async Task<Stream> Download(string uri, Dictionary<string, string> headers = default)
-        {
-            HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
-
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaType));
-            if (headers != null)
-            {
-                foreach (KeyValuePair<string, string> header in headers)
-                {
-                    requestMessage.Headers.Add(header.Key, header.Value);
-                }
-            }
-
-            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-
-            return await responseMessage.Content.ReadAsStreamAsync();
-        }
-
-        private static async Task<HttpResponseMessage> Upload(
-            object payload, 
-            string uri, 
-            JsonSerializerOptions serializerOptions = default, 
-            HttpMethodEnum method = HttpMethodEnum.Post)
-        {
-            HttpClient client = new HttpClient();
-            HttpMethod httpMethod = method switch
-            {
-                HttpMethodEnum.Put => HttpMethod.Put,
-                HttpMethodEnum.Patch => HttpMethod.Patch,
-                _ => HttpMethod.Post,
-            };
-
-            HttpRequestMessage requestMessage = new HttpRequestMessage(httpMethod, uri)
-            {
-                Content = new StringContent(JsonSerializer.Serialize(payload, serializerOptions), Encoding.UTF8, MediaType)
-            };
-
-            HttpResponseMessage responseMessage = await client.SendAsync(requestMessage);
-            return responseMessage;
         }
     }
 }
