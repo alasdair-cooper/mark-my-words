@@ -115,6 +115,24 @@ namespace MarkMyWords.Server.Controllers
             assignmentFromServer.Attempts.RemoveAt(oldAttemptIndex);
             assignmentFromServer.Attempts.Insert(oldAttemptIndex, assignment.Attempts.Find(attempt => attempt.AttemptId == attemptId));
 
+            foreach (KeyValuePair<string, List<CommentModel>> keyValuePair in assignment.SectionCommentBanks)
+            {
+                foreach (CommentModel comment in keyValuePair.Value)
+                {
+                    int index = assignmentFromServer.SectionCommentBanks[keyValuePair.Key].FindIndex(commentModel => commentModel.CommentId == comment.CommentId);
+
+                    if (index == -1)
+                    {
+                        assignmentFromServer.SectionCommentBanks[keyValuePair.Key].Add(comment);
+                    }
+                    else 
+                    {
+                        assignmentFromServer.SectionCommentBanks[keyValuePair.Key].RemoveAt(index);
+                        assignmentFromServer.SectionCommentBanks[keyValuePair.Key].Insert(index, comment);
+                    } 
+                }
+            }
+
             await Storage.UploadToStorage(fileName, assignmentFromServer);
 
             return Ok();

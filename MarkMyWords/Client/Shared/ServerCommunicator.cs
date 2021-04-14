@@ -49,7 +49,7 @@ namespace MarkMyWords.Client.Shared
 
             return response.IsSuccessStatusCode;
         }
-
+         
         /// <summary>
         /// Updates a single assignment via HTTP PUT to api/assignment.
         /// </summary>
