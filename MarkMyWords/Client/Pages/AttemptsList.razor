@@ -105,17 +105,17 @@
     </MudMainContent>
 </MudLayout>
 @code{
-    /// <summary>
-    /// The unique ID of the current assignment.
-    /// </summary>
-    [Parameter]
-    public string AssignmentId { get; set; }
+        /// <summary>
+        /// The unique ID of the current assignment.
+        /// </summary>
+        [Parameter]
+        public string AssignmentId { get; set; }
 
-    /// <summary>
-    /// The current assignment.
-    /// </summary>
-    [Parameter]
-    public AssignmentModel AssignmentModel { get; set; }
+        /// <summary>
+        /// The current assignment.
+        /// </summary>
+        [Parameter]
+        public AssignmentModel AssignmentModel { get; set; }
 
     private HttpClient client = new HttpClient();
 
@@ -129,7 +129,8 @@
     {
         AssignmentModel = null;
         DialogResult result;
-        do
+        bool passwordIncorrect = true;
+        while (passwordIncorrect)
         {
             IDialogReference dialog = Dialog.Show<PasswordDialog>("Enter password");
             result = await dialog.Result;
@@ -144,13 +145,15 @@
                     Snackbar.Configuration.SnackbarVariant = Variant.Filled;
                     Snackbar.Configuration.VisibleStateDuration = 5000;
                     Snackbar.Add("Incorrect password!", Severity.Error);
+                    passwordIncorrect = true;
                 }
+                passwordIncorrect = false;
             }
             else
             {
                 NavMan.NavigateTo("/");
             }
-        } while (!result.Cancelled);
+        }
     }
 
     private async Task FetchAssignment()
