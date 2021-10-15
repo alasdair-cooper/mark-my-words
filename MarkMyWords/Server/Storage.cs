@@ -24,7 +24,7 @@ namespace MarkMyWords.Server
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
 
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+            BlobClient blobClient = new BlobClient(connectionString, "mmw-storage", $"assignments/{fileName}");
             BlobDownloadInfo download = await blobClient.DownloadAsync();
             using Stream downloadStream = download.Content;
 
@@ -39,7 +39,7 @@ namespace MarkMyWords.Server
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
 
-            BlobClient blobClient = new BlobClient(connectionString, "assignments", fileName);
+            BlobClient blobClient = new BlobClient(connectionString, "mmw-storage", $"assignments/{fileName}");
 
             MemoryStream stream = new MemoryStream();
             await JsonSerializer.SerializeAsync(stream, assignment, Utils.DefaultOptions());

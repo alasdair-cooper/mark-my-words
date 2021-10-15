@@ -32,7 +32,7 @@ namespace MarkMyWords.Client
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-                options.ProviderOptions.DefaultAccessTokenScopes.Add("api://4ef532f2-8536-4b20-8cf4-c38aa9aebbb3/API.Access");
+                options.ProviderOptions.DefaultAccessTokenScopes.Add("api://78bddab4-9e87-4683-ac58-16405b08102d/API.Access");
             });
 
             await builder.Build().RunAsync();

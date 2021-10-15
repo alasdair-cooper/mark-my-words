@@ -29,7 +29,7 @@ namespace MarkMyWords.Server.Controllers
         {
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
 
-            BlobContainerClient containerClient = new BlobContainerClient(connectionString, "assignments");
+            BlobContainerClient containerClient = new BlobContainerClient(connectionString, "mmw-storage");
 
             List<Dictionary<string, string>> blobMetadata = new List<Dictionary<string, string>>();
 
